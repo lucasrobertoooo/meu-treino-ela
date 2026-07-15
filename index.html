@@ -57,6 +57,9 @@
   .setrow.r-cardio{display:grid; grid-template-columns:26px 1fr 38px; gap:8px; align-items:center; margin-bottom:8px;}
   .colhead.r-cardio{display:grid; grid-template-columns:26px 1fr 38px; gap:8px;}
   .pill.cardio{background:rgba(138,148,166,.20); color:#c3cad6;}
+  .loc-toggle{display:flex; gap:6px; background:var(--glass-2); border:1px solid var(--line-2); border-radius:13px; padding:4px; margin:2px 0 16px;}
+  .loc-opt{flex:1; border:none; background:transparent; color:var(--muted); font:inherit; font-size:13px; font-weight:700; padding:10px; border-radius:10px; cursor:pointer; transition:all .15s var(--ease);}
+  .loc-opt.on{background:var(--push-grad); color:#fff; box-shadow:var(--shadow-1);}
 
   /* ============ HEADER ============ */
   header{
@@ -1600,7 +1603,7 @@ const I = {
 };
 
 /* ============ DADOS ============ */
-const WK = {
+let WK = {
   A:{name:"Inferior 1", focus:"Quadríceps + Glúteo", type:"pull", ex:[
     {id:"a_1", n:"Agachamento livre ou Leg press 45°", s:4, r:"6-10", t:"comp", mg:{quadriceps:1, gluteo:0.5}, cue:"Base de força inferior. Desce até coxa paralela (ou o que a mobilidade permitir), joelho na linha do pé. Sobe firme pelo calcanhar. Excêntrica 2-3s. <em>Se der náusea/desconforto, troca por leg press.</em>"},
     {id:"a_2", n:"Cadeira extensora", s:3, r:"10-15", t:"iso", mg:{quadriceps:1}, cue:"Quadríceps isolado. Segura 1s em cima, desce controlado."},
@@ -1640,6 +1643,50 @@ const WK = {
     {id:"d_8", n:"Abdominal declinado ou infra", s:3, r:"12-15", t:"core", mg:{core:1}, cue:"Retroversão de pelve, controla a descida."},
     {id:"d_9", n:"Panturrilha em pé", s:3, r:"12-20", t:"iso", mg:{panturrilha:1}, cue:"Amplitude total, pausa embaixo."},
     {id:"d_10", n:"Cardio Z2 na bike", s:1, r:"25-35 min", t:"cardio", mg:{cardio:1}, cue:"<em>Bike</em>, Zona 2 (sem corrida — joelho). Fecha o treino queimando gordura, baixo impacto."},
+  ]},
+};
+
+const WK_GYM = WK;
+const WK_CASA = {
+  A:{name:"Inferior 1 (casa)", focus:"Quadríceps + Glúteo", type:"pull", ex:[
+    {id:"a_1c", n:"Agachamento goblet (halter) ou livre", s:4, r:"8-12", t:"comp", mg:{quadriceps:1, gluteo:0.5}, cue:"Segura 1 halter no peito. Desce na amplitude confortável pro joelho, calcanhar no chão."},
+    {id:"a_2c", n:"Afundo andando com halteres", s:3, r:"10-12 por perna", t:"comp", mg:{quadriceps:1, gluteo:0.5}, cue:"Passo longo = mais glúteo. Joelho de trás quase no chão. <em>3 sets = 1 por perna.</em>"},
+    {id:"a_3c", n:"Agachamento búlgaro (pé no sofá)", s:3, r:"10-12 por perna", t:"comp", mg:{quadriceps:1, gluteo:0.5}, cue:"Pé de trás no sofá/cadeira. Tronco à frente pega glúteo."},
+    {id:"a_4c", n:"Abdução com mini-band (em pé/deitada)", s:4, r:"15-25", t:"iso", mg:{gluteo_med:1}, cue:"<em>Prioridade — glúteo médio.</em> Band acima do joelho. Abre com força, segura 1s."},
+    {id:"a_5c", n:"Panturrilha em pé (halter, num degrau)", s:3, r:"15-20", t:"iso", mg:{panturrilha:1}, cue:"Amplitude total no degrau/livro."},
+    {id:"a_6c", n:"Flexão de braço (acessório)", s:3, r:"máx", t:"comp", mg:{peito_med:1, triceps:0.5}, cue:"Joelhos no chão se precisar. Peito/tríceps."},
+  ]},
+  B:{name:"Inferior 2 (casa)", focus:"Glúteo/Posterior + Cardio", type:"push", ex:[
+    {id:"b_1c", n:"Elevação pélvica no chão/sofá (halter no quadril)", s:4, r:"12-15", t:"comp", mg:{gluteo:1, posterior:0.5}, cue:"Ombros no sofá, halter na virilha, trava o glúteo em cima 1s."},
+    {id:"b_2c", n:"Stiff/RDL com halteres", s:3, r:"10-12", t:"comp", mg:{posterior:1, gluteo:0.5}, cue:"Quadril pra trás, posterior alongando. Costas retas."},
+    {id:"b_3c", n:"Coice de glúteo (4 apoios, band/tornozeleira)", s:3, r:"15-20 por lado", t:"iso", mg:{gluteo:1}, cue:"Chuta pra trás e cima, aperta em cima. <em>3 sets = 1 por lado.</em>"},
+    {id:"b_4c", n:"Step-up no sofá/degrau com halteres", s:3, r:"10-12 por perna", t:"comp", mg:{gluteo:1, quadriceps:0.5}, cue:"<em>Glúteo unilateral, amigo do joelho.</em> Sobe pelo calcanhar da perna de cima, sem impulso da de baixo. Altura que o joelho aceita. <em>3 sets = 1 por perna.</em>"},
+    {id:"b_5c", n:"Ponte unilateral", s:3, r:"12-15 por lado", t:"iso", mg:{gluteo:1}, cue:"Uma perna estendida, sobe com a outra. Glúteo."},
+    {id:"b_6c", n:"Remada curvada com halteres (acessório)", s:3, r:"10-12", t:"comp", mg:{costas:1, biceps:0.5}, cue:"Tronco inclinado, puxa pro quadril, aperta escápulas."},
+    {id:"b_7c", n:"Rosca com halteres (acessório)", s:3, r:"10-12", t:"iso", mg:{biceps:1}, cue:"Sente o bíceps."},
+    {id:"b_8c", n:"Abdominal / prancha", s:3, r:"12-15 ou 30-45s", t:"core", mg:{core:1}, cue:"Controla. Prancha = tempo."},
+    {id:"b_9c", n:"Panturrilha sentada (halter no joelho)", s:3, r:"15-20", t:"iso", mg:{panturrilha:1}, cue:"Joelho dobrado, sóleo."},
+    {id:"b_10c", n:"Cardio Z2 na bike", s:1, r:"25-35 min", t:"cardio", mg:{cardio:1}, cue:"Bike, Zona 2. Sem corrida (joelho). Se não tiver bike em casa, elástico/step baixo impacto."},
+  ]},
+  C:{name:"Inferior 3 (casa)", focus:"Quadríceps/Glúteo + Ombro", type:"pull", ex:[
+    {id:"c_1c", n:"Agachamento sumô com halter", s:4, r:"10-15", t:"comp", mg:{quadriceps:1, gluteo:0.5}, cue:"Pés abertos, ponta pra fora. Pega interno da coxa + glúteo."},
+    {id:"c_2c", n:"Abdução mini-band", s:4, r:"15-25", t:"iso", mg:{gluteo_med:1}, cue:"Prioridade — glúteo médio."},
+    {id:"c_3c", n:"Búlgaro (pé no sofá)", s:3, r:"10-12 por perna", t:"comp", mg:{quadriceps:1, gluteo:0.5}, cue:"Controla a descida."},
+    {id:"c_4c", n:"Agachamento na parede (isometria)", s:3, r:"30-45s", t:"iso", mg:{quadriceps:1}, cue:"Costas na parede, coxa paralela (amplitude que o joelho aceita). <em>Fortalece o joelho</em> sem impacto."},
+    {id:"c_5c", n:"Desenvolvimento de ombro com halteres (acessório)", s:3, r:"10-12", t:"comp", mg:{ombro_ant:1, ombro_lat:0.5, triceps:0.5}, cue:"Empurra acima da cabeça."},
+    {id:"c_6c", n:"Elevação lateral com halteres", s:2, r:"12-20", t:"iso", mg:{ombro_lat:1}, cue:"Sobe pelo cotovelo até a altura do ombro."},
+  ]},
+  D:{name:"Inferior 4 (casa)", focus:"Glúteo/Posterior + Cardio", type:"push", ex:[
+    {id:"d_1c", n:"Elevação pélvica (halter, ombros no sofá)", s:4, r:"12-15", t:"comp", mg:{gluteo:1, posterior:0.5}, cue:"2ª dose de glúteo. Trava em cima."},
+    {id:"d_2c", n:"Stiff com halteres", s:3, r:"10-12", t:"comp", mg:{posterior:1, gluteo:0.5}, cue:"Posterior alongando, costas retas."},
+    {id:"d_3c", n:"Agachamento búlgaro (pé no sofá)", s:3, r:"10-12 por perna", t:"comp", mg:{gluteo:1, quadriceps:0.5}, cue:"<em>Glúteo unilateral, amigo do joelho.</em> Pé de trás no sofá, tronco à frente. Amplitude sem dor. <em>3 sets = 1 por perna.</em>"},
+    {id:"d_4c", n:"Coice com band (alongado)", s:3, r:"15-20 por lado", t:"iso", mg:{gluteo:1}, cue:"Chuta pra trás/cima; posição alongada cresce mais. <em>3 sets = 1 por lado.</em>"},
+    {id:"d_5c", n:"Ponte com marcha", s:3, r:"12-15", t:"iso", mg:{gluteo:1, posterior:0.5}, cue:"Em ponte, alterna levantar os pés sem cair o quadril."},
+    {id:"d_6c", n:"Remada com halteres (acessório)", s:3, r:"10-12", t:"comp", mg:{costas:1, biceps:0.5}, cue:"Costas."},
+    {id:"d_7c", n:"Rosca martelo com halteres (acessório)", s:2, r:"10-12", t:"iso", mg:{biceps:1}, cue:"Braquial."},
+    {id:"d_8c", n:"Abdominal infra / prancha lateral", s:3, r:"12-15", t:"core", mg:{core:1}, cue:"Controla."},
+    {id:"d_9c", n:"Panturrilha em pé (halter, degrau)", s:3, r:"15-20", t:"iso", mg:{panturrilha:1}, cue:"Amplitude total."},
+    {id:"d_10c", n:"Cardio Z2 na bike", s:1, r:"25-35 min", t:"cardio", mg:{cardio:1}, cue:"Bike, Zona 2. Sem corrida."},
   ]},
 };
 
@@ -1789,18 +1836,18 @@ function photoURL(name){
 }
 
 const PRINC = [
-  ["gold","bolt","1. Sobrecarga progressiva","Bateu o topo da faixa de reps em todas as séries? <b>Sobe carga na próxima.</b> Senão, tenta +1 rep. Sem progressão = sem crescimento. O app sugere a próxima meta automaticamente."],
-  ["red","flame","2. RIR 0-2 nas últimas séries","Reps in reserve = quantas reps você consegue além das que fez. Faixa de hipertrofia = <b>RIR 0-2</b> (parou perto da falha). Compostos: RIR 1-2. Isoladores: pode RIR 0. Registre o RIR pra calibrar."],
-  ["green","trend","3. Alongado > encurtado","Wolf et al. 2023: exercícios na <b>posição alongada</b> crescem mais que na encurtada. Prefira: crucifixo na máquina, supino inclinado profundo, rosca inclinada, francês acima da cabeça, lateral cabo atrás do corpo."],
-  ["green","brain","4. Excêntrica controlada (2-4s)","A descida (excêntrica) é o maior gerador de dano muscular → maior hipertrofia. Conta mentalmente 1-2-3 descendo, sobe firme. Mais importante que subir explosivo."],
-  ["red","brain","5. Mente-músculo (peito)","Pensar em <b>espremer o peito</b> (juntar os cotovelos) quase dobrou o crescimento do peito em estudo (Schoenfeld, cargas moderadas). Pra peito, ombro e bíceps: foco na contração."],
-  ["blue","hourglass","6. Descanso por tipo","Compostos: <b>2:30-3min</b> (150-180s). Isoladores: <b>~90s</b>. Core: <b>~75s</b>. Pouco descanso corta a próxima série e o volume total cai."],
-  ["blue","moon","7. Sono ≥7h = anabolizante grátis","Dormir 5h vs 8h derruba testosterona ~15% e síntese proteica ~20% (Leproult 2011, Dattilo 2011). Não-negociável. Vale mais que qualquer suplemento."],
-  ["gold","flame","8. Superávit calórico leve","+200-400 kcal/dia. Balança subindo ~0,2-0,4 kg/semana = ritmo certo. Não dá pra crescer músculo significativo em manutenção (a não ser iniciante)."],
-  ["gold","bolt","9. Frequência 2x/semana por grupo","Schoenfeld meta-2016: 2x supera 1x mesmo com volume igual. Seu ABCD já cumpre — não pule treinos."],
-  ["gold","trend","10. Volume = driver #1","10-20 séries duras por grupo/semana é a faixa produtiva. Aba <b>Corpo → Volume</b> mostra quanto você tá fazendo de cada grupo. Prioridades (ombro lateral, peito superior) vão pro topo."],
-  ["red","bolt","11. Deload a cada 5-6 semanas","Volume -50% ou carga -20% por uma semana. Fadiga acumulada mata progresso. O app avisa quando chegar a hora."],
-  ["blue","trend","12. Fotos > balança","Tira foto cada 2 semanas (mesma luz/pose). Balança mente (água, glicogênio). Foto e fita métrica não. Aba Corpo tem upload."],
+  ["gold","trophy","1. Força é o placar (não a balança)","O sinal nº1 de que tá funcionando é a <b>carga e as reps subindo</b> — vem antes do espelho e é a métrica mais honesta e a que mais motiva. A balança oscila (água, ciclo, glicogênio) e engana. Acompanhe a força e as medidas, não o peso do dia."],
+  ["red","bolt","2. Sobrecarga progressiva (dupla progressão)","Bateu o topo da faixa de reps em todas as séries? <b>Sobe a carga.</b> Senão, +1 rep. Sem progredir, não cresce. O app já te sugere a próxima meta automaticamente."],
+  ["gold","flame","3. Glúteo: hip thrust = agachamento = RDL","Por ressonância, hip thrust e agachamento crescem o glúteo <b>igual</b> (Plotkin 2023) — não existe 'o melhor'. Variar os três, com amplitude completa, é o que constrói. Hip thrust ainda é o mais amigo do joelho."],
+  ["red","trend","4. Abdutora 2×/semana, com carga","O glúteo médio (o formato lateral) só cresce com <b>abdução dedicada</b> — mas 2-3 dias com carga progressiva, <b>não todo dia</b> (abdução em excesso irrita o trato iliotibial e o joelho)."],
+  ["blue","brain","5. Joelho: fortalece, não poupa","Fortalecer <b>quadríceps + abdutor de quadril</b> é tratamento de 1ª linha pra dor no joelho (JOSPT 2019). Trabalhe na amplitude <b>sem dor</b>; na extensora, não trave no final. Dor até ~5/10 que passa no dia seguinte é ok. <em>Se piorar, procura a fisio.</em>"],
+  ["gold","trend","6. Volume é o motor","~12-20 séries duras de glúteo por semana é a faixa que cresce. Treinar mais dias só <b>distribui</b> esse volume, não soma mágica. Aba <b>Corpo → Volume</b> mostra quanto você fez de cada grupo."],
+  ["red","flame","7. Perto da falha, sem moer","Deixe <b>0-3 reps na reserva</b> (RIR). Não precisa falhar toda série — a vantagem é mínima e desgasta as articulações. Registre o RIR pra calibrar."],
+  ["green","trend","8. Amplitude completa; posterior alongado","Amplitude total cresce mais. Posterior de coxa: prefira a <b>mesa flexora sentada</b> (quadril dobrado = músculo alongado = +14% vs deitada — Maeo 2021)."],
+  ["gold","flame","9. Gordura = déficit lento + proteína","Emagrecer é <b>déficit na dieta</b> (~0,5-0,7%/semana) com <b>proteína ~2g/kg</b> pra preservar o glúteo. Devagar mantém o músculo e o resultado. O treino protege o músculo — não queima gordura sozinho."],
+  ["blue","hourglass","10. Bike Z2: amiga do joelho","Bike (sem corrida) poupa o joelho <b>e</b> é o cardio que menos atrapalha o glúteo (Wilson 2012). ~150-300 min/semana ajuda na gordura. Selim alto, resistência menor, cadência maior."],
+  ["blue","moon","11. Passos, sono e ciclo","Passos diários (você não corre) são a alavanca de baixo impacto. Sono ≥7h recupera de verdade. Nos dias ruins do ciclo, <b>autorregula</b> (menos carga, mais reps na reserva) — não precisa montar treino por fase."],
+  ["blue","trend","12. Fotos e medidas > balança","Foto a cada ~4 semanas (mesma luz e pose) + fita no glúteo/cintura contam a verdade; a balança não. Aba Corpo tem upload. E celebra cada <b>recorde de força</b> — é ele subindo, não o número da balança."],
 ];
 
 const SUPL_LIST = [
@@ -2361,7 +2408,8 @@ function checkBackupReminder(){
 function today(){ return new Date().toISOString().slice(0,10); }
 function dateAdd(iso, days){ const d=new Date(iso+'T12:00:00'); d.setDate(d.getDate()+days); return d.toISOString().slice(0,10); }
 function daysBetween(a,b){ const da=new Date(a+'T12:00:00'), db=new Date(b+'T12:00:00'); return Math.round((db-da)/86400000); }
-function exId(day,i){ return day+"_"+i; }
+function exId(day,i){ return (ST.meta&&ST.meta.local==="casa"?"c_":"")+day+"_"+i; }
+function setLocal(mode){ mode=(mode==="casa"?"casa":"academia"); ST.meta.local=mode; WK=(mode==="casa"?WK_CASA:WK_GYM); saveK("meta"); render(); }
 
 /* ============ OVERRIDES DE EXERCÍCIO (edição do usuário, isolado em ST.exmeta) ============
    Ancorado pelo id ESTÁVEL do exercício (e.id no WK/HOME_SESSIONS), não pela posição.
@@ -3068,6 +3116,7 @@ function backToList(){ openDay=null; openHomeDay=null; render(); window.scrollTo
 const app=document.getElementById('app');
 const sub=document.getElementById('subline');
 function render(){
+  WK = (ST.meta&&ST.meta.local==="casa") ? WK_CASA : WK_GYM;
   if(tab==="treino"){
     if(openHomeDay) return renderHomeDay(openHomeDay);
     return openDay? renderDay(openDay) : renderDays();
@@ -3106,6 +3155,8 @@ function renderDays(){
     <div class="stat streak"><div class="l"><span style="display:inline-flex;vertical-align:-3px;margin-right:4px">${I.flame}</span>Semanas seguidas</div><div class="v">${weekN}<small> sem</small></div><div class="s">${weekN>0?'≥3 treinos/sem':'comece esta semana'}</div></div>
     <div class="stat"><div class="l">Esta semana</div><div class="v">${wkN}<small>/4</small></div><div class="s">treinos completados</div></div>
   </div>`;
+  const local=(ST.meta&&ST.meta.local)||"academia";
+  h+=`<div class="loc-toggle"><button class="loc-opt ${local!=="casa"?"on":""}" onclick="setLocal('academia')">🏋️ Academia</button><button class="loc-opt ${local==="casa"?"on":""}" onclick="setLocal('casa')">🏠 Casa</button></div>`;
   const trained = new Set(todayTrainedDays());
   const doneToday = trained.size>0;
   const todayRec = todaySessionRecord();
@@ -4159,23 +4210,23 @@ function renderMais(){
       <p>${p}</p>
     </div>`;
   }
-  h+=`<h2 class="sec">Parecer maior e mais largo</h2>
-  <div class="pcard c-blue">
-    <div class="hd"><div class="ic">${I.trend}</div><h3>Largura = ombro ÷ cintura</h3></div>
-    <p>Não é tamanho absoluto, é contraste. Ombro e dorsal largos + cintura fina = <b>impressão de grande</b>. Lateral e puxada aberta são teus exercícios de maior impacto visual. <b>Não engrosse a cintura</b>: evite peso pesado em flexão lateral.</p>
+  h+=`<h2 class="sec">Formato do glúteo — como vem</h2>
+  <div class="pcard c-gold">
+    <div class="hd"><div class="ic">${I.trend}</div><h3>Volume + largura + gordura baixa</h3></div>
+    <p>A "prateleira" do glúteo é três coisas: <b>glúteo máximo</b> (volume — hip thrust, agachamento, RDL), <b>glúteo médio</b> (largura lateral — abdutora com carga) e <b>gordura mais baixa</b> (déficit lento). Não é a balança: é força subindo + medida do glúteo subindo enquanto a cintura desce.</p>
   </div>
   <div class="pcard c-blue">
-    <div class="hd"><div class="ic">${I.bolt}</div><h3>Postura — ganho grátis e imediato</h3></div>
-    <p>Ombro pra trás e peito aberto te alargam na hora. Crucifixo inverso cuida disso. Custo zero, muda a silhueta no mesmo dia.</p>
+    <div class="hd"><div class="ic">${I.bolt}</div><h3>Glúteo médio faz dobradinha</h3></div>
+    <p>A abdutora não é só estética: fortalecer o glúteo médio <b>estabiliza o quadril e protege o joelho</b> (tratamento nº1 pra dor patelofemoral). Formato + função no mesmo exercício — com dose sã (2-3×/semana, carga progressiva).</p>
   </div>
   <div class="pcard c-gold">
-    <div class="hd"><div class="ic">${I.flame}</div><h3>"Cheião" rápido</h3></div>
-    <p>Creatina + carboidrato enchem o músculo de água e glicogênio: visivelmente mais volumoso em 1-2 semanas. Volume real, aparece antes da hipertrofia.</p>
+    <div class="hd"><div class="ic">${I.flame}</div><h3>Creatina funciona pra você também</h3></div>
+    <p>5g/dia de creatina dá <b>+5-15% de força</b> e enche o músculo — funciona igual pra mulher, não masculiniza, não incha "de gordura". É o suplemento mais provado que existe. Água a mais no músculo é volume real.</p>
   </div>
 
   <h2 class="sec">Nutrição — a alavanca decisiva</h2>
   <div class="infocard">
-    <p><b style="color:#fff">Proteína 1.8-2.2g/kg/dia</b> (vegetariano precisa atenção). <b style="color:#fff">Superávit leve</b> (+200-400 kcal). Balança subindo ~0,2-0,4 kg/semana = ritmo certo. Rastreia tudo na aba <b style="color:var(--pull)">Hoje</b>.</p>
+    <p><b style="color:#fff">Proteína ~2g/kg/dia</b> preserva o glúteo. <b style="color:#fff">Déficit leve</b> (~0,5-0,7% do peso por semana) pra perder gordura sem perder músculo — devagar mantém o resultado. Se o foco for só glúteo, manutenção com proteína alta também serve. Rastreia na aba <b style="color:var(--pull)">Hoje</b>.</p>
   </div>
   <div class="infocard">
     <h3>Banco de alimentos</h3>
