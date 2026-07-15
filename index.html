@@ -4,30 +4,31 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Meu Treino">
-<meta name="theme-color" content="#0d0f14">
+<meta name="theme-color" content="#f6ebeb">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>Meu Treino</title>
 <style>
   :root{
-    --bg0:#0a0c11; --bg1:#10131a; --bg2:#161a23;
-    --ink:#f1f3f7; --ink2:#d8dde8; --muted:#8a94a6; --faint:#5a6273;
-    --glass:rgba(255,255,255,.045);
-    --glass-2:rgba(255,255,255,.07);
-    --glass-3:rgba(255,255,255,.10);
-    --hi:rgba(255,255,255,.10);
-    --hi-soft:rgba(255,255,255,.05);
-    --line:rgba(255,255,255,.06);
-    --line-2:rgba(255,255,255,.10);
-    --shadow-1:0 1px 0 rgba(255,255,255,.06) inset, 0 -1px 0 rgba(0,0,0,.4) inset, 0 10px 30px -10px rgba(0,0,0,.7);
-    --shadow-2:0 1px 0 rgba(255,255,255,.08) inset, 0 20px 50px -20px rgba(0,0,0,.85);
-    --shadow-press:0 0 0 1px rgba(255,255,255,.04) inset, 0 2px 6px rgba(0,0,0,.5) inset;
-    --push:#e0566f; --pull:#b06a86; --core:#f5b94e; --ok:#51d88a;
-    --push-grad:linear-gradient(135deg,#ec6a82,#c33a54);
-    --pull-grad:linear-gradient(135deg,#c07e98,#8f4d68);
-    --core-grad:linear-gradient(135deg,#ffd178,#e09a2c);
+    /* Tema CLARO "Rosa Carvão" (igual ao Meu Cuidado) */
+    --bg0:#f6ebeb; --bg1:#fbf3f3; --bg2:#ffffff;
+    --ink:#1c1518; --ink2:#3a2c30; --muted:#8b7378; --faint:#b6a0a4;
+    --glass:rgba(28,21,24,.035);
+    --glass-2:rgba(28,21,24,.055);
+    --glass-3:rgba(28,21,24,.085);
+    --hi:rgba(28,21,24,.06);
+    --hi-soft:rgba(28,21,24,.03);
+    --line:rgba(28,21,24,.09);
+    --line-2:rgba(28,21,24,.15);
+    --shadow-1:0 1px 2px rgba(120,20,35,.05), 0 8px 22px -12px rgba(120,20,35,.20);
+    --shadow-2:0 14px 40px -16px rgba(120,20,35,.28);
+    --shadow-press:0 1px 3px rgba(28,21,24,.14) inset;
+    --push:#db2b3f; --pull:#b3122a; --core:#e0952c; --ok:#16a34a;
+    --push-grad:linear-gradient(135deg,#e0455a,#c0182f);
+    --pull-grad:linear-gradient(135deg,#c22740,#8f0f22);
+    --core-grad:linear-gradient(135deg,#f0b24e,#d38a1e);
     --r-lg:22px; --r-md:16px; --r-sm:12px;
     --ease:cubic-bezier(.4,0,.2,1);
   }
@@ -36,17 +37,17 @@
     font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Inter",system-ui,sans-serif;
     -webkit-font-smoothing:antialiased; font-feature-settings:"ss01","cv11";}
   html{
-    background:#0a0c11;
+    background:#f6ebeb;
     min-height:100vh;
     /* cobre toda a viewport, inclusive safe areas (status bar, home indicator) */
     min-height:100dvh;
   }
   body{
-    background-color:#0a0c11;
+    background-color:#f6ebeb;
     background-image:
-      radial-gradient(120% 80% at 0% 0%, rgba(224,86,111,.11), transparent 50%),
-      radial-gradient(110% 70% at 100% 0%, rgba(176,106,134,.09), transparent 55%),
-      linear-gradient(180deg,#0a0c11 0%,#10131a 30%,#0e1118 100%);
+      radial-gradient(120% 80% at 0% 0%, rgba(219,43,63,.07), transparent 50%),
+      radial-gradient(110% 70% at 100% 0%, rgba(179,18,42,.06), transparent 55%),
+      linear-gradient(180deg,#f6ebeb 0%,#fbf3f3 30%,#f4e6e6 100%);
     background-attachment:fixed;
     min-height:100vh;
     min-height:100dvh;
@@ -60,6 +61,11 @@
   .loc-toggle{display:flex; gap:6px; background:var(--glass-2); border:1px solid var(--line-2); border-radius:13px; padding:4px; margin:2px 0 16px;}
   .loc-opt{flex:1; border:none; background:transparent; color:var(--muted); font:inherit; font-size:13px; font-weight:700; padding:10px; border-radius:10px; cursor:pointer; transition:all .15s var(--ease);}
   .loc-opt.on{background:var(--push-grad); color:#fff; box-shadow:var(--shadow-1);}
+  .loc-opt{display:inline-flex; align-items:center; justify-content:center; gap:6px;}
+  .loc-opt svg{width:16px; height:16px;}
+  .exedit-btn.swap-open{display:flex; align-items:center; justify-content:center; gap:7px;}
+  .exedit-btn.swap-open svg{width:16px; height:16px;}
+  .celeb-hero svg{width:1em; height:1em; vertical-align:-2px;}
   .exedit-btn.swap-open{width:100%; margin:2px 0 10px; background:var(--glass-2); color:var(--ink2); border:1px solid var(--line-2); border-radius:11px; padding:11px; font-weight:600; cursor:pointer;}
   .swap-card{max-height:82vh; display:flex; flex-direction:column;}
   .swap-hint{font-size:12px; color:var(--muted); margin:0 0 12px; line-height:1.45;}
@@ -228,7 +234,7 @@
     color:var(--faint); font-size:13px; font-weight:600;
   }
   /* fallback proposital (sem foto): gradiente rosa/vinho + brilho suave */
-  .photo.noimg{background:linear-gradient(135deg, rgba(224,86,111,.30) 0%, rgba(143,77,104,.15) 55%, #10131a 100%);}
+  .photo.noimg{background:linear-gradient(135deg, rgba(179,18,42,.60) 0%, rgba(120,20,50,.72) 55%, #2a1319 100%);}
   .photo.noimg .ph-glow{
     position:absolute; right:-24px; top:-30px; width:140px; height:140px; border-radius:50%;
     background:radial-gradient(circle, rgba(255,255,255,.08), transparent 70%); pointer-events:none;
@@ -260,7 +266,7 @@
     padding:12px 14px; border-radius:14px;
     background:rgba(255,255,255,.03); border:1px solid var(--line);
   }
-  .cue em{color:#fff; font-style:normal; font-weight:600;}
+  .cue em{color:var(--push); font-style:normal; font-weight:600;}
 
   /* nota pessoal do usuário (override) — visual distinto do cue científico */
   .exnote{
@@ -418,7 +424,7 @@
   .pcard.c-green .ic{color:var(--ok);}
   .pcard h3{margin:0; font-size:15px; font-weight:700; letter-spacing:-.01em; color:var(--ink);}
   .pcard p{margin:0; font-size:13.5px; color:var(--ink2); line-height:1.55;}
-  .pcard p b{color:#fff;}
+  .pcard p b{color:var(--ink);}
 
   /* ============ VOLUME BARS ============ */
   .volcard{
@@ -587,7 +593,7 @@
   }
   .tctrl button:active{transform:scale(.97);}
   .tctrl .pp{
-    background:linear-gradient(135deg,#ff7d6f,#e54838); color:#fff;
+    background:var(--push-grad); color:#fff;
     box-shadow:
       0 1px 0 rgba(255,255,255,.2) inset,
       0 6px 16px -4px rgba(229,72,56,.5);
@@ -621,7 +627,7 @@
     font-size:12.5px; color:var(--ok); font-weight:600;
     display:flex; align-items:center; gap:8px;
   }
-  .suggest .v{color:#fff; font-weight:800; letter-spacing:-.01em;}
+  .suggest .v{color:var(--ink); font-weight:800; letter-spacing:-.01em;}
   .suggest .why{color:var(--muted); font-weight:500; font-size:11px;}
   .plateau{
     margin-top:8px; padding:9px 12px; border-radius:12px;
@@ -637,7 +643,7 @@
     font-size:12px; font-weight:700; color:#cfe2ff;
     display:flex; align-items:center; gap:6px; margin-bottom:8px;
   }
-  .swap-head b{color:#fff; font-weight:700;}
+  .swap-head b{color:var(--ink); font-weight:700;}
   .swap-head svg{flex:none;}
   .swap-list{display:flex; flex-direction:column; gap:4px; margin-bottom:8px;}
   .swap-alt{
@@ -725,7 +731,7 @@
   .histcard{background:var(--glass); border:1px solid var(--line-2); border-radius:var(--r-lg); padding:6px 14px; margin-bottom:14px; backdrop-filter:blur(16px);}
   .hrow{display:flex; align-items:center; gap:12px; padding:11px 0; border-top:1px solid var(--line);}
   .hrow:first-child{border-top:none;}
-  .hbadge{flex:none; width:36px; height:36px; border-radius:11px; display:grid; place-items:center; font-weight:800; font-size:15px; color:#fff; background:var(--glass-2);}
+  .hbadge{flex:none; width:36px; height:36px; border-radius:11px; display:grid; place-items:center; font-weight:800; font-size:15px; color:var(--ink); background:var(--glass-2);}
   .hbadge.push{background:var(--push-grad);} .hbadge.pull{background:var(--pull-grad);}
   .hmeta{flex:1; min-width:0;}
   .hnm{font-size:14px; font-weight:600; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
@@ -817,7 +823,7 @@
   /* ============ VOLUME BARS COMPLETO (Corpo) ============ */
   .vbar2{display:flex; align-items:center; gap:10px; margin-bottom:9px; padding:2px 0;}
   .vbar2 .vn{width:96px; font-size:12.5px; color:var(--ink2); font-weight:600;}
-  .vbar2 .vn.prio{color:#fff;}
+  .vbar2 .vn.prio{color:var(--push);}
   .vbar2 .vn .star{color:var(--core); font-size:9px; margin-left:3px;}
   .vbar2 .track{
     flex:1; height:8px; background:rgba(255,255,255,.05);
@@ -1173,7 +1179,7 @@
   .fab-menu.open .fab-action:nth-child(3){ transition-delay:.12s; }
   .fab-action .ic{ display:inline-flex; }
   .fab-action.start{ background:linear-gradient(135deg,#5fe195,#3cb56a); color:#0a2614; border-color:rgba(255,255,255,.18); }
-  .fab-action.stop{ background:linear-gradient(135deg,#ff7d6f,#e54838); color:#fff; border-color:rgba(255,255,255,.18); }
+  .fab-action.stop{ background:var(--push-grad); color:#fff; border-color:rgba(255,255,255,.18); }
 
   /* Session chip no header do treino aberto */
   .session-chip{
@@ -1354,7 +1360,7 @@
   .pretip .pretip-body{
     font-size:12.5px; color:var(--ink2); line-height:1.5;
   }
-  .pretip .pretip-body b{ color:#fff; }
+  .pretip .pretip-body b{ color:var(--ink); }
 
   /* ============ TREINO EM CASA (home sessions) ============ */
   .home-card{
@@ -1426,7 +1432,7 @@
     border-radius:var(--r-lg); padding:12px 14px;
     margin-bottom:12px; font-size:12.5px; color:var(--ink2); line-height:1.5;
   }
-  .home-desc b{ color:#fff; }
+  .home-desc b{ color:var(--ink); }
   .home-skip{
     background:linear-gradient(135deg, rgba(91,158,255,.13), rgba(58,127,224,.04));
     border:1px solid rgba(91,158,255,.30);
@@ -1452,7 +1458,7 @@
     margin-top:8px;
     font-size:12px; color:#bce8bc; line-height:1.4;
   }
-  .home-done-banner b{ color:#fff; }
+  .home-done-banner b{ color:var(--ink); }
 </style>
 </head>
 <body>
@@ -1566,7 +1572,7 @@
     <label class="exedit-l" for="exEditNote">Minha nota</label>
     <textarea id="exEditNote" class="exedit-in exedit-ta" rows="3" maxlength="600" placeholder="Ex: máquina 3 do fundo, pino no 4, ombro dói se abrir demais..."></textarea>
     <div class="exedit-hint" id="exEditHint"></div>
-    <button class="exedit-btn swap-open hidden" id="exEditSwap" onclick="openSwapPicker()">🔄 Trocar por outro exercício</button>
+    <button class="exedit-btn swap-open hidden" id="exEditSwap" onclick="openSwapPicker()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg><span>Trocar por outro exercício</span></button>
     <div class="exedit-ctrl">
       <button class="exedit-btn ghost" id="exEditReset" onclick="resetExEdit()">Restaurar padrão</button>
       <button class="exedit-btn cancel" onclick="closeExEdit()">Cancelar</button>
@@ -1612,6 +1618,8 @@ const I = {
   check2:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
   pencil:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
 };
+I.home='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>';
+I.swap='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg>';
 
 /* ============ DADOS ============ */
 let WK = {
@@ -2363,11 +2371,11 @@ function showCelebration(day){
   let hero;
   if(summary.prs.length){
     const top=summary.prs[0];
-    hero = `<div class="celeb-hero pr">🏆 <b>PR novo!</b><br><span class="celeb-pr-line">${esc(top.name)} · e1RM ${top.e1}kg</span></div>`;
+    hero = `<div class="celeb-hero pr">${I.trophy} <b>PR novo!</b><br><span class="celeb-pr-line">${esc(top.name)} · e1RM ${top.e1}kg</span></div>`;
   } else if(summary.topProgress){
     hero = `<div class="celeb-hero progress">↑ <b>+${summary.topProgress.delta}kg e1RM</b><br><span class="celeb-pr-line">${esc(summary.topProgress.name)}</span></div>`;
   } else {
-    hero = `<div class="celeb-hero done">✓ <b>Treino completo</b><br><span class="celeb-pr-line">Consistência é tudo.</span></div>`;
+    hero = `<div class="celeb-hero done">${I.check} <b>Treino completo</b><br><span class="celeb-pr-line">Consistência é tudo.</span></div>`;
   }
   const html = `
     <div class="celeb-card">
@@ -3292,7 +3300,7 @@ function renderDays(){
     <div class="stat"><div class="l">Esta semana</div><div class="v">${wkN}<small>/4</small></div><div class="s">treinos completados</div></div>
   </div>`;
   const local=(ST.meta&&ST.meta.local)||"academia";
-  h+=`<div class="loc-toggle"><button class="loc-opt ${local!=="casa"?"on":""}" onclick="setLocal('academia')">🏋️ Academia</button><button class="loc-opt ${local==="casa"?"on":""}" onclick="setLocal('casa')">🏠 Casa</button></div>`;
+  h+=`<div class="loc-toggle"><button class="loc-opt ${local!=="casa"?"on":""}" onclick="setLocal('academia')">${I.dumbbell}<span>Academia</span></button><button class="loc-opt ${local==="casa"?"on":""}" onclick="setLocal('casa')">${I.home}<span>Casa</span></button></div>`;
   const trained = new Set(todayTrainedDays());
   const doneToday = trained.size>0;
   const todayRec = todaySessionRecord();
@@ -3442,7 +3450,7 @@ function renderDay(d){
       const maxKg = Math.max(...last.sets.filter(s=>s&&num(s.kg)>0).map(s=>num(s.kg)));
       const w1=Math.round((maxKg*0.5)/2.5)*2.5;
       const w2=Math.round((maxKg*0.75)/2.5)*2.5;
-      return `<div class="cue" style="margin-top:8px;font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:6px"><span style="display:inline-flex;color:#ffd178">${I.bolt}</span><span><b style="color:#fff">Aquecimento:</b> ${w1}kg × 8 · ${w2}kg × 5 (antes de começar)</span></div>`;
+      return `<div class="cue" style="margin-top:8px;font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:6px"><span style="display:inline-flex;color:#ffd178">${I.bolt}</span><span><b style="color:var(--ink)">Aquecimento:</b> ${w1}kg × 8 · ${w2}kg × 5 (antes de começar)</span></div>`;
     })() : '';
     const photoBlock = url
       ? `<div class="photo">
@@ -4363,7 +4371,7 @@ function renderMais(){
 
   <h2 class="sec">Nutrição — a alavanca decisiva</h2>
   <div class="infocard">
-    <p><b style="color:#fff">Proteína ~2g/kg/dia</b> preserva o glúteo. <b style="color:#fff">Déficit leve</b> (~0,5-0,7% do peso por semana) pra perder gordura sem perder músculo — devagar mantém o resultado. Se o foco for só glúteo, manutenção com proteína alta também serve. Rastreia na aba <b style="color:var(--pull)">Hoje</b>.</p>
+    <p><b style="color:var(--ink)">Proteína ~2g/kg/dia</b> preserva o glúteo. <b style="color:var(--ink)">Déficit leve</b> (~0,5-0,7% do peso por semana) pra perder gordura sem perder músculo — devagar mantém o resultado. Se o foco for só glúteo, manutenção com proteína alta também serve. Rastreia na aba <b style="color:var(--pull)">Hoje</b>.</p>
   </div>
   <div class="infocard">
     <h3>Banco de alimentos</h3>
