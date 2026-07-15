@@ -1999,6 +1999,31 @@ function showToast(msg, type='info', ms=2500){
   toastTimer=setTimeout(()=>el.classList.add('hidden'), ms);
 }
 
+let _lastTreinoStatusHash='';
+function setSyncPat(v){ v=(v||'').trim(); if(v.length>=20){ ST.meta=ST.meta||{}; ST.meta.syncPat=v; saveK('meta'); showToast('Token salvo','ok',1600); publishTreinoStatus(true); render(); } }
+function buildTreinoStatus(){
+  const day=suggestedNextDay(); const w=(typeof WK!=='undefined'&&WK[day])||{};
+  const rec=todaySessionRecord(); const trained=todayTrainedDays();
+  const doneToday=!!rec || (trained&&trained.length>0);
+  return { v:1, ts:Date.now(), day, name:w.name||'', focus:w.focus||'', doneToday, doneDay:(rec&&rec.workoutId)||(trained&&trained[0])||'', local:(ST.meta&&ST.meta.local)||'academia' };
+}
+async function publishTreinoStatus(force){
+  const pat=ST.meta&&ST.meta.syncPat; if(!pat) return;
+  const owner=(ST.meta&&ST.meta.syncOwner)||'lucasrobertoooo', repo=(ST.meta&&ST.meta.syncRepo)||'meu-cuidado-sync';
+  const st=buildTreinoStatus(); const body=JSON.stringify(st);
+  const hash=st.day+'|'+st.doneToday+'|'+st.doneDay+'|'+st.local;
+  if(!force && hash===_lastTreinoStatusHash) return;
+  try{
+    const base='https://api.github.com/repos/'+owner+'/'+repo+'/contents/treino-status.json';
+    let sha=null;
+    const g=await fetch(base+'?ref=main',{headers:{Authorization:'Bearer '+pat,Accept:'application/vnd.github+json'}});
+    if(g.ok){ const j=await g.json(); sha=j.sha; }
+    const content=btoa(unescape(encodeURIComponent(body)));
+    const put=await fetch(base,{method:'PUT',headers:{Authorization:'Bearer '+pat,Accept:'application/vnd.github+json','Content-Type':'application/json'},body:JSON.stringify(Object.assign({message:'treino-status '+new Date().toISOString(),content:content,branch:'main'},sha?{sha}:{}))});
+    if(put.ok){ _lastTreinoStatusHash=hash; if(force) showToast('Status enviado ao Meu Cuidado','ok',1800); }
+    else if(force){ showToast('Falhou ('+put.status+')','warn',2600); }
+  }catch(e){ if(force) showToast('Erro de rede','warn',2200); }
+}
 function saveK(k){
   try{ localStorage.setItem(LS[k], JSON.stringify(ST[k])); return true; }
   catch(e){
@@ -2107,6 +2132,7 @@ function endSession(silent=false){
   ST.session.history.push(record);
   ST.session.active=null;
   saveK('session');
+  try{ publishTreinoStatus(); }catch(_){}
   updateSessionDisplays();
   updateFabMenu();
   if(!silent) showToast(`Treino encerrado · ${fmtDuration(activeMs)}`, 'ok', 2200);
@@ -4369,6 +4395,15 @@ function renderMais(){
     <p style="font-size:11.5px;margin-top:10px;line-height:1.4;${(window.Notification&&Notification.permission==='granted')?'color:var(--ok)':'color:var(--faint)'}">${(window.Notification&&Notification.permission==='granted')?'Notificações ativas. O descanso avisa na tela de bloqueio.':((window.Notification&&Notification.permission==='denied')?'Bloqueadas — ative em Config. do Android → Apps → Meu Treino → Notificações.':'Ainda não ativadas — toque no botão acima.')}</p>
   </div>
 
+  <h2 class="sec">Sincronizar com o Meu Cuidado</h2>
+  <div class="check-card">
+    <h3><span class="ic">${I.spark||I.bolt}</span>Enviar o status do treino</h3>
+    <p style="font-size:12px;color:var(--muted);line-height:1.45;margin-bottom:10px">Cola o token (PAT) do <b style="color:var(--ink2)">meu-cuidado-sync</b>. Assim o <b style="color:var(--ink2)">Meu Cuidado</b> mostra seu treino de hoje e marca ✓ quando você termina.</p>
+    <div class="ilog"><span class="lb">Token (PAT)</span><input type="password" placeholder="github_pat_… (cola aqui)" value="" oninput="setSyncPat(this.value)"></div>
+    <div class="tools" style="margin-top:12px;gap:8px;flex-wrap:wrap"><button onclick="publishTreinoStatus(true)">Enviar agora</button></div>
+    <p style="font-size:11px;margin-top:8px;color:${(ST.meta&&ST.meta.syncPat)?'var(--ok)':'var(--faint)'}">${(ST.meta&&ST.meta.syncPat)?'Token salvo. O status vai automático ao terminar cada treino.':'Sem token ainda — cola o PAT acima.'}</p>
+  </div>
+
   <h2 class="sec">Backup dos teus dados</h2>
   <div class="infocard">
     <p>Os registros (treinos, peso, sono, fotos) ficam neste dispositivo. Faça backup periódico.</p>
@@ -4936,6 +4971,7 @@ async function boot(){
 setTimer(90);
 migrateLogsStableId();
 render();
+setTimeout(function(){ try{ publishTreinoStatus(); }catch(_){}} , 2500);
 boot();
 </script>
 </body>
