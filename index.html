@@ -1473,7 +1473,7 @@
 <div id="a2hs-banner" class="a2hs-banner hidden">
   <div class="a2hs-msg">
     <b>Pra notificações + storage seguro:</b><br>
-    Abra no Safari → toque em <b>Compartilhar</b> → <b>Adicionar à Tela de Início</b>.
+    Abra no <b>Chrome</b> → menu <b>⋮</b> → <b>Instalar app</b> (ou “Adicionar à tela inicial”).
   </div>
   <button class="a2hs-close" onclick="dismissA2HSBanner()" aria-label="Fechar">×</button>
 </div>
@@ -1526,7 +1526,7 @@
   </button>
   <div class="timer">
     <a id="shortcutLink" href="#" target="_blank" rel="noopener" class="shortcut-link hidden" onclick="markShortcutInvoked()">
-      Abrir Timer nativo do iPhone
+      Abrir timer nativo
     </a>
     <div class="ring">
       <svg width="220" height="220">
@@ -2489,8 +2489,8 @@ function openExEdit(id, posKey){
   const hasOv=!!(o.n||o.cue||(o.note&&o.note.trim()));
   document.getElementById('exEditReset').classList.toggle('hidden', !hasOv);
   document.getElementById('exEditHint').textContent = hasOv
-    ? 'Já editado por você. Fica só neste iPhone e entra no backup — atualizações do app não sobrescrevem.'
-    : 'O que você editar fica só neste iPhone e entra no backup. Não vai pro código nem é sobrescrito por atualizações.';
+    ? 'Já editado por você. Fica só neste aparelho e entra no backup — atualizações do app não sobrescrevem.'
+    : 'O que você editar fica só neste aparelho e entra no backup. Não vai pro código nem é sobrescrito por atualizações.';
   { const sb=document.getElementById('exEditSwap'); if(sb) sb.classList.toggle('hidden', !posKey); }
   document.getElementById('exEdit').classList.remove('hidden');
   setTimeout(()=>{ try{ document.getElementById('exEditName').focus(); }catch(e){} }, 60);
@@ -4311,45 +4311,16 @@ function renderMais(){
     </div>
   </div>
 
-  <h2 class="sec">Timer nativo do iPhone (via Atalhos)</h2>
+  <h2 class="sec">Notificações do descanso</h2>
   <div class="check-card">
-    <h3><span class="ic">${I.timer}</span>Disparar Timer nativo no descanso</h3>
+    <h3><span class="ic">${I.bolt}</span>Aviso na tela bloqueada</h3>
     <p style="font-size:12px;color:var(--muted);line-height:1.45;margin-bottom:10px">
-      Ao iniciar um descanso, o app abre o Atalhos e dispara um Timer nativo do iOS com o tempo certo. O alarme toca com tela bloqueada, sem depender de push. <b style="color:var(--ink2)">Setup 1x</b>: crie um Atalho no iPhone (Atalhos → +) que recebe um número e chama "Iniciar Timer" com esse número em segundos. Anote o nome exato do Atalho e cole abaixo.
+      Quando o descanso acaba, o Samsung te avisa com <b style="color:var(--ink2)">notificação + vibração</b> — mesmo com a tela apagada ou o app minimizado, porque o alarme é agendado no horário exato.
     </p>
-    <div class="check-row">
-      <div class="nm">Ativar Timer via Atalhos<small>Abre o Atalhos rapidinho pra disparar o Timer nativo. Web Push do Worker continua rodando como reserva.</small></div>
-      <div class="toggle ${(ST.meta&&ST.meta.shortcutTimerEnabled)?'on':''}" onclick="toggleShortcutTimer()"></div>
+    <div class="tools" style="gap:8px;flex-wrap:wrap">
+      <button onclick="enableNotifications()">Ativar notificações</button>
     </div>
-    <div class="ilog" style="border-top:1px solid var(--line);padding-top:12px">
-      <span class="lb">Nome do Atalho</span>
-      <input inputmode="text" placeholder="MeuTreinoTimer" value="${esc((ST.meta&&ST.meta.shortcutName)||'')}" oninput="setShortcutName(this.value)" style="width:150px;text-align:left;font-weight:600">
-    </div>
-    <div class="tools" style="margin-top:12px;gap:8px;flex-wrap:wrap">
-      <button onclick="testShortcutTimer()">Testar (30s)</button>
-    </div>
-    <p style="font-size:11px;color:var(--faint);margin-top:8px;line-height:1.4">
-      <b style="color:var(--ink2)">Como criar o Atalho:</b> Atalhos → + → "Adicionar Ação" → busca "Iniciar Timer" → toca no campo "Duração" e usa "Selecionar Variável" → "Entrada de Atalho" → topo do Atalho, define "Receber [Números] de Qualquer lugar". Renomeia pra <b>MeuTreinoTimer</b> (ou o que preferir).
-    </p>
-  </div>
-
-  <h2 class="sec">Push notifications (Cloudflare Worker)</h2>
-  <div class="check-card">
-    <h3><span class="ic">${I.bolt}</span>Push remoto pra timer</h3>
-    <p style="font-size:12px;color:var(--muted);line-height:1.45;margin-bottom:10px">Notificação confiável de descanso com app fechado/tela bloqueada. Lag típico 0-60s (cron poll do free tier). Preenche os 2 campos abaixo com o que o Worker te deu, depois toca em "Ativar push".</p>
-    <div class="ilog">
-      <span class="lb">Worker URL</span>
-      <input inputmode="url" placeholder="https://meu-treino-push.SEUUSER.workers.dev" value="${(ST.meta&&ST.meta.workerUrl)||''}" oninput="setWorkerUrl(this.value)">
-    </div>
-    <div class="ilog" style="border-top:1px solid var(--line);padding-top:12px">
-      <span class="lb">Shared token</span>
-      <input type="password" placeholder="hex de 64 chars" value="${(ST.meta&&ST.meta.workerToken)||''}" oninput="setWorkerToken(this.value)">
-    </div>
-    <div class="tools" style="margin-top:12px;gap:8px;flex-wrap:wrap">
-      <button onclick="subscribeForPush()">${(ST.meta&&ST.meta.pushHash)?'Re-subscribe':'Ativar push'}</button>
-      <button onclick="testRemotePush()">Testar push agora</button>
-    </div>
-    ${(ST.meta&&ST.meta.pushHash)?`<p style="font-size:11px;color:var(--ok);margin-top:8px">✓ Subscription ativa (hash <code>${esc(ST.meta.pushHash)}</code>)</p>`:'<p style="font-size:11px;color:var(--faint);margin-top:8px">Sem subscription ainda. Configure URL/Token + toca "Ativar push".</p>'}
+    <p style="font-size:11.5px;margin-top:10px;line-height:1.4;${(window.Notification&&Notification.permission==='granted')?'color:var(--ok)':'color:var(--faint)'}">${(window.Notification&&Notification.permission==='granted')?'Notificações ativas. O descanso avisa na tela de bloqueio.':((window.Notification&&Notification.permission==='denied')?'Bloqueadas — ative em Config. do Android → Apps → Meu Treino → Notificações.':'Ainda não ativadas — toque no botão acima.')}</p>
   </div>
 
   <h2 class="sec">Backup dos teus dados</h2>
@@ -4559,6 +4530,7 @@ function markShortcutInvoked(){
 function closeTimer(){
   // Se timer estava rodando, cancela push agendado (evita disparar depois do user fechar)
   if(tState==='running') cancelRemotePushes();
+  cancelScheduledTimerNotification();
   clearTimerStateOnly();
   tState='idle';
   tMinimized=false;
@@ -4615,6 +4587,7 @@ function startTimer(){
   // Chamar aqui não funciona em PWA standalone — o gesto já foi queimado.
   // Agenda push remoto (via Worker) — funciona com app fechado/tela bloqueada
   scheduleRemotePush(tEndAt);
+  scheduleTimerNotification(tEndAt);
   tInt=setInterval(()=>{
     tLeft=Math.max(0,(tEndAt-Date.now())/1000);
     paint();
@@ -4628,6 +4601,7 @@ function pauseTimer(){
   tEndAt=0;
   const b=document.getElementById('ppbtn'); if(b) b.textContent='Iniciar';
   cancelRemotePushes();
+  cancelScheduledTimerNotification();
 }
 function timerDone(){
   clearTimerStateOnly();
@@ -4824,11 +4798,12 @@ function notifyTimerDone(){
   if(!('Notification' in window)) return;
   if(Notification.permission!=='granted') return;
   const opts={
-    body:'Próxima série!',
+    body:'Bora pra próxima série.',
     icon:'icon-192.png',
     badge:'icon-192.png',
     tag:'meutreino-timer',
     renotify:true,
+    vibrate:[140,70,140],
   };
   // Prefere SW.showNotification (melhor sobrevivência em bg) → fallback Notification direto
   try{
@@ -4850,6 +4825,42 @@ function notifyTimerDone(){
   }catch(e){}
 }
 
+/* ============ Android: agenda notificação no horário exato (tela bloqueada) ============ */
+async function scheduleTimerNotification(endAt){
+  try{
+    if(!window.Notification || Notification.permission!=='granted') return;
+    if(!('serviceWorker' in navigator)) return;
+    if(!('showTrigger' in Notification.prototype) || typeof TimestampTrigger==='undefined') return; // sem suporte -> JS cobre com app aberto
+    const reg = await navigator.serviceWorker.ready;
+    if(!reg || !reg.showNotification) return;
+    await cancelScheduledTimerNotification();
+    await reg.showNotification('Descanso terminado', {
+      body:'Bora pra próxima série.',
+      icon:'icon-192.png', badge:'icon-192.png',
+      tag:'meutreino-timer', renotify:true,
+      vibrate:[140,70,140],
+      showTrigger: new TimestampTrigger(endAt),
+    });
+  }catch(e){}
+}
+async function cancelScheduledTimerNotification(){
+  try{
+    if(!('serviceWorker' in navigator)) return;
+    const reg = await navigator.serviceWorker.ready;
+    if(!reg || !reg.getNotifications) return;
+    const notes = await reg.getNotifications({tag:'meutreino-timer', includeTriggered:true});
+    notes.forEach(n=>{ try{ n.close(); }catch(e){} });
+  }catch(e){}
+}
+function enableNotifications(){
+  if(!('Notification' in window)){ showToast('Este navegador não suporta notificações','warn',3000); return; }
+  if(Notification.permission==='granted'){ showToast('Notificações já estão ativas','ok',2000); return; }
+  if(Notification.permission==='denied'){ showToast('Bloqueadas — ative em Config. do Android → Apps → Meu Treino','warn',4200); return; }
+  Notification.requestPermission().then(p=>{
+    if(p==='granted') showToast('Notificações ativas','ok',2000); else showToast('Não ativadas','warn',2500);
+    if(typeof render==='function') render();
+  }).catch(()=>{});
+}
 // Flash visual no overlay quando timer chega no fim
 function flashDone(){
   const ov=document.getElementById('overlay');
