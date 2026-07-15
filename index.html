@@ -104,7 +104,7 @@
   /* ============ DAY CARDS (Treinos A/B/C/D) ============ */
   .day{
     position:relative; display:flex; align-items:center; gap:16px;
-    background:linear-gradient(180deg, #1a1f2b 0%, #131720 100%);
+    background:linear-gradient(135deg, #db2b3f 0%, #a10f24 100%);
     border:1px solid var(--line-2);
     border-radius:var(--r-lg); padding:16px 18px 16px 16px;
     margin-bottom:12px; cursor:pointer;
@@ -115,17 +115,17 @@
   }
   .day .day-bg{
     position:absolute; top:0; right:0; bottom:0;
-    width:75%; height:100%; object-fit:cover; object-position:center right;
-    opacity:.55;
+    width:72%; height:100%; object-fit:cover; object-position:center right;
+    opacity:.82;
     -webkit-mask-image:linear-gradient(90deg, transparent 0%, rgba(0,0,0,.25) 35%, rgba(0,0,0,.65) 70%, #000 100%);
     mask-image:linear-gradient(90deg, transparent 0%, rgba(0,0,0,.25) 35%, rgba(0,0,0,.65) 70%, #000 100%);
     pointer-events:none;
     z-index:0;
-    filter:saturate(.7) contrast(1.05);
+    filter:contrast(1.03);
   }
   .day::before{
     content:""; position:absolute; inset:0; pointer-events:none; border-radius:inherit;
-    background:linear-gradient(90deg, rgba(10,12,17,.92) 0%, rgba(10,12,17,.55) 38%, rgba(10,12,17,.10) 70%, transparent 100%);
+    background:linear-gradient(90deg, rgba(120,10,26,.92) 0%, rgba(120,10,26,.5) 40%, rgba(120,10,26,.12) 72%, transparent 100%);
     z-index:1;
   }
   .day::after{
@@ -134,14 +134,16 @@
     z-index:2;
   }
   .day:active{transform:scale(.985);}
+  .day.push{background:linear-gradient(135deg,#e0455a 0%,#b3122a 100%);}
+  .day.pull{background:linear-gradient(135deg,#c0182f 0%,#8a0f22 100%);}
   .day > *{position:relative; z-index:3;}
   .day .badge{
     flex:none; width:56px; height:56px; border-radius:18px;
     display:grid; place-items:center;
     font-weight:800; font-size:24px; letter-spacing:-.02em;
-    background:rgba(255,255,255,.08);
-    border:1px solid rgba(255,255,255,.16);
-    color:var(--ink);
+    background:rgba(255,255,255,.22);
+    border:1px solid rgba(255,255,255,.42);
+    color:#fff;
     backdrop-filter:blur(20px) saturate(180%);
     -webkit-backdrop-filter:blur(20px) saturate(180%);
     box-shadow:
@@ -157,18 +159,18 @@
     pointer-events:none;
   }
   .day.push .badge{
-    background:linear-gradient(135deg, rgba(255,125,111,.28), rgba(229,72,56,.10));
-    border-color:rgba(255,125,111,.32);
-    color:#ffd4cc;
+    background:rgba(255,255,255,.24);
+    border-color:rgba(255,255,255,.45);
+    color:#fff;
     box-shadow:
       0 1px 0 rgba(255,255,255,.20) inset,
       0 -2px 6px rgba(0,0,0,.20) inset,
       0 8px 22px -8px rgba(229,72,56,.45);
   }
   .day.pull .badge{
-    background:linear-gradient(135deg, rgba(122,178,255,.28), rgba(58,127,224,.10));
-    border-color:rgba(122,178,255,.32);
-    color:#cfe2ff;
+    background:rgba(255,255,255,.24);
+    border-color:rgba(255,255,255,.45);
+    color:#fff;
     box-shadow:
       0 1px 0 rgba(255,255,255,.20) inset,
       0 -2px 6px rgba(0,0,0,.20) inset,
