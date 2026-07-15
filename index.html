@@ -2019,10 +2019,9 @@ function dismissA2HSBanner(){
   if(el) el.classList.add('hidden');
 }
 function maybeShowA2HSBanner(){
-  if(isStandalone()) return;
-  try{ if(localStorage.getItem(A2HS_DISMISS_KEY)==='1') return; }catch(e){}
-  const el=document.getElementById('a2hs-banner');
-  if(el) el.classList.remove('hidden');
+  // Banner de "instalar na home" removido das telas — a ideia é ela entrar pelo
+  // app principal (Meu Cuidado). A instrução de instalar continua na aba Mais.
+  return;
 }
 
 /* ============ WORKOUT SESSION (start/pause/resume/end + duration) ============ */
