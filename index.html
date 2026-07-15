@@ -60,6 +60,16 @@
   .loc-toggle{display:flex; gap:6px; background:var(--glass-2); border:1px solid var(--line-2); border-radius:13px; padding:4px; margin:2px 0 16px;}
   .loc-opt{flex:1; border:none; background:transparent; color:var(--muted); font:inherit; font-size:13px; font-weight:700; padding:10px; border-radius:10px; cursor:pointer; transition:all .15s var(--ease);}
   .loc-opt.on{background:var(--push-grad); color:#fff; box-shadow:var(--shadow-1);}
+  .exedit-btn.swap-open{width:100%; margin:2px 0 10px; background:var(--glass-2); color:var(--ink2); border:1px solid var(--line-2); border-radius:11px; padding:11px; font-weight:600; cursor:pointer;}
+  .swap-card{max-height:82vh; display:flex; flex-direction:column;}
+  .swap-hint{font-size:12px; color:var(--muted); margin:0 0 12px; line-height:1.45;}
+  .swap-list{overflow-y:auto; -webkit-overflow-scrolling:touch; padding-right:2px;}
+  .swap-group{margin-bottom:14px;}
+  .swap-role{font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--faint); font-weight:700; margin:0 2px 7px;}
+  .swap-item{display:flex; justify-content:space-between; align-items:center; gap:10px; width:100%; text-align:left; background:var(--glass); border:1px solid var(--line); border-radius:11px; padding:11px 13px; margin-bottom:6px; cursor:pointer; color:var(--ink); transition:transform .12s var(--ease);}
+  .swap-item:active{transform:scale(.99);}
+  .swap-item-n{font-size:14px; font-weight:600; line-height:1.25;}
+  .swap-item-m{font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums; flex:none;}
 
   /* ============ HEADER ============ */
   header{
@@ -1556,6 +1566,7 @@
     <label class="exedit-l" for="exEditNote">Minha nota</label>
     <textarea id="exEditNote" class="exedit-in exedit-ta" rows="3" maxlength="600" placeholder="Ex: máquina 3 do fundo, pino no 4, ombro dói se abrir demais..."></textarea>
     <div class="exedit-hint" id="exEditHint"></div>
+    <button class="exedit-btn swap-open hidden" id="exEditSwap" onclick="openSwapPicker()">🔄 Trocar por outro exercício</button>
     <div class="exedit-ctrl">
       <button class="exedit-btn ghost" id="exEditReset" onclick="resetExEdit()">Restaurar padrão</button>
       <button class="exedit-btn cancel" onclick="closeExEdit()">Cancelar</button>
@@ -2464,6 +2475,93 @@ function saveExMeta(id, patch){
   saveK('exmeta');
 }
 function resetExMeta(id){ if(id && ST.exmeta[id]){ delete ST.exmeta[id]; saveK('exmeta'); } }
+
+/* ============ BANCO DE EXERCÍCIOS + TROCA (swap no lugar) ============
+   Permite trocar um exercício por outro do banco, preservando a posição
+   (logs continuam posicionais). O swap fica em ST.exmeta[id].swap (não vai
+   pro código, entra no backup). "Restaurar padrão" desfaz. */
+const EX_BANK = {
+  "Glúteo": [
+    {n:"Elevação pélvica com barra (hip thrust)", s:4, r:"8-12", t:"comp", mg:{gluteo:1, posterior:0.5}, cue:"Escápula no banco, empurra pelo calcanhar, trava o glúteo em cima 1s (não estende a lombar)."},
+    {n:"Ponte de glúteo com barra (no chão)", s:4, r:"10-15", t:"comp", mg:{gluteo:1, posterior:0.5}, cue:"No chão, ombros e pés apoiados, barra no quadril. Trava o glúteo em cima. Alternativa ao hip thrust sem subir no banco."},
+    {n:"Máquina de glúteo (extensão de quadril)", s:4, r:"10-15", t:"comp", mg:{gluteo:1}, cue:"Empurra pra trás com o calcanhar, aperta o glúteo. Zero incômodo lombar — boa alternativa ao hip thrust."},
+    {n:"Agachamento sumô com halter", s:4, r:"10-15", t:"comp", mg:{gluteo:1, quadriceps:0.5}, cue:"Pés bem abertos, ponta pra fora. Pega glúteo + interno da coxa."},
+    {n:"Coice na polia / caneleira", s:3, r:"12-15 por lado", t:"iso", mg:{gluteo:1}, cue:"Chuta pra trás e cima, aperta em cima. Amplitude completa."},
+    {n:"Levantamento terra romeno (RDL)", s:3, r:"8-12", t:"comp", mg:{posterior:1, gluteo:0.5}, cue:"Quadril pra trás, posterior alongando, costas retas. Sobe apertando o glúteo."},
+    {n:"Step-up no banco", s:3, r:"10-12 por perna", t:"comp", mg:{gluteo:1, quadriceps:0.5}, cue:"Sobe pelo calcanhar da perna de cima, sem impulso. Amigo do joelho."},
+    {n:"Agachamento búlgaro", s:3, r:"10-12 por perna", t:"comp", mg:{gluteo:1, quadriceps:0.5}, cue:"Pé de trás no banco, tronco à frente. Amplitude sem dor."},
+  ],
+  "Glúteo médio (abdutor)": [
+    {n:"Cadeira abdutora", s:4, r:"12-20", t:"iso", mg:{gluteo_med:1}, cue:"Progride a carga. Rotação interna do pé em parte das séries."},
+    {n:"Abdução na polia (caneleira)", s:3, r:"15-20 por lado", t:"iso", mg:{gluteo_med:1}, cue:"Abre a perna contra a polia, controla a volta."},
+    {n:"Abdução com mini-band (em pé)", s:3, r:"15-25", t:"iso", mg:{gluteo_med:1}, cue:"Band acima do joelho, abre com força, segura 1s."},
+    {n:"Concha/clam com mini-band", s:3, r:"15-20 por lado", t:"iso", mg:{gluteo_med:1}, cue:"Deitada de lado, joelhos dobrados, abre o de cima sem rolar o quadril."},
+  ],
+  "Quadríceps": [
+    {n:"Agachamento livre", s:4, r:"6-10", t:"comp", mg:{quadriceps:1, gluteo:0.5}, cue:"Amplitude sem dor no joelho, calcanhar no chão."},
+    {n:"Leg press 45°", s:4, r:"8-12", t:"comp", mg:{quadriceps:1, gluteo:0.5}, cue:"Pés mais baixos = quadríceps; mais altos = glúteo."},
+    {n:"Hack machine", s:4, r:"8-12", t:"comp", mg:{quadriceps:1, gluteo:0.5}, cue:"Costas apoiadas, desce controlado."},
+    {n:"Cadeira extensora", s:3, r:"10-15", t:"iso", mg:{quadriceps:1}, cue:"Amplitude média, não trava no final (poupa a patela). Segura 1s em cima."},
+    {n:"Afundo com halteres", s:3, r:"10-12 por perna", t:"comp", mg:{quadriceps:1, gluteo:0.5}, cue:"Passo longo = mais glúteo; curto = mais quadríceps."},
+  ],
+  "Posterior de coxa": [
+    {n:"Mesa flexora sentada", s:3, r:"10-15", t:"iso", mg:{posterior:1}, cue:"Sentada (quadril fletido = alongado) cresce mais — Maeo 2021."},
+    {n:"Mesa flexora deitada", s:3, r:"10-15", t:"iso", mg:{posterior:1}, cue:"Controla a volta."},
+    {n:"Stiff com barra ou halteres", s:3, r:"10-12", t:"comp", mg:{posterior:1, gluteo:0.5}, cue:"Quadril pra trás, posterior alongando, costas retas."},
+  ],
+  "Panturrilha": [
+    {n:"Panturrilha em pé", s:3, r:"12-20", t:"iso", mg:{panturrilha:1}, cue:"Amplitude total, pausa embaixo."},
+    {n:"Panturrilha sentada", s:3, r:"12-20", t:"iso", mg:{panturrilha:1}, cue:"Joelho dobrado, foca no sóleo."},
+  ],
+  "Core": [
+    {n:"Abdominal na polia", s:3, r:"12-15", t:"core", mg:{core:1}, cue:"Enrola o tronco, expira apertando. Progride carga."},
+    {n:"Prancha", s:3, r:"30-45s", t:"core", mg:{core:1}, cue:"Corpo reto, glúteo e abdômen contraídos."},
+    {n:"Abdominal infra / elevação de pernas", s:3, r:"12-15", t:"core", mg:{core:1}, cue:"Retroversão de pelve, controla a descida."},
+  ],
+  "Superiores (acessório)": [
+    {n:"Puxada na polia", s:3, r:"8-12", t:"comp", mg:{costas:1, biceps:0.5}, cue:"Puxa com o cotovelo, escápula pra baixo."},
+    {n:"Remada na polia/máquina", s:3, r:"8-12", t:"comp", mg:{costas:1, biceps:0.5}, cue:"Aperta as escápulas."},
+    {n:"Desenvolvimento de ombro", s:3, r:"10-12", t:"comp", mg:{ombro_ant:1, ombro_lat:0.5, triceps:0.5}, cue:"Empurra acima da cabeça."},
+    {n:"Elevação lateral", s:3, r:"12-20", t:"iso", mg:{ombro_lat:1}, cue:"Sobe pelo cotovelo até a altura do ombro."},
+    {n:"Supino máquina ou halter", s:3, r:"10-12", t:"comp", mg:{peito_med:1, triceps:0.5}, cue:"Sente o peito puxar."},
+    {n:"Rosca direta", s:3, r:"10-12", t:"iso", mg:{biceps:1}, cue:"Sem embalo, sente o bíceps."},
+    {n:"Rosca martelo", s:2, r:"10-12", t:"iso", mg:{biceps:1}, cue:"Braquial + antebraço."},
+  ],
+  "Cardio": [
+    {n:"Cardio Z2 na bike", s:1, r:"25-35 min", t:"cardio", mg:{cardio:1}, cue:"Zona 2 (consegue conversar). Sem corrida — protege o joelho."},
+  ],
+};
+
+// exercício EFETIVO = base + swap do usuário (se houver). id sempre o da base (âncora de log/override).
+function exEff(e0){
+  if(!e0) return e0;
+  const o = (e0.id && ST.exmeta && ST.exmeta[e0.id]) || {};
+  if(o.swap){ return {...e0, ...o.swap, id:e0.id}; }
+  return e0;
+}
+
+let exEditPos = null;  // chave posicional de log do exercício aberto (só no modo ABCD)
+function openSwapPicker(){
+  if(!exEditId) return;
+  const groups = Object.entries(EX_BANK).map(([role,items])=>{
+    const its = items.map((it,ix)=>`<button class="swap-item" onclick="doSwap('${role.replace(/'/g,"\\'")}',${ix})"><span class="swap-item-n">${esc(it.n)}</span><span class="swap-item-m">${it.s}×${esc(it.r)}</span></button>`).join('');
+    return `<div class="swap-group"><div class="swap-role">${esc(role)}</div>${its}</div>`;
+  }).join('');
+  let ov=document.getElementById('exSwap');
+  if(!ov){ ov=document.createElement('div'); ov.id='exSwap'; ov.className='exedit-back'; ov.setAttribute('role','dialog'); ov.onclick=(e)=>{ if(e.target===ov) closeSwapPicker(); }; document.body.appendChild(ov); }
+  ov.innerHTML = `<div class="exedit-card swap-card"><div class="exedit-hd"><span>Trocar por…</span><button class="exedit-x" onclick="closeSwapPicker()" aria-label="Fechar">×</button></div><div class="swap-hint">Escolha o substituto. O histórico deste exercício zera (vira um exercício novo). Dá pra desfazer em “Restaurar padrão”.</div><div class="swap-list">${groups}</div></div>`;
+  ov.classList.remove('hidden');
+}
+function closeSwapPicker(){ const ov=document.getElementById('exSwap'); if(ov) ov.classList.add('hidden'); }
+function doSwap(role, ix){
+  const it = EX_BANK[role] && EX_BANK[role][ix];
+  if(!it || !exEditId) return;
+  saveExMeta(exEditId, {swap:{n:it.n, cue:it.cue, s:it.s, r:it.r, t:it.t, mg:it.mg}});
+  if(exEditPos && ST.logs[exEditPos]){ delete ST.logs[exEditPos]; saveK('logs'); }
+  closeSwapPicker(); closeExEdit(); render();
+  showToast('Exercício trocado ✓', 'ok');
+}
+
 // Acha o exercício ORIGINAL (padrão do código) pelo id estável, varrendo WK + HOME_SESSIONS.
 function exById(id){
   if(!id) return null;
@@ -2475,10 +2573,11 @@ function exById(id){
 /* ---- Modal de edição de exercício ---- */
 let exEditId=null;
 function cuePlain(c){ return String(c||'').replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim(); }
-function openExEdit(id){
+function openExEdit(id, posKey){
   const orig=exById(id);
   if(!orig){ showToast('Exercício não encontrado', 'warn'); return; }
   exEditId=id;
+  exEditPos=posKey||null;
   const o=ST.exmeta[id]||{};
   const defCue=cuePlain(orig.cue);
   document.getElementById('exEditName').value = o.n!=null?o.n:orig.n;
@@ -2489,6 +2588,7 @@ function openExEdit(id){
   document.getElementById('exEditHint').textContent = hasOv
     ? 'Já editado por você. Fica só neste iPhone e entra no backup — atualizações do app não sobrescrevem.'
     : 'O que você editar fica só neste iPhone e entra no backup. Não vai pro código nem é sobrescrito por atualizações.';
+  { const sb=document.getElementById('exEditSwap'); if(sb) sb.classList.toggle('hidden', !posKey); }
   document.getElementById('exEdit').classList.remove('hidden');
   setTimeout(()=>{ try{ document.getElementById('exEditName').focus(); }catch(e){} }, 60);
 }
@@ -2966,8 +3066,11 @@ function weeklyVolume(){
   const t=today();
   // 1) Programa ABCD (logs)
   for(const id of Object.keys(ST.logs)){
-    const [day,idx]=id.split("_");
-    const ex=WK[day]?.ex[+idx]; if(!ex||!ex.mg) continue;
+    let key=id, prog=WK_GYM;
+    if(id.indexOf("c_")===0){ prog=WK_CASA; key=id.slice(2); }
+    const [day,idx]=key.split("_");
+    const base=prog[day]?.ex[+idx]; if(!base) continue;
+    const ex=exEff(base); if(!ex.mg) continue;
     for(const sess of ST.logs[id]){
       const dd = daysBetween(sess.date, t);
       if(dd<0 || dd>=7) continue;
@@ -3213,7 +3316,7 @@ function renderDays(){
     const ring = isDoneToday
       ? 'box-shadow:0 0 0 2px rgba(81,216,138,.40), var(--shadow-1)'
       : (isNext && !doneToday ? 'box-shadow:0 0 0 2px rgba(91,158,255,.35), var(--shadow-1)' : '');
-    const heroUrl = photoURL(w.ex[0].n);
+    const heroUrl = photoURL(exEff(w.ex[0]).n);
     const bg = heroUrl ? `<img class="day-bg" src="${heroUrl}" alt="" loading="lazy" decoding="async" onerror="this.remove()">` : '';
     h+=`<div class="day ${w.type}" onclick="openWorkout('${d}')" style="${ring}">
       ${bg}
@@ -3252,7 +3355,8 @@ function renderDay(d){
     </div>`;
   }
 
-  w.ex.forEach((e,i)=>{
+  w.ex.forEach((e0,i)=>{
+    const e=exEff(e0);
     const id=exId(d,i);
     const last=lastSession(id);
     const tod=todaySession(id);
@@ -3378,7 +3482,7 @@ function renderDay(d){
         <div class="exbtns">
           <a class="xb" href="${yt}" target="_blank" rel="noopener">${I.play}<span>Vídeo</span></a>
           ${e.t==='cardio' ? '' : `<button class="xb rest" onclick="openTimer(${restS})">${I.timer}<span>Descanso ${Math.floor(restS/60)}:${String(restS%60).padStart(2,'0')}</span></button>`}
-          <button class="xb" onclick="openExEdit('${e.id}')">${I.pencil}<span>Editar</span></button>
+          <button class="xb" onclick="openExEdit('${e.id}','${id}')">${I.pencil}<span>Editar</span></button>
         </div>
       </div>
       <div class="log">
