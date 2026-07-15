@@ -81,7 +81,7 @@
   header{
     position:sticky; top:0; z-index:30;
     padding:calc(14px + env(safe-area-inset-top)) 20px 14px;
-    background:linear-gradient(180deg, rgba(10,12,17,.85), rgba(10,12,17,.55) 70%, transparent);
+    background:linear-gradient(180deg, rgba(246,235,235,.94), rgba(246,235,235,.6) 70%, transparent);
     backdrop-filter:blur(20px) saturate(180%); -webkit-backdrop-filter:blur(20px) saturate(180%);
   }
   header h1{margin:0; font-size:22px; letter-spacing:-.025em; font-weight:700; color:var(--ink);}
@@ -175,9 +175,9 @@
       0 8px 22px -8px rgba(58,127,224,.45);
   }
   .day .meta{flex:1; min-width:0;}
-  .day .meta .t{font-size:17px; font-weight:700; letter-spacing:-.01em; text-shadow:0 1px 4px rgba(0,0,0,.5);}
-  .day .meta .f{font-size:13px; color:var(--ink2); margin-top:2px; font-weight:500; text-shadow:0 1px 3px rgba(0,0,0,.5);}
-  .day .meta .cnt{font-size:11px; color:var(--muted); margin-top:4px; font-weight:600; letter-spacing:.02em; text-shadow:0 1px 3px rgba(0,0,0,.5);}
+  .day .meta .t{font-size:17px; font-weight:700; letter-spacing:-.01em; color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.6);}
+  .day .meta .f{font-size:13px; color:rgba(255,255,255,.9); margin-top:2px; font-weight:500; text-shadow:0 1px 3px rgba(0,0,0,.6);}
+  .day .meta .cnt{font-size:11px; color:rgba(255,255,255,.75); margin-top:4px; font-weight:600; letter-spacing:.02em; text-shadow:0 1px 3px rgba(0,0,0,.6);}
   .day .chev{color:var(--ink2); display:flex; align-items:center; text-shadow:0 1px 3px rgba(0,0,0,.5);}
 
   /* ============ BACK BAR ============ */
@@ -489,14 +489,13 @@
   nav{
     position:fixed; left:12px; right:12px; bottom:calc(10px + env(safe-area-inset-bottom));
     z-index:35;
-    background:rgba(22,26,35,.72);
+    background:rgba(255,251,251,.86);
     backdrop-filter:blur(30px) saturate(180%); -webkit-backdrop-filter:blur(30px) saturate(180%);
     border:1px solid var(--line-2); border-radius:24px;
     display:flex; padding:6px;
     box-shadow:
-      0 1px 0 rgba(255,255,255,.08) inset,
-      0 -1px 0 rgba(0,0,0,.4) inset,
-      0 20px 50px -10px rgba(0,0,0,.7);
+      0 1px 0 rgba(255,255,255,.7) inset,
+      0 12px 40px -14px rgba(120,20,35,.26);
   }
   nav button{
     flex:1; background:none; border:none; color:var(--muted); cursor:pointer;
