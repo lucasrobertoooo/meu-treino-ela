@@ -367,7 +367,7 @@
     font-size:13px; color:var(--faint); font-weight:700; text-align:center;
   }
   .setrow input{
-    width:100%; background:var(--glass); border:1px solid var(--line-2);
+    width:100%; background:#fff; border:1px solid var(--line-2);
     color:var(--ink); border-radius:12px; padding:12px 8px;
     font-size:16px; text-align:center; font-weight:700;
     font-variant-numeric:tabular-nums; letter-spacing:-.01em;
@@ -379,7 +379,7 @@
     background:rgba(91,158,255,.07);
     box-shadow:0 0 0 4px rgba(91,158,255,.10);
   }
-  .setrow input::placeholder{color:var(--faint); font-weight:500;}
+  .setrow input::placeholder{color:var(--muted); font-weight:600;}
   .setrow .chk{
     width:38px; height:42px; border-radius:12px;
     border:1px solid var(--line-2); background:var(--glass);
@@ -1291,15 +1291,17 @@
 
   /* ============ TIMER MINIMIZE BTN + MINI TIMER (item 1 partial) ============ */
   .minimize-btn{
-    position:absolute; top:calc(env(safe-area-inset-top,0px) + 18px); right:18px;
-    width:38px; height:38px;
-    background:var(--glass-2);
-    border:1px solid var(--line-2);
-    color:var(--ink); border-radius:50%;
-    display:flex; align-items:center; justify-content:center;
-    cursor:pointer; z-index:5;
+    position:absolute; top:calc(env(safe-area-inset-top,0px) + 16px); right:16px;
+    height:38px; gap:7px; padding:0 15px;
+    background:rgba(255,255,255,.17);
+    border:1px solid rgba(255,255,255,.34);
+    color:#fff; border-radius:20px;
+    display:inline-flex; align-items:center; justify-content:center;
+    cursor:pointer; z-index:5; font:inherit; font-size:13px; font-weight:700;
+    -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
     transition:transform .15s var(--ease), background .15s;
   }
+  .minimize-btn:active{ transform:scale(.96); }
   .minimize-btn:active{ transform:scale(.92); background:var(--glass-3); }
 
   .mini-timer{
@@ -1522,9 +1524,10 @@
   </button>
 </nav>
 
-<div class="overlay hidden" id="overlay">
+<div class="overlay hidden" id="overlay" onclick="if(event.target===this)minimizeTimer()">
   <button class="minimize-btn" onclick="minimizeTimer()" aria-label="Minimizar timer" title="Minimizar">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg>
+    <span>minimizar</span>
   </button>
   <div class="timer">
     <a id="shortcutLink" href="#" target="_blank" rel="noopener" class="shortcut-link hidden" onclick="markShortcutInvoked()">
@@ -1630,7 +1633,7 @@ let WK = {
   A:{name:"Inferior 1", focus:"Quadríceps + Glúteo", type:"pull", ex:[
     {id:"a_1", n:"Agachamento livre ou Leg press 45°", s:4, r:"6-10", t:"comp", mg:{quadriceps:1, gluteo:0.5}, cue:"Base de força inferior. Desce até coxa paralela (ou o que a mobilidade permitir), joelho na linha do pé. Sobe firme pelo calcanhar. Excêntrica 2-3s. <em>Se der náusea/desconforto, troca por leg press.</em>"},
     {id:"a_2", n:"Cadeira extensora", s:3, r:"10-15", t:"iso", mg:{quadriceps:1}, cue:"Quadríceps isolado. Segura 1s em cima, desce controlado."},
-    {id:"a_3", n:"Afundo/passada com halteres", s:3, r:"10-12 por perna", t:"comp", mg:{quadriceps:1, gluteo:0.5}, cue:"Passo longo pega mais glúteo; passo curto pega mais quadríceps. Tronco levemente à frente pro glúteo. <em>Log: 3 sets = 1 execução por perna.</em>"},
+    {id:"a_3", n:"Elevação pélvica com barra (hip thrust)", s:4, r:"8-12", t:"comp", mg:{gluteo:1, posterior:0.5}, cue:"<em>No lugar do afundo — glúteo forte e amigo do joelho (sem deslocamento).</em> Escápula no banco, queixo pro peito, empurra pelo calcanhar e <em>trava o glúteo em cima</em> 1s (sem estender a lombar). Amplitude total."},
     {id:"a_4", n:"Cadeira abdutora", s:4, r:"12-20", t:"iso", mg:{gluteo_med:1}, cue:"<em>Glúteo médio (formato) — 1 dos 2 dias de abdução da semana.</em> Inclina o tronco levemente à frente. <em>Progride a CARGA</em> (não só reps). Em ~metade das séries, gira levemente o pé/joelho pra dentro (rotação interna) pra pegar médio + mínimo. Segura 1s no topo, volta devagar."},
     {id:"a_5", n:"Panturrilha em pé", s:3, r:"12-20", t:"iso", mg:{panturrilha:1}, cue:"Amplitude total: desce alongando bem, sobe no talo. Pausa embaixo."},
     {id:"a_6", n:"Supino máquina ou halter (acessório superior)", s:3, r:"10-12", t:"comp", mg:{peito_med:1, triceps:0.5}, cue:"Dose de superior pra equilíbrio. Sente o peito puxar."},
@@ -1673,7 +1676,7 @@ const WK_GYM = WK;
 const WK_CASA = {
   A:{name:"Inferior 1 (casa)", focus:"Quadríceps + Glúteo", type:"pull", ex:[
     {id:"a_1c", n:"Agachamento goblet (halter) ou livre", s:4, r:"8-12", t:"comp", mg:{quadriceps:1, gluteo:0.5}, cue:"Segura 1 halter no peito. Desce na amplitude confortável pro joelho, calcanhar no chão."},
-    {id:"a_2c", n:"Afundo andando com halteres", s:3, r:"10-12 por perna", t:"comp", mg:{quadriceps:1, gluteo:0.5}, cue:"Passo longo = mais glúteo. Joelho de trás quase no chão. <em>3 sets = 1 por perna.</em>"},
+    {id:"a_2c", n:"Elevação pélvica no chão/sofá (halter no quadril)", s:4, r:"12-15", t:"comp", mg:{gluteo:1, posterior:0.5}, cue:"<em>No lugar do afundo.</em> Ombros no sofá, halter na virilha, empurra pelo calcanhar e trava o glúteo em cima 1s."},
     {id:"a_3c", n:"Agachamento búlgaro (pé no sofá)", s:3, r:"10-12 por perna", t:"comp", mg:{quadriceps:1, gluteo:0.5}, cue:"Pé de trás no sofá/cadeira. Tronco à frente pega glúteo."},
     {id:"a_4c", n:"Abdução com mini-band (em pé/deitada)", s:4, r:"15-25", t:"iso", mg:{gluteo_med:1}, cue:"<em>Prioridade — glúteo médio.</em> Band acima do joelho. Abre com força, segura 1s."},
     {id:"a_5c", n:"Panturrilha em pé (halter, num degrau)", s:3, r:"15-20", t:"iso", mg:{panturrilha:1}, cue:"Amplitude total no degrau/livro."},
@@ -4612,6 +4615,7 @@ function closeTimer(){
   // Se timer estava rodando, cancela push agendado (evita disparar depois do user fechar)
   if(tState==='running') cancelRemotePushes();
   cancelScheduledTimerNotification();
+  try{ localStorage.removeItem('treinoela_timer_v1'); }catch(e){}
   clearTimerStateOnly();
   tState='idle';
   tMinimized=false;
@@ -4654,6 +4658,21 @@ document.addEventListener('visibilitychange', ()=>{
   }
 });
 
+function restoreTimer(){
+  try{
+    const raw=localStorage.getItem('treinoela_timer_v1'); if(!raw) return;
+    const d=JSON.parse(raw); if(!d||!d.endAt){ localStorage.removeItem('treinoela_timer_v1'); return; }
+    const left=(d.endAt-Date.now())/1000;
+    if(left<=0.6){ localStorage.removeItem('treinoela_timer_v1'); return; } // já venceu (a notificação já avisou)
+    setTimer(d.total||Math.ceil(left));
+    tLeft=left; tEndAt=d.endAt; tRun=true; tState='running';
+    const ppb=document.getElementById('ppbtn'); if(ppb) ppb.textContent='Pausar';
+    if(tInt) clearInterval(tInt);
+    tInt=setInterval(()=>{ tLeft=Math.max(0,(tEndAt-Date.now())/1000); paint(); if(tLeft<=0){ timerDone(); } }, 100);
+    requestWakeLock();
+    minimizeTimer(); // volta minimizado pra ela ver os exercícios
+  }catch(e){}
+}
 function startTimer(){
   if(tRun) return;
   if(tLeft<=0) tLeft=tTotal;
@@ -4663,6 +4682,7 @@ function startTimer(){
   const ppb=document.getElementById('ppbtn'); if(ppb) ppb.textContent='Pausar';
   requestWakeLock();
   tEndAt=Date.now()+tLeft*1000;
+  try{ localStorage.setItem('treinoela_timer_v1', JSON.stringify({endAt:tEndAt,total:tTotal})); }catch(e){}
   // Nota: maybeInvokeShortcutTimer é disparado ANTES de openTimer/startTimer,
   // direto de toggleDone/toggleHomeDone, pra preservar o user gesture no iOS.
   // Chamar aqui não funciona em PWA standalone — o gesto já foi queimado.
@@ -4683,9 +4703,11 @@ function pauseTimer(){
   const b=document.getElementById('ppbtn'); if(b) b.textContent='Iniciar';
   cancelRemotePushes();
   cancelScheduledTimerNotification();
+  try{ localStorage.removeItem('treinoela_timer_v1'); }catch(e){}
 }
 function timerDone(){
   clearTimerStateOnly();
+  try{ localStorage.removeItem('treinoela_timer_v1'); }catch(e){}
   tState='done';
   releaseWakeLock();
   // Se estava minimizado, expande pro user ver o estado done — feedback óbvio
@@ -4971,6 +4993,7 @@ async function boot(){
 setTimer(90);
 migrateLogsStableId();
 render();
+restoreTimer();
 setTimeout(function(){ try{ publishTreinoStatus(); }catch(_){}} , 2500);
 boot();
 </script>
