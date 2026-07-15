@@ -1078,7 +1078,7 @@
   .toast{
     position:fixed; top:calc(env(safe-area-inset-top,0px) + 14px);
     left:50%; transform:translateX(-50%);
-    background:rgba(28,28,32,.94); color:var(--ink);
+    background:var(--bg2); color:var(--ink);
     padding:11px 18px; border-radius:14px;
     border:1px solid var(--line-2);
     backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
@@ -1162,7 +1162,7 @@
   .fab-menu.open{ pointer-events:auto; }
   .fab-action{
     display:flex; align-items:center; gap:8px;
-    background:rgba(28,28,32,.94); color:var(--ink);
+    background:var(--bg2); color:var(--ink);
     padding:9px 14px 9px 11px; border-radius:22px;
     border:1px solid var(--line-2);
     font-size:13px; font-weight:600;
@@ -1771,113 +1771,7 @@ const PHOTO_LOCAL = {
   "Rosca martelo (acessório)":"ela-martelo.jpg",
   "Rosca martelo com halteres (acessório)":"ela-martelo.jpg",
 };
-const PHOTO_ID = {
-  /* ====== ATIVOS (WK A/B/C/D) ====== */
-  // Push 1 (A)
-  "Supino inclinado halter 30°":"Incline_Dumbbell_Press",
-  "Supino reto halter ou máquina":"Dumbbell_Bench_Press",
-  "Crucifixo na polia baixa":"Low_Cable_Crossover",
-  "Elevação lateral com halter em pé (bilateral)":"Side_Lateral_Raise",
-  "Tríceps francês / extensão acima da cabeça":"Seated_Triceps_Press",
-  "Tríceps na polia (corda)":"Triceps_Pushdown_-_Rope_Attachment",
-  // Pull 1 (B)
-  "Puxada na polia (pegada aberta)":"Wide-Grip_Lat_Pulldown",
-  "Remada sentada na polia ou máquina":"Seated_Cable_Rows",
-  "Crucifixo inverso (peck deck/polia)":"Reverse_Machine_Flyes",
-  "Elevação lateral na polia unilateral em pé":"Standing_Low-Pulley_Deltoid_Raise",
-  "Rosca inclinada com halter":"Incline_Dumbbell_Curl",
-  "Cadeira extensora":"Leg_Extensions",
-  "Abdominal declinado com anilha":"Weighted_Crunches",
-  "Panturrilha":"Standing_Calf_Raises",
-  // Push 2 (C)
-  "Desenvolvimento sentado com halter":"Seated_Dumbbell_Press",
-  "Elevação lateral com halter no banco inclinado 75°":"Dumbbell_Incline_Shoulder_Raise",
-  "Peck deck ou crucifixo máquina":"Butterfly",
-  "Extensão de tríceps acima da cabeça":"Cable_Rope_Overhead_Triceps_Extension",
-  "Tríceps na polia":"Triceps_Pushdown_-_Rope_Attachment",
-  // Pull 2 (D)
-  "Puxada na polia (pegada neutra/fechada)":"Close-Grip_Front_Lat_Pulldown",
-  "Remada na polia ou máquina":"Seated_Cable_Rows",
-  "Crucifixo inverso":"Reverse_Machine_Flyes",
-  "Elevação lateral polia unilateral cabo atrás do corpo (alongado)":"Standing_Low-Pulley_Deltoid_Raise",
-  "Rosca direta na polia ou halter":"Standing_Biceps_Cable_Curl",
-  "Rosca martelo":"Hammer_Curls",
-
-  /* ====== INATIVOS (aparecem em EXERCISE_ALTERNATIVES quando ocorre swap) ====== */
-  // Peito
-  "Supino inclinado na máquina (mais estável)":"Leverage_Shoulder_Press",
-  "Crucifixo inclinado na máquina (alongado)":"Incline_Cable_Flye",
-  "Supino inclinado smith (carga maior)":"Smith_Machine_Incline_Bench_Press",
-  "Crucifixo reto na máquina (alongado)":"Butterfly",
-  "Supino reto smith":"Smith_Machine_Bench_Press",
-  "Flexão de braço (lastra com mochila)":"Pushups",
-  "Crucifixo na máquina (mais alongado)":"Butterfly",
-  "Peck deck":"Butterfly",
-  "Crucifixo com halter inclinado":"Incline_Dumbbell_Flyes",
-  "Crucifixo na polia alta (cruzado)":"Cable_Crossover",
-  "Supino com halter foco em squeeze":"Dumbbell_Bench_Press",
-  // Ombro lateral
-  "Lateral no cabo atrás do corpo (alongado)":"Standing_Low-Pulley_Deltoid_Raise",
-  "Lateral na máquina (constante)":"Cable_Seated_Lateral_Raise",
-  "Lateral inclinada com halter":"Dumbbell_Incline_Shoulder_Raise",
-  // Ombro (compostos)
-  "Desenvolvimento na máquina":"Leverage_Shoulder_Press",
-  "Desenvolvimento smith sentado":"Smith_Machine_Overhead_Shoulder_Press",
-  "Arnold press":"Arnold_Dumbbell_Press",
-  // Ombro posterior
-  "Crucifixo inverso na polia (cruzado, alongado)":"Cable_Rear_Delt_Fly",
-  "Face pull na polia alta":"Face_Pull",
-  "Voador inverso na máquina":"Reverse_Machine_Flyes",
-  "Voador inverso com halter inclinado":"Reverse_Flyes",
-  // Tríceps
-  "Francês com halter inclinado (mais alongado)":"Dumbbell_One-Arm_Triceps_Extension",
-  "Extensão na polia overhead com corda":"Cable_Rope_Overhead_Triceps_Extension",
-  "Skull crusher com barra EZ":"EZ-Bar_Skullcrusher",
-  "Tríceps polia barra reta":"Triceps_Pushdown_-_Rope_Attachment",
-  "Mergulho em paralelas (carga corporal+lastra)":"Dips_-_Triceps_Version",
-  "Coice na polia":"Triceps_Pushdown_-_Rope_Attachment",
-  "Tríceps polia corda":"Triceps_Pushdown_-_Rope_Attachment",
-  "Extensão na polia overhead":"Cable_Rope_Overhead_Triceps_Extension",
-  "Francês deitado com EZ":"EZ-Bar_Skullcrusher",
-  "Tríceps polia overhead com corda":"Cable_Rope_Overhead_Triceps_Extension",
-  "Tríceps unilateral overhead com halter":"Dumbbell_One-Arm_Triceps_Extension",
-  // Costas
-  "Puxada na polia (pegada neutra)":"Close-Grip_Front_Lat_Pulldown",
-  "Remada cavalinho (alongado)":"T-Bar_Row_with_Handle",
-  "Barra fixa lastra (se aguentar)":"Weighted_Pull_Ups",
-  "Puxada na polia (pegada aberta)":"Wide-Grip_Lat_Pulldown",
-  "Pullover na polia (alongado)":"Straight-Arm_Dumbbell_Pullover",
-  "Pullover na polia":"Straight-Arm_Dumbbell_Pullover",
-  "Remada curvada com halter":"Bent_Over_Two-Dumbbell_Row",
-  "Remada baixa com barra T":"Lying_T-Bar_Row",
-  // Bíceps
-  "Rosca scott com halter (alongado)":"One_Arm_Dumbbell_Preacher_Curl",
-  "Rosca no cabo baixo unilateral (alongado)":"Standing_One-Arm_Cable_Curl",
-  "Rosca concentrada":"Concentration_Curls",
-  "Rosca inclinada com halter (alongado)":"Incline_Dumbbell_Curl",
-  "Rosca scott na máquina":"Machine_Preacher_Curls",
-  "Rosca martelo no cabo com corda":"Cable_Hammer_Curls_-_Rope_Attachment",
-  "Rosca martelo no cabo corda":"Cable_Hammer_Curls_-_Rope_Attachment",
-  "Rosca inversa com barra":"Reverse_Barbell_Curl",
-  "Rosca martelo cruzada":"Cross_Body_Hammer_Curl",
-  // Pernas / posterior
-  "Stiff com halter (alongado)":"Stiff-Legged_Dumbbell_Deadlift",
-  "Cadeira flexora (alternativa)":"Seated_Leg_Curl",
-  "Bom dia leve":"Good_Morning",
-  "Hack machine leve (se não der náusea)":"Hack_Squat",
-  "Avanço unilateral leve (controlado)":"Bodyweight_Walking_Lunge",
-  "Sissy squat":"Weighted_Sissy_Squat",
-  // Core
-  "Crunch na polia alta (lastra)":"Cable_Crunch",
-  "Abdominal na máquina":"Ab_Crunch_Machine",
-  "Elevação de pernas suspenso (joelho dobrado)":"Hanging_Leg_Raise",
-  "Abdominal infra na cadeira":"Hanging_Leg_Raise",
-  "Reverse crunch no banco declinado":"Decline_Reverse_Crunch",
-  // Panturrilha
-  "Panturrilha em pé na máquina":"Standing_Calf_Raises",
-  "Panturrilha sentado (sóleo)":"Seated_Calf_Raise",
-  "Panturrilha no leg press":"Calf_Press",
-};
+const PHOTO_ID = {}; // esvaziado: sem fotos masculinas; sem foto feminina -> fallback rosa
 const PHOTO_BASE = "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/";
 function photoURL(name){
   const local = PHOTO_LOCAL[name];
