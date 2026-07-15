@@ -66,6 +66,8 @@
   .exedit-btn.swap-open{display:flex; align-items:center; justify-content:center; gap:7px;}
   .exedit-btn.swap-open svg{width:16px; height:16px;}
   .celeb-hero svg{width:1em; height:1em; vertical-align:-2px;}
+  .tr-addex{display:block; width:100%; margin:2px 0 20px; padding:13px; border:1px dashed var(--line-2); border-radius:13px; background:var(--glass); color:var(--push); font:inherit; font-weight:700; font-size:14px; cursor:pointer;}
+  .tr-addex:active{transform:scale(.99);}
   .exedit-btn.swap-open{width:100%; margin:2px 0 10px; background:var(--glass-2); color:var(--ink2); border:1px solid var(--line-2); border-radius:11px; padding:11px; font-weight:600; cursor:pointer;}
   .swap-card{max-height:82vh; display:flex; flex-direction:column;}
   .swap-hint{font-size:12px; color:var(--muted); margin:0 0 12px; line-height:1.45;}
@@ -1573,7 +1575,8 @@
     <label class="exedit-l" for="exEditNote">Minha nota</label>
     <textarea id="exEditNote" class="exedit-in exedit-ta" rows="3" maxlength="600" placeholder="Ex: máquina 3 do fundo, pino no 4, ombro dói se abrir demais..."></textarea>
     <div class="exedit-hint" id="exEditHint"></div>
-    <button class="exedit-btn swap-open hidden" id="exEditSwap" onclick="openSwapPicker()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg><span>Trocar por outro exercício</span></button>
+    <button class="exedit-btn swap-open hidden" id="exEditSwap" onclick="openBankPicker('swap')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg><span>Trocar por outro exercício</span></button>
+    <button class="exedit-btn swap-open hidden" id="exEditRemove" onclick="removeCurrentEx()" style="color:var(--push);border-color:rgba(219,43,63,.3)">Remover do treino</button>
     <div class="exedit-ctrl">
       <button class="exedit-btn ghost" id="exEditReset" onclick="resetExEdit()">Restaurar padrão</button>
       <button class="exedit-btn cancel" onclick="closeExEdit()">Cancelar</button>
@@ -1962,8 +1965,9 @@ const LS = {
   session:"treinoela_session_v1",
   freelog:"treinoela_freelog_v1",
   exmeta:"treinoela_exmeta_v1",
+  prog:"treinoela_prog_v1",
 };
-const DEFAULTS = {logs:{}, bw:[], sleep:{}, protein:{}, suppl:{}, photos:[], measures:[], cardio:{}, meta:{}, session:{active:null, history:[]}, freelog:{}, exmeta:{}};
+const DEFAULTS = {logs:{}, bw:[], sleep:{}, protein:{}, suppl:{}, photos:[], measures:[], cardio:{}, meta:{}, session:{active:null, history:[]}, freelog:{}, exmeta:{}, prog:{}};
 const ST = JSON.parse(JSON.stringify(DEFAULTS));
 for(const k of Object.keys(LS)){
   try{ const r=localStorage.getItem(LS[k]); if(r) ST[k]=JSON.parse(r); }catch(e){}
@@ -2087,7 +2091,7 @@ function endSession(silent=false){
   let setsN=0, volume=0;
   const W=WK[s.workoutId];
   if(W){
-    W.ex.forEach((e,i)=>{
+    dayEx(s.workoutId).forEach((e,i)=>{
       const id=exId(s.workoutId,i);
       const tod=todaySession(id);
       if(tod){
@@ -2125,7 +2129,7 @@ function manualEndSession(){
   if(!confirm(`Encerrar treino agora? (duração: ${fmtDuration(getSessionElapsed())})`)) return;
   // Se o workout já tem sets feitos hoje, mostra celebração com resumo; senão só encerra
   const W=WK[wk];
-  const hasAnySets = W && W.ex.some((_,i)=>{
+  const hasAnySets = dayEx(wk).some((_,i)=>{
     const tod=todaySession(exId(wk,i));
     return tod && tod.sets.some(isValidDone);
   });
@@ -2214,7 +2218,7 @@ function isWorkoutComplete(day){
   // Pra encerrar com volume parcial, usar FAB → Parar treino
   const W=WK[day]; if(!W) return false;
   let plannedTotal=0, doneTotal=0;
-  W.ex.forEach((e,i)=>{
+  dayEx(day).forEach((e,i)=>{
     plannedTotal += parseInt(e.s)||3;
     const tod=todaySession(exId(day,i));
     if(tod) doneTotal += tod.sets.filter(isValidDone).length;
@@ -2229,7 +2233,7 @@ function gatherWorkoutSummary(day){
   const t=todayISO();
   const W=WK[day];
   let setsN=0, volume=0, prs=[], topProgress=null;
-  W.ex.forEach((e,i)=>{
+  dayEx(day).forEach((e,i)=>{
     const id=exId(day,i);
     const tod=todaySession(id);
     if(!tod) return;
@@ -2355,7 +2359,30 @@ function checkBackupReminder(){
 function today(){ return new Date().toISOString().slice(0,10); }
 function dateAdd(iso, days){ const d=new Date(iso+'T12:00:00'); d.setDate(d.getDate()+days); return d.toISOString().slice(0,10); }
 function daysBetween(a,b){ const da=new Date(a+'T12:00:00'), db=new Date(b+'T12:00:00'); return Math.round((db-da)/86400000); }
-function exId(day,i){ return (ST.meta&&ST.meta.local==="casa"?"c_":"")+day+"_"+i; }
+function _progMode(){ return (ST.meta && ST.meta.local==='casa') ? 'casa' : 'academia'; }
+function _progBase(){ return _progMode()==='casa' ? WK_CASA : WK_GYM; }
+function dayEx(d){ const m=_progMode(); if(ST.prog && ST.prog[m] && ST.prog[m][d]) return ST.prog[m][d]; return _progBase()[d].ex; }
+function ensureProgDay(d){ const m=_progMode(); ST.prog=ST.prog||{}; ST.prog[m]=ST.prog[m]||{}; if(!ST.prog[m][d]) ST.prog[m][d]=JSON.parse(JSON.stringify(_progBase()[d].ex)); return ST.prog[m][d]; }
+function uid(){ ST.meta=ST.meta||{}; ST.meta._uidc=(ST.meta._uidc||0)+1; return 'u'+ST.meta._uidc+'_'+String(Math.random()).slice(2,7); }
+function exId(day,i){ const ex=dayEx(day)[i]; return (ex&&ex.id) ? ex.id : (day+'_'+i); }
+function migrateLogsStableId(){
+  if(!ST.meta) ST.meta={};
+  if(ST.meta._logsV2) return;
+  ST.meta._logsV2=true;
+  const remap={};
+  for(const key of Object.keys(ST.logs||{})){
+    let m='academia', k=key;
+    if(k.indexOf('c_')===0){ m='casa'; k=k.slice(2); }
+    const p=k.split('_');
+    if(p.length===2 && ['A','B','C','D'].indexOf(p[0])>=0 && /^\d+$/.test(p[1])){
+      const dd=(m==='casa'?WK_CASA:WK_GYM)[p[0]];
+      const ex=dd && dd.ex[+p[1]];
+      if(ex && ex.id && ex.id!==key && !ST.logs[ex.id]) remap[key]=ex.id;
+    }
+  }
+  for(const o of Object.keys(remap)){ ST.logs[remap[o]]=ST.logs[o]; delete ST.logs[o]; }
+  try{ saveK('logs'); saveK('meta'); }catch(e){}
+}
 function setLocal(mode){ mode=(mode==="casa"?"casa":"academia"); ST.meta.local=mode; WK=(mode==="casa"?WK_CASA:WK_GYM); saveK("meta"); render(); }
 
 /* ============ OVERRIDES DE EXERCÍCIO (edição do usuário, isolado em ST.exmeta) ============
@@ -2443,32 +2470,53 @@ function exEff(e0){
   return e0;
 }
 
-let exEditPos = null;  // chave posicional de log do exercício aberto (só no modo ABCD)
-function openSwapPicker(){
-  if(!exEditId) return;
+let exEditDay = null, exEditIdx = null, bankPurpose = 'swap', bankAddDay = null;
+function openBankPicker(purpose, addDay){
+  bankPurpose = purpose || 'swap'; bankAddDay = (purpose==='add') ? addDay : null;
+  if(bankPurpose==='swap' && !exEditId) return;
   const groups = Object.entries(EX_BANK).map(([role,items])=>{
-    const its = items.map((it,ix)=>`<button class="swap-item" onclick="doSwap('${role.replace(/'/g,"\\'")}',${ix})"><span class="swap-item-n">${esc(it.n)}</span><span class="swap-item-m">${it.s}×${esc(it.r)}</span></button>`).join('');
+    const its = items.map((it,ix)=>`<button class="swap-item" onclick="pickBank('${role.replace(/'/g,"\\'")}',${ix})"><span class="swap-item-n">${esc(it.n)}</span><span class="swap-item-m">${it.s}×${esc(it.r)}</span></button>`).join('');
     return `<div class="swap-group"><div class="swap-role">${esc(role)}</div>${its}</div>`;
   }).join('');
   let ov=document.getElementById('exSwap');
   if(!ov){ ov=document.createElement('div'); ov.id='exSwap'; ov.className='exedit-back'; ov.setAttribute('role','dialog'); ov.onclick=(e)=>{ if(e.target===ov) closeSwapPicker(); }; document.body.appendChild(ov); }
-  ov.innerHTML = `<div class="exedit-card swap-card"><div class="exedit-hd"><span>Trocar por…</span><button class="exedit-x" onclick="closeSwapPicker()" aria-label="Fechar">×</button></div><div class="swap-hint">Escolha o substituto. O histórico deste exercício zera (vira um exercício novo). Dá pra desfazer em “Restaurar padrão”.</div><div class="swap-list">${groups}</div></div>`;
+  ov.innerHTML = `<div class="exedit-card swap-card"><div class="exedit-hd"><span>${bankPurpose==='add'?'Adicionar exercício':'Trocar por…'}</span><button class="exedit-x" onclick="closeSwapPicker()" aria-label="Fechar">×</button></div><div class="swap-hint">${bankPurpose==='add'?'Escolha o exercício pra adicionar no fim do treino.':'Escolha o substituto. O histórico deste exercício zera (vira um exercício novo).'}</div><div class="swap-list">${groups}</div></div>`;
   ov.classList.remove('hidden');
 }
 function closeSwapPicker(){ const ov=document.getElementById('exSwap'); if(ov) ov.classList.add('hidden'); }
-function doSwap(role, ix){
+function pickBank(role, ix){
   const it = EX_BANK[role] && EX_BANK[role][ix];
-  if(!it || !exEditId) return;
-  saveExMeta(exEditId, {swap:{n:it.n, cue:it.cue, s:it.s, r:it.r, t:it.t, mg:it.mg}});
-  if(exEditPos && ST.logs[exEditPos]){ delete ST.logs[exEditPos]; saveK('logs'); }
-  closeSwapPicker(); closeExEdit(); render();
-  showToast('Exercício trocado ✓', 'ok');
+  if(!it) return;
+  if(bankPurpose==='add'){
+    if(bankAddDay==null) return;
+    const arr = ensureProgDay(bankAddDay);
+    arr.push({...it, id:uid()});
+    saveK('prog'); closeSwapPicker(); render();
+    showToast('Exercício adicionado', 'ok');
+    return;
+  }
+  if(exEditDay==null || exEditIdx==null) return;
+  const arr = ensureProgDay(exEditDay);
+  const old = arr[exEditIdx];
+  arr[exEditIdx] = {...it, id:uid()};
+  if(old && old.id && ST.logs[old.id]){ delete ST.logs[old.id]; saveK('logs'); }
+  saveK('prog'); closeSwapPicker(); closeExEdit(); render();
+  showToast('Exercício trocado', 'ok');
+}
+function removeCurrentEx(){
+  if(exEditDay==null || exEditIdx==null) return;
+  if(!confirm('Remover este exercício do treino? (o histórico dele fica guardado)')) return;
+  const arr = ensureProgDay(exEditDay);
+  arr.splice(exEditIdx, 1);
+  saveK('prog'); closeExEdit(); render();
+  showToast('Exercício removido', 'ok');
 }
 
 // Acha o exercício ORIGINAL (padrão do código) pelo id estável, varrendo WK + HOME_SESSIONS.
 function exById(id){
   if(!id) return null;
-  for(const d of Object.keys(WK)){ const f=WK[d].ex.find(x=>x.id===id); if(f) return f; }
+  if(ST.prog){ for(const m of Object.keys(ST.prog)){ for(const d of Object.keys(ST.prog[m])){ const f=(ST.prog[m][d]||[]).find(x=>x&&x.id===id); if(f) return f; } } }
+  for(const prog of [WK_GYM, WK_CASA]){ for(const d of Object.keys(prog)){ const f=prog[d].ex.find(x=>x.id===id); if(f) return f; } }
   for(const t of Object.keys(HOME_SESSIONS)){ const f=HOME_SESSIONS[t].ex.find(x=>x.id===id); if(f) return f; }
   return null;
 }
@@ -2476,11 +2524,12 @@ function exById(id){
 /* ---- Modal de edição de exercício ---- */
 let exEditId=null;
 function cuePlain(c){ return String(c||'').replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim(); }
-function openExEdit(id, posKey){
+function openExEdit(id, day, idx){
   const orig=exById(id);
   if(!orig){ showToast('Exercício não encontrado', 'warn'); return; }
   exEditId=id;
-  exEditPos=posKey||null;
+  exEditDay=(day!=null?day:null);
+  exEditIdx=(idx!=null?+idx:null);
   const o=ST.exmeta[id]||{};
   const defCue=cuePlain(orig.cue);
   document.getElementById('exEditName').value = o.n!=null?o.n:orig.n;
@@ -2491,7 +2540,7 @@ function openExEdit(id, posKey){
   document.getElementById('exEditHint').textContent = hasOv
     ? 'Já editado por você. Fica só neste aparelho e entra no backup — atualizações do app não sobrescrevem.'
     : 'O que você editar fica só neste aparelho e entra no backup. Não vai pro código nem é sobrescrito por atualizações.';
-  { const sb=document.getElementById('exEditSwap'); if(sb) sb.classList.toggle('hidden', !posKey); }
+  { const inA=(exEditDay!=null); const sb=document.getElementById('exEditSwap'); if(sb) sb.classList.toggle('hidden', !inA); const rb=document.getElementById('exEditRemove'); if(rb) rb.classList.toggle('hidden', !inA); }
   document.getElementById('exEdit').classList.remove('hidden');
   setTimeout(()=>{ try{ document.getElementById('exEditName').focus(); }catch(e){} }, 60);
 }
@@ -2531,7 +2580,7 @@ function dailyPrincipleIdx(){
 function prTrackerForWorkout(day){
   if(!WK[day]) return [];
   const out=[];
-  WK[day].ex.forEach((e,i)=>{
+  dayEx(day).forEach((e,i)=>{
     const id=exId(day,i);
     const best=historicalBestE1RM(id, true);
     if(best>0){ out.push({name:exName(e), e1:Math.round(best*10)/10}); }
@@ -2969,10 +3018,7 @@ function weeklyVolume(){
   const t=today();
   // 1) Programa ABCD (logs)
   for(const id of Object.keys(ST.logs)){
-    let key=id, prog=WK_GYM;
-    if(id.indexOf("c_")===0){ prog=WK_CASA; key=id.slice(2); }
-    const [day,idx]=key.split("_");
-    const base=prog[day]?.ex[+idx]; if(!base) continue;
+    const base=exById(id); if(!base) continue;
     const ex=exEff(base); if(!ex.mg) continue;
     for(const sess of ST.logs[id]){
       const dd = daysBetween(sess.date, t);
@@ -3009,7 +3055,7 @@ function plannedWeeklyVolume(){
   const out={};
   for(const mg of Object.keys(MG_LABELS)) out[mg]=0;
   for(const d of Object.keys(WK)){
-    for(const ex of WK[d].ex){
+    for(const ex of dayEx(d)){
       if(!ex.mg) continue;
       for(const [mg,w] of Object.entries(ex.mg)){
         out[mg] = (out[mg]||0) + (ex.s||0) * w;
@@ -3219,7 +3265,7 @@ function renderDays(){
     const ring = isDoneToday
       ? 'box-shadow:0 0 0 2px rgba(81,216,138,.40), var(--shadow-1)'
       : (isNext && !doneToday ? 'box-shadow:0 0 0 2px rgba(91,158,255,.35), var(--shadow-1)' : '');
-    const heroUrl = photoURL(exEff(w.ex[0]).n);
+    const heroUrl = photoURL(exEff(dayEx(d)[0]).n);
     const bg = heroUrl ? `<img class="day-bg" src="${heroUrl}" alt="" loading="lazy" decoding="async" onerror="this.remove()">` : '';
     h+=`<div class="day ${w.type}" onclick="openWorkout('${d}')" style="${ring}">
       ${bg}
@@ -3227,7 +3273,7 @@ function renderDays(){
       <div class="meta">
         <div class="t">${w.name}${tag}</div>
         <div class="f">${w.focus}</div>
-        <div class="cnt">${w.ex.length} EXERCÍCIOS</div>
+        <div class="cnt">${dayEx(d).length} EXERCÍCIOS</div>
       </div>
       <div class="chev">${I.chevR}</div>
     </div>`;
@@ -3258,7 +3304,7 @@ function renderDay(d){
     </div>`;
   }
 
-  w.ex.forEach((e0,i)=>{
+  dayEx(d).forEach((e0,i)=>{
     const e=exEff(e0);
     const id=exId(d,i);
     const last=lastSession(id);
@@ -3329,13 +3375,13 @@ function renderDay(d){
       rows+= e.t==='cardio' ? `<div class="setrow r-cardio">
         <div class="sn">${k+1}</div>
         <input class="num" inputmode="numeric" placeholder="${lv.reps||'min'}" value="${tv.reps||''}" data-id="${id}" data-k="${k}" data-f="reps" oninput="onLog(this)">
-        <div class="chk ${tv.done?'on':''}" onclick="toggleDone('${id}',${k},this)">${I.check}</div>
+        <div class="chk ${tv.done?'on':''}" onclick="toggleDone('${d}',${i},${k},this)">${I.check}</div>
       </div>` : `<div class="setrow r4">
         <div class="sn">${k+1}</div>
         <input class="num" inputmode="decimal" placeholder="${lv.kg||'kg'}" value="${tv.kg||''}" data-id="${id}" data-k="${k}" data-f="kg" oninput="onLog(this)">
         <input class="num" inputmode="numeric" placeholder="${lv.reps||'reps'}" value="${tv.reps||''}" data-id="${id}" data-k="${k}" data-f="reps" oninput="onLog(this)">
         <input class="num rir" inputmode="numeric" placeholder="${lv.rir!=null&&lv.rir!==''?lv.rir:'RIR'}" value="${tv.rir!=null?tv.rir:''}" data-id="${id}" data-k="${k}" data-f="rir" oninput="onLog(this)" maxlength="1">
-        <div class="chk ${tv.done?'on':''}" onclick="toggleDone('${id}',${k},this)">${I.check}</div>
+        <div class="chk ${tv.done?'on':''}" onclick="toggleDone('${d}',${i},${k},this)">${I.check}</div>
       </div>`;
     }
     const yt=`https://www.youtube.com/results?search_query=`+encodeURIComponent(nm+" execução técnica academia");
@@ -3385,7 +3431,7 @@ function renderDay(d){
         <div class="exbtns">
           <a class="xb" href="${yt}" target="_blank" rel="noopener">${I.play}<span>Vídeo</span></a>
           ${e.t==='cardio' ? '' : `<button class="xb rest" onclick="openTimer(${restS})">${I.timer}<span>Descanso ${Math.floor(restS/60)}:${String(restS%60).padStart(2,'0')}</span></button>`}
-          <button class="xb" onclick="openExEdit('${e.id}','${id}')">${I.pencil}<span>Editar</span></button>
+          <button class="xb" onclick="openExEdit('${e.id}','${d}',${i})">${I.pencil}<span>Editar</span></button>
         </div>
       </div>
       <div class="log">
@@ -3396,6 +3442,7 @@ function renderDay(d){
       </div>
     </div>`;
   });
+  h+=`<button class="tr-addex" onclick="openBankPicker('add','${d}')">+ Adicionar exercício</button>`;
   app.innerHTML=h;
 }
 
@@ -3425,8 +3472,8 @@ function onLog(inp){ const id=inp.dataset.id; upsertToday(id, collect(id)); flas
 /* ============ Helpers: última posição planejada + Shortcut deep-link ============ */
 function isLastPlannedPosition(day, exIdx, setIdx){
   const W = WK[day]; if(!W) return false;
-  if(exIdx !== W.ex.length - 1) return false;
-  const nset = parseInt(W.ex[exIdx].s) || 3;
+  if(exIdx !== dayEx(day).length - 1) return false;
+  const nset = parseInt(dayEx(day)[exIdx].s) || 3;
   return setIdx === nset - 1;
 }
 function isLastHomePosition(templateId, exIdx, setIdx){
@@ -3462,7 +3509,8 @@ function maybeInvokeShortcutTimer(seconds){
   invokeExternalScheme(url);
 }
 
-function toggleDone(id,k,el){
+function toggleDone(day,exIdx,setIdx,el){
+  const id=exId(day,exIdx); const k=setIdx;
   el.classList.toggle('on');
   const sets=collect(id);
   if(sets[k]) sets[k].done=el.classList.contains('on');
@@ -3476,7 +3524,7 @@ function toggleDone(id,k,el){
     return;
   }
   {
-    const day=id.split('_')[0], i=+id.split('_')[1];
+    const i=exIdx;
     // Auto-start session na primeira marcação válida do dia (não pergunta, é o caminho natural)
     if(!isSessionActive() && !alreadyCelebratedToday(day) && isValidDone(sets[k])){
       ST.session.active={workoutId:day, startAt:Date.now(), pausedAt:null, pausedTotal:0};
@@ -3493,8 +3541,7 @@ function toggleDone(id,k,el){
       // IMPORTANTE: dispara Shortcut ANTES de abrir overlay/audio/etc — iOS PWA
       // exige deep-link como primeira ação do gesto de usuário. Qualquer coisa
       // no meio (openTimer, unlockAudio, requestWakeLock) queima o gesto.
-      maybeInvokeShortcutTimer(REST[WK[day].ex[i].t]);
-      openTimer(REST[WK[day].ex[i].t]); startTimer();
+      openTimer(REST[dayEx(day)[i].t]); startTimer();
     }
     // Detecta workout 100% completo → celebra direto (sem perguntar)
     if(isWorkoutComplete(day) && !alreadyCelebratedToday(day)){
@@ -4120,7 +4167,7 @@ function renderCorpo(){
   // PRs por exercício
   const allPRs = [];
   for(const d of ["A","B","C","D"]){
-    WK[d].ex.forEach((e,i)=>{
+    dayEx(d).forEach((e,i)=>{
       const id=exId(d,i);
       const best=historicalBestE1RM(id, false);
       const h=ST.logs[id]||[];
@@ -4888,6 +4935,7 @@ async function boot(){
   setTimeout(checkBackupReminder, 1500);
 }
 setTimer(90);
+migrateLogsStableId();
 render();
 boot();
 </script>
