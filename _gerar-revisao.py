@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Gera _revisao-fotos.html a partir do index.html (fonte da verdade). Rodar: python3 _gerar-revisao.py"""
+"""Gera revisao-fotos.html a partir do index.html (fonte da verdade). Rodar: python3 _gerar-revisao.py"""
 import re, html, os
 src = open('index.html', encoding='utf-8').read()
 def block(m):
@@ -90,5 +90,5 @@ h1{{margin:6px 0;font-size:27px;letter-spacing:-.02em}}.sub{{color:var(--muted);
 {body_casa}
 <p style="text-align:center;color:#b6a0a4;font-size:12px;margin-top:36px">Meu Treino · gerado direto do código do app</p>
 </div></body></html>'''
-open('_revisao-fotos.html','w',encoding='utf-8').write(doc)
+open('revisao-fotos.html','w',encoding='utf-8').write(doc)
 print(f"em uso {tot} | sem foto {nmiss} | fotos a buscar {len(faltando)}")
