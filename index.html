@@ -2755,7 +2755,7 @@ function pickHomeSessions(nextDay){
     for(const mg of Object.keys(tmpl.ex[0]?.mg||{})){
       if(MG_PRIORITY[mg]) score+=10;
     }
-    // Core sempre tem +5 (sub-treinado em ABCD Push/Pull)
+    // Core sempre ganha bônus (extra sem competir com o foco de nenhum dia)
     if(id==="core_completo") score+=15;
     out.push({id, tmpl, score, tier, reason});
   }
@@ -3026,13 +3026,14 @@ const HOME_SESSIONS = {
   core_completo:{
     name:"Core Completo",
     focus:"Abdômen · lombar · oblíquos",
-    desc:"Cobre o que cadeira romana + abdominal declinado cobrem na academia. Reto abdominal recupera rápido, aguenta alta frequência (McGill 2007, Behm 2010).",
+    desc:"Cobre o que os abdominais da academia cobrem (banco inclinado, polia, declinado). Reto abdominal recupera rápido, aguenta alta frequência (McGill 2007, Behm 2010).",
     duration:20,
-    bestBefore:[],          // sempre vale como extra (core é sub-treinado em ABCD)
+    bestBefore:[],          // sempre vale como extra, qualquer dia
     avoidBefore:[],
     canSkipNextDay:{
-      B:["Abdominal declinado com anilha","Cadeira romana (joelho dobrado)"],
-      D:["Abdominal declinado com anilha","Cadeira romana (joelho dobrado)"],
+      A:["Abdominal no banco inclinado"],
+      B:["Abdominal na polia ou máquina"],
+      D:["Abdominal declinado ou infra"],
     },
     ex:[
       {id:"core_completo_1", n:"Hollow hold", s:3, r:"30s", t:"core", mg:{core:1}, cue:"Lombar colada no chão, braços e pernas estendidos pra cima. <em>Mantém a pelve em retroversão.</em> Se 30s for fácil, sobe pra 45s."},
@@ -3047,11 +3048,12 @@ const HOME_SESSIONS = {
     focus:"Panturrilha · sistema cardiovascular leve",
     desc:"Polichinelos baixos (sem barulho) + panturrilha em escada. Z2 = active recovery (Dupuy 2018), facilita recuperação dos grupos pesados.",
     duration:25,
-    bestBefore:["A","C"],   // A e C não têm panturrilha nem cardio
+    bestBefore:["C"],       // só o dia C (Superior) não tem panturrilha
     avoidBefore:[],
     canSkipNextDay:{
-      B:["Panturrilha"],
-      D:["Panturrilha"],
+      A:["Panturrilha em pé"],
+      B:["Panturrilha sentada"],
+      D:["Panturrilha em pé"],
     },
     ex:[
       {id:"panturrilha_cardio_1", n:"Panturrilha em pé na escada", s:4, r:"15-20", t:"iso", mg:{panturrilha:1}, cue:"Calcanhar fora do degrau, desce máximo. <em>Pausa 1s embaixo</em> (alongado cresce mais). Pode segurar 1 garrafa de água em cada mão pra lastrar."},
@@ -3063,13 +3065,13 @@ const HOME_SESSIONS = {
   posterior_mobilidade:{
     name:"Posterior + Mobilidade",
     focus:"Glúteo · isquiotibial · quadril",
-    desc:"Glúteo ponte + single-leg deadlift sem peso + alongamentos. Substitui mesa flexora leve do programa.",
+    desc:"Glúteo ponte + single-leg deadlift sem peso + alongamentos. Substitui a cadeira flexora leve do programa.",
     duration:20,
-    bestBefore:["A","C"],   // A e C não tocam perna
-    avoidBefore:["B","D"],  // B e D já têm mesa flexora leve
+    bestBefore:["A","C"],   // A não tem posterior dedicado (é quad/glúteo); C não toca perna
+    avoidBefore:["B","D"],  // B e D já têm hip-hinge pesado (RDL/Stiff) + cadeira flexora
     canSkipNextDay:{
-      B:["Mesa flexora"],
-      D:["Mesa flexora"],
+      B:["Cadeira flexora (sentada)"],
+      D:["Cadeira flexora (sentada)"],
     },
     ex:[
       {id:"posterior_mobilidade_1", n:"Ponte glútea (single leg)", s:3, r:"12/lado", t:"iso", mg:{posterior:0.7}, cue:"Pé apoiado no chão, outra perna estendida. Sobe pelo glúteo, <em>aperta no topo 1s</em>. Lombar não estende excessivamente."},
@@ -3082,10 +3084,10 @@ const HOME_SESSIONS = {
   peito_triceps:{
     name:"Calistenia Peito + Tríceps",
     focus:"Peito superior · tríceps · ombro anterior",
-    desc:"Pike + decline + diamond push-ups. Substituto bodyweight pros compostos. Bom em dias antes de B/D (pull) — não usar antes de A/C.",
+    desc:"Pike + decline + diamond push-ups. Substituto bodyweight pros compostos. Bom antes de A/B/D (dias de perna, sem peito) — não usar antes de C (Superior, que já tem supino).",
     duration:20,
-    bestBefore:["B","D"],   // B e D não tocam peito
-    avoidBefore:["A","C"],  // A e C já são push pesado
+    bestBefore:["A","B","D"], // A, B e D são dias de perna, nenhum toca peito
+    avoidBefore:["C"],        // C (Superior) já tem supino nesse treino
     canSkipNextDay:{},      // não substitui exercício do programa
     ex:[
       {id:"peito_triceps_1", n:"Pike push-up", s:3, r:"6-12", t:"comp", mg:{ombro_ant:1, triceps:0.7, ombro_lat:0.3}, cue:"Pés elevados (sofá), quadril alto, mãos no chão. Desce a cabeça em direção ao chão. <em>Substituto de desenvolvimento.</em>"},
@@ -3098,10 +3100,10 @@ const HOME_SESSIONS = {
   ombro_postura:{
     name:"Ombro Lateral + Postura",
     focus:"Deltoide lateral · posterior · postura",
-    desc:"Elevação lateral isométrica (mochila) + face pull elástico. <b>Atenção: compete com A e C</b> (que já priorizam ombro). Bom antes de B/D.",
+    desc:"Elevação lateral isométrica (mochila) + face pull elástico. <b>Atenção: compete com C (Superior)</b>, que já prioriza ombro. Bom antes de A/B/D.",
     duration:15,
-    bestBefore:["B","D"],   // não tem desenvolvimento pesado nesses dias
-    avoidBefore:["A","C"],  // foco principal já é ombro
+    bestBefore:["A","B","D"], // dias de perna, sem desenvolvimento nem lateral
+    avoidBefore:["C"],        // C (Superior) já tem desenvolvimento + elevação lateral
     canSkipNextDay:{},      // não substitui — é EXTRA pra prioridade #1
     ex:[
       {id:"ombro_postura_1", n:"Elevação lateral isométrica (mochila/livros)", s:3, r:"30s", t:"iso", mg:{ombro_lat:1}, cue:"Segura peso (mochila com livros, garrafas). Braços a 90° na lateral, mantém 30s. Fadiga lateral real. Volume extra pra <em>prioridade #1</em>."},
