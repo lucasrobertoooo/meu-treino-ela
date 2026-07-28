@@ -402,6 +402,24 @@
   }
   .saved.show{opacity:1;}
 
+  /* ============ COMENTÁRIO DO DIA (módulo 1b — contextual, datado) ============ */
+  .cmt-day{margin-top:10px;}
+  .cmt-day input{
+    width:100%; box-sizing:border-box; background:#fff; border:1px solid rgba(28,21,24,.16);
+    color:var(--ink); border-radius:12px; padding:10px 12px; font-size:13.5px; font-family:inherit;
+  }
+  .cmt-day input:focus{outline:none; border-color:rgba(91,158,255,.55); box-shadow:0 0 0 4px rgba(91,158,255,.10);}
+  .cmt-day input::placeholder{color:#c58f9b; font-weight:500;}
+  .cmt-hist{margin-top:8px; font-size:12px; color:#a07c84;}
+  .cmt-hist summary{cursor:pointer; font-weight:700; list-style:none;}
+  .cmt-hist summary::-webkit-details-marker{display:none;}
+  .cmt-hist summary::before{content:'▸ ';}
+  .cmt-hist[open] summary::before{content:'▾ ';}
+  .cmt-hist-row{display:flex; gap:8px; padding:6px 0; border-top:1px solid rgba(179,18,42,.08);}
+  .cmt-hist-d{flex:none; font-weight:700; color:var(--pull); font-variant-numeric:tabular-nums;}
+  .cmt-hist-t{color:#8a6069; word-break:break-word;}
+  .cmt-inline{color:#a07c84; font-style:italic;}
+
   /* ============ PRINCIPLES CARDS ============ */
   .pcard{
     background:var(--glass); border:1px solid var(--line-2);
@@ -836,6 +854,88 @@
   .vbar2 .fill{height:100%; border-radius:4px;}
   .vbar2 .vv{width:54px; font-size:11px; color:var(--muted); font-weight:700; text-align:right; font-variant-numeric:tabular-nums;}
   .vbar2 .vv b{color:var(--ink);}
+  .star{color:var(--core); font-size:9px; margin-left:3px;}
+
+  /* ============ MEDIDAS COMPLETO (módulo 2) ============ */
+  .mfield-row{position:relative; padding-right:24px;}
+  .mfield-row .mrm{
+    position:absolute; right:-2px; top:50%; transform:translateY(-50%);
+    width:20px; height:20px; border-radius:50%; background:var(--glass-2);
+    color:var(--muted); border:none; font-size:12px; cursor:pointer; display:grid; place-items:center;
+  }
+  .maddfield{
+    display:block; width:100%; margin-top:10px; padding:10px;
+    background:none; border:1px dashed var(--line-2); border-radius:12px;
+    color:var(--muted); font-size:12.5px; font-weight:600; cursor:pointer; text-align:center;
+  }
+  .mnota{
+    width:100%; box-sizing:border-box; background:var(--glass); border:1px solid var(--line-2);
+    border-radius:10px; padding:9px 10px; color:var(--ink); font-size:13px; font-family:inherit; margin-top:10px;
+  }
+  .mnota:focus{outline:none; border-color:rgba(91,158,255,.55);}
+  .mevo-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:14px;}
+  .mevo-card{
+    background:var(--glass); border:1px solid var(--line-2); border-radius:14px;
+    padding:12px 13px;
+  }
+  .mevo-hd{display:flex; align-items:baseline; justify-content:space-between; gap:6px;}
+  .mevo-nm{font-size:12px; color:var(--muted); font-weight:700;}
+  .mevo-v{font-size:17px; font-weight:800; color:var(--ink); font-variant-numeric:tabular-nums;}
+  .mevo-v small{font-size:11px; color:var(--muted); font-weight:600;}
+  .mspark{width:100%; height:26px; margin-top:6px; display:block;}
+  .mevo-delta{font-size:10.5px; color:var(--faint); margin-top:2px; font-variant-numeric:tabular-nums;}
+  .mcmp-sel{display:flex; align-items:center; gap:10px; margin-bottom:16px;}
+  .mcmp-sel select{
+    flex:1; background:var(--glass-2); border:1px solid var(--line-2); border-radius:10px;
+    padding:9px 8px; color:var(--ink); font-size:13.5px; font-family:inherit;
+  }
+  .mcmp-sel span{color:var(--faint); width:14px; flex:none;}
+  .mcmp-table{width:100%; border-collapse:collapse; font-size:12.5px;}
+  .mcmp-table th{
+    text-align:right; color:var(--faint); font-weight:700; font-size:10.5px;
+    text-transform:uppercase; letter-spacing:.04em; padding:0 0 8px; border-bottom:1px solid var(--line);
+  }
+  .mcmp-table th:first-child, .mcmp-table td:first-child{text-align:left;}
+  .mcmp-table td{padding:8px 0; text-align:right; border-top:1px solid var(--line); color:var(--ink2);}
+  .mcmp-table td small{color:var(--faint); font-weight:400;}
+
+  /* ============ FOTOS · ÂNGULOS + COMPARAÇÃO (módulo 3) ============ */
+  .pangle-btns{display:flex; flex-wrap:wrap; gap:8px; margin-top:4px;}
+  .pangle-btn-wrap{position:relative; flex:1; min-width:100px;}
+  .pangle-btn{margin-top:0; padding:11px 8px; font-size:12px;}
+  .pangle-rm{
+    position:absolute; top:-6px; right:-6px;
+    width:20px; height:20px; border-radius:50%; background:var(--bg2);
+    color:var(--muted); border:1px solid var(--line-2); font-size:12px; cursor:pointer;
+    display:grid; place-items:center;
+  }
+  .pangle-group{margin-top:16px;}
+  .pangle-hd{font-size:12.5px; font-weight:700; color:var(--ink2); margin-bottom:8px;}
+  .pangle-cnt{color:var(--faint); font-weight:600;}
+  .pcmp-tabs{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px;}
+  .pcmp-tab{
+    background:var(--glass-2); border:1px solid var(--line-2); border-radius:20px;
+    padding:6px 12px; font-size:12px; font-weight:600; color:var(--ink2); cursor:pointer; font-family:inherit;
+  }
+  .pcmp-tab.on{background:var(--pull-grad); color:#fff; border-color:transparent;}
+  .pcmp-modes{display:flex; gap:6px; margin-bottom:14px;}
+  .pcmp-mode{
+    flex:1; background:var(--glass-2); border:1px solid var(--line-2); border-radius:10px;
+    padding:8px 4px; font-size:11.5px; font-weight:600; color:var(--ink2); cursor:pointer; font-family:inherit;
+  }
+  .pcmp-mode.on{background:var(--core-grad); color:#231a05; border-color:transparent;}
+  .pcmp-img{width:100%; height:100%; object-fit:cover; display:block; background:var(--glass-2);}
+  .pcmp-side{display:flex; gap:8px;}
+  .pcmp-half{flex:1; min-width:0;}
+  .pcmp-half .pcmp-img{aspect-ratio:3/4; border-radius:12px;}
+  .pcmp-cap{font-size:11px; color:var(--muted); text-align:center; margin-top:6px; font-variant-numeric:tabular-nums;}
+  .pcmp-slider-stack, .pcmp-overlay-stack{
+    position:relative; width:100%; aspect-ratio:3/4; border-radius:12px; overflow:hidden;
+    background:var(--glass-2);
+  }
+  .pcmp-slider-stack .pcmp-img, .pcmp-overlay-stack .pcmp-img{position:absolute; inset:0;}
+  .pcmp-clip{position:absolute; inset:0; overflow:hidden; clip-path:inset(0 50% 0 0);}
+  input[type="range"]{width:100%; margin-top:12px; accent-color:var(--push);}
 
   /* ============ FOTOS PROGRESSO ============ */
   .photos-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:12px;}
@@ -1991,13 +2091,22 @@ function searchFoods(q){
     .slice(0,12);
 }
 
+// [key, label, prioridade?] — prioridade marca ★ (ligado às metas dela: cintura/quadril)
 const MEASURE_FIELDS = [
-  ["peito","Peito (cm)"],
-  ["ombro","Ombro/largura (cm)"],
-  ["braco","Braço D (cm)"],
-  ["cintura","Cintura (cm)"],
-  ["coxa","Coxa (cm)"],
+  ["ombro","Ombro (cm)",false],
+  ["peito","Peito (cm)",false],
+  ["braco","Braço D (cm)",false],
+  ["antebraco","Antebraço (cm)",false],
+  ["cintura","Cintura (cm)",true],
+  ["quadril","Quadril (cm)",true],
+  ["coxa","Coxa (cm)",false],
+  ["panturrilha","Panturrilha (cm)",false],
 ];
+// campos base + customizados ativos (não removidos). Uniforme: [key,label,prio,custom?]
+function allMeasureFields(){
+  const custom=((ST.measureCfg&&ST.measureCfg.custom)||[]).filter(c=>!c.removed).map(c=>[c.key,c.label,false,true]);
+  return [...MEASURE_FIELDS, ...custom];
+}
 
 /* ============ ESTADO + STORAGE ============ */
 const LS = {
@@ -2014,8 +2123,11 @@ const LS = {
   freelog:"treinoela_freelog_v1",
   exmeta:"treinoela_exmeta_v1",
   prog:"treinoela_prog_v1",
+  measureCfg:"treinoela_measureCfg_v1",
+  photometa:"treinoela_photometa_v1",
+  photoCfg:"treinoela_photoCfg_v1",
 };
-const DEFAULTS = {logs:{}, bw:[], sleep:{}, protein:{}, suppl:{}, photos:[], measures:[], cardio:{}, meta:{}, session:{active:null, history:[]}, freelog:{}, exmeta:{}, prog:{}};
+const DEFAULTS = {logs:{}, bw:[], sleep:{}, protein:{}, suppl:{}, photos:[], measures:[], cardio:{}, meta:{}, session:{active:null, history:[]}, freelog:{}, exmeta:{}, prog:{}, measureCfg:{custom:[]}, photometa:[], photoCfg:{customAngles:[]}};
 const ST = JSON.parse(JSON.stringify(DEFAULTS));
 for(const k of Object.keys(LS)){
   try{ const r=localStorage.getItem(LS[k]); if(r) ST[k]=JSON.parse(r); }catch(e){}
@@ -2032,6 +2144,13 @@ if(!Array.isArray(ST.session.history)) ST.session.history=[];
 if(!ST.freelog || typeof ST.freelog!=='object' || Array.isArray(ST.freelog)) ST.freelog={};
 // Migração defensiva: exmeta = {exId: {n?, cue?, note?}} — overrides do usuário por exercício
 if(!ST.exmeta || typeof ST.exmeta!=='object' || Array.isArray(ST.exmeta)) ST.exmeta={};
+// Migração defensiva: measureCfg = {custom:[{key,label,removed?}]} — campos de medida customizados
+if(!ST.measureCfg || typeof ST.measureCfg!=='object' || Array.isArray(ST.measureCfg)) ST.measureCfg={custom:[]};
+if(!Array.isArray(ST.measureCfg.custom)) ST.measureCfg.custom=[];
+// Migração defensiva: photometa (pixels ficam no IndexedDB — módulo 3) e photoCfg (ângulos customizados)
+if(!Array.isArray(ST.photometa)) ST.photometa=[];
+if(!ST.photoCfg || typeof ST.photoCfg!=='object' || Array.isArray(ST.photoCfg)) ST.photoCfg={customAngles:[]};
+if(!Array.isArray(ST.photoCfg.customAngles)) ST.photoCfg.customAngles=[];
 
 /* ============ TOAST (feedback transitório) ============ */
 let toastTimer=null;
@@ -2437,6 +2556,12 @@ function _progBase(){ return _progMode()==='casa' ? WK_CASA : WK_GYM; }
 function dayEx(d){ const m=_progMode(); if(ST.prog && ST.prog[m] && ST.prog[m][d]) return ST.prog[m][d]; return _progBase()[d].ex; }
 function ensureProgDay(d){ const m=_progMode(); ST.prog=ST.prog||{}; ST.prog[m]=ST.prog[m]||{}; if(!ST.prog[m][d]) ST.prog[m][d]=JSON.parse(JSON.stringify(_progBase()[d].ex)); return ST.prog[m][d]; }
 function uid(){ ST.meta=ST.meta||{}; ST.meta._uidc=(ST.meta._uidc||0)+1; return 'u'+ST.meta._uidc+'_'+String(Math.random()).slice(2,7); }
+// slug ascii-safe pra key de campo/categoria customizada (medida extra, ângulo de foto extra). Reaproveitado nos módulos 2 e 3.
+function slugify(str){
+  const base=String(str||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase()
+    .replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'').slice(0,24);
+  return base || uid();
+}
 function exId(day,i){ const ex=dayEx(day)[i]; return (ex&&ex.id) ? ex.id : (day+'_'+i); }
 function migrateLogsStableId(){
   if(!ST.meta) ST.meta={};
@@ -2677,6 +2802,40 @@ function upsertToday(id, sets){
   const ex=ST.logs[id].find(s=>s.date===t);
   if(ex) ex.sets=sets; else ST.logs[id].push({date:t, sets});
   saveK('logs');
+}
+
+/* ============ COMENTÁRIO DO DIA (módulo 1b) ============
+   Contextual e datado — mora JUNTO do log da sessão ({date, sets, cmt?}),
+   diferente da nota permanente do exercício (ST.exmeta, módulo 1a).
+   storeKey: 'logs' (academia) ou 'freelog' (casa). Salva sem re-render (preserva foco). */
+function todayComment(storeKey, id){
+  const h=(ST[storeKey]&&ST[storeKey][id])||[];
+  const ex=h.find(s=>s.date===today());
+  return (ex && ex.cmt) || '';
+}
+function saveDayComment(storeKey, id, value){
+  if(!ST[storeKey][id]) ST[storeKey][id]=[];
+  const t=today();
+  let ex=ST[storeKey][id].find(s=>s.date===t);
+  if(!ex){ ex={date:t, sets:[]}; ST[storeKey][id].push(ex); }
+  const v=String(value||'').trim();
+  if(v) ex.cmt=v; else delete ex.cmt;
+  saveK(storeKey);
+}
+function dayCommentsHtml(storeKey, id){
+  const h=(ST[storeKey]&&ST[storeKey][id])||[];
+  const t=today();
+  const prev=h.filter(s=>s.cmt && s.cmt.trim() && s.date!==t).sort((a,b)=>a.date<b.date?1:-1);
+  if(!prev.length) return '';
+  const rows=prev.map(s=>`<div class="cmt-hist-row"><span class="cmt-hist-d">${esc(s.date.slice(5))}</span><span class="cmt-hist-t">${esc(s.cmt)}</span></div>`).join('');
+  return `<details class="cmt-hist"><summary>Comentários anteriores (${prev.length})</summary>${rows}</details>`;
+}
+function dayCommentBlock(storeKey, id){
+  const cur=todayComment(storeKey, id);
+  return `<div class="cmt-day">
+    <input placeholder="Comentário de hoje (opcional) — ex: fiz na outra máquina" value="${esc(cur)}" oninput="saveDayComment('${storeKey}','${id}',this.value)">
+    ${dayCommentsHtml(storeKey, id)}
+  </div>`;
 }
 
 /* ============ FREELOG: sessões de casa (paralelo a logs) ============
@@ -3428,7 +3587,8 @@ function renderDay(d){
       }).join(" · ");
       const e1=bestE1RM(last.sets);
       const e1Txt = e1>0?` · e1RM <b style="color:var(--core)">${(Math.round(e1*10)/10)}kg</b>`:'';
-      lastTxt=`${I.hist} Última (${esc(last.date.slice(5))}): ${sets}${e1Txt}`;
+      const cmtTxt = last.cmt ? ` <span class="cmt-inline">· ${esc(last.cmt)}</span>` : '';
+      lastTxt=`${I.hist} Última (${esc(last.date.slice(5))}): ${sets}${e1Txt}${cmtTxt}`;
     } else {
       lastTxt=`${I.hist} Primeira vez — crie sua base. Comece leve e suba 1-2 séries.`;
     }
@@ -3543,6 +3703,7 @@ function renderDay(d){
         ${e.t==='cardio' ? '<div class="colhead r-cardio"><span></span><span>min</span><span></span></div>' : '<div class="colhead r4"><span></span><span>kg</span><span>reps</span><span>RIR</span><span></span></div>'}
         ${rows}
         <div class="loghint"><span>RIR = reps em reserva (0-2 = ideal)</span><span class="saved" id="sv_${id}">${I.check2} salvo</span></div>
+        ${dayCommentBlock('logs', id)}
       </div>
     </div>`;
   });
@@ -3712,7 +3873,8 @@ function renderHomeDay(templateId){
         const rir=(s.rir!=null && String(s.rir).trim()!=='')?`@${fmtInt(s.rir)}`:'';
         return `<b>${kg}${fmtInt(s.reps)||'–'}${rir}</b>`;
       }).join(" · ");
-      lastTxt=`${I.hist} Última (${esc(last.date.slice(5))}): ${sets}`;
+      const cmtTxt = last.cmt ? ` <span class="cmt-inline">· ${esc(last.cmt)}</span>` : '';
+      lastTxt=`${I.hist} Última (${esc(last.date.slice(5))}): ${sets}${cmtTxt}`;
     } else {
       lastTxt=`${I.hist} Primeira vez — começa do que aguentar.`;
     }
@@ -3758,6 +3920,7 @@ function renderHomeDay(templateId){
         ${e.t==='cardio' ? '<div class="colhead r-cardio"><span></span><span>min</span><span></span></div>' : '<div class="colhead r4"><span></span><span>kg</span><span>reps</span><span>RIR</span><span></span></div>'}
         ${rows}
         <div class="loghint"><span>kg opcional pra calistenia. Marca ✓ quando terminar a série.</span><span class="saved" id="sv_${id}">${I.check2} salvo</span></div>
+        ${dayCommentBlock('freelog', id)}
       </div>
     </div>`;
   });
@@ -4297,62 +4460,78 @@ function renderCorpo(){
   }
 
   // MEDIDAS
+  const mFields = allMeasureFields();
   const latestM = ST.measures.length? ST.measures[ST.measures.length-1] : null;
-  const firstM = ST.measures.length? ST.measures[0] : null;
   h+=`<h2 class="sec">Medidas</h2>
   <div class="check-card">
-    <h3><span class="ic" style="color:var(--pull)">${I.ruler}</span>Nova medida (cm)</h3>`;
-  for(const [k,nm] of MEASURE_FIELDS){
+    <h3><span class="ic" style="color:var(--pull)">${I.ruler}</span>Nova medida de hoje (cm)</h3>`;
+  mFields.forEach(([k,nm,prio,custom],i)=>{
     const last = latestM?latestM[k]:'';
-    h+=`<div class="ilog" style="${k!=='peito'?'border-top:1px solid var(--line);padding-top:10px':''}">
-      <span class="lb">${nm}</span>
+    h+=`<div class="ilog mfield-row" style="${i>0?'border-top:1px solid var(--line);padding-top:10px':''}">
+      <span class="lb">${esc(nm)}${prio?'<span class="star">★</span>':''}</span>
       <input id="m_${k}" inputmode="decimal" placeholder="${last||'cm'}">
       <span class="u">cm</span>
+      ${custom?`<button class="mrm" onclick="removeCustomMeasureField('${k}')" aria-label="Remover">×</button>`:''}
     </div>`;
-  }
+  });
+  h+=`<input id="m_nota" class="mnota" type="text" maxlength="200" placeholder="Nota (opcional) — ex: de manhã, em jejum">`;
+  h+=`<button class="maddfield" onclick="addCustomMeasureField()">+ Medida</button>`;
   h+=`<div class="tools" style="margin-top:12px"><button onclick="saveMeasures()">Salvar medidas de hoje</button></div>`;
-  if(latestM){
-    h+=`<div style="margin-top:14px;font-size:11.5px;color:var(--muted);font-weight:600">Última (${latestM.date.slice(5)}): `;
-    h+=MEASURE_FIELDS.filter(([k])=>latestM[k]).map(([k,nm])=>{
-      const d=firstM&&firstM!==latestM&&firstM[k]?` <b style="color:${(latestM[k]-firstM[k])>=0?'var(--ok)':'var(--push)'}">(${(latestM[k]-firstM[k])>=0?'+':''}${(latestM[k]-firstM[k]).toFixed(1)})</b>`:'';
-      return `${nm.split(' ')[0]} <b style="color:var(--ink)">${latestM[k]}cm</b>${d}`;
-    }).join(' · ');
-    h+=`</div>`;
-  }
   h+=`</div>`;
 
-  // FOTOS
-  h+=`<h2 class="sec">Fotos · progresso</h2>
-  <div class="check-card">
-    <h3><span class="ic" style="color:var(--pull)">${I.camera}</span>Tire foto cada 2 semanas (mesma luz/pose)</h3>
-    <label class="uploadbtn">${I.camera} Adicionar foto de hoje
-      <input type="file" accept="image/*" capture="environment" onchange="addPhoto(this)">
-    </label>`;
-  if(ST.photos.length){
-    h+=`<div class="photos-grid">`;
-    ST.photos.slice().reverse().forEach((p,idx)=>{
-      const realIdx = ST.photos.length-1-idx;
-      h+=`<div class="pthumb">
-        <img src="${p.dataUrl}" alt="${p.date}">
-        <button class="px" onclick="delPhoto(${realIdx})">×</button>
-        <div class="pdate">${p.date.slice(5)}</div>
+  // EVOLUÇÃO POR MEDIDA (sparkline neutro + delta vs primeira)
+  const fieldsWithData = mFields.map(([k,nm,prio])=>({k,nm,prio,pts:measureFieldStats(k)})).filter(f=>f.pts.length);
+  if(fieldsWithData.length){
+    h+=`<h2 class="sec">Evolução por medida</h2><div class="mevo-grid">`;
+    for(const f of fieldsWithData){
+      const last=f.pts[f.pts.length-1], first=f.pts[0];
+      const hasDelta=f.pts.length>1;
+      const delta=hasDelta?(last.v-first.v):0;
+      h+=`<div class="mevo-card">
+        <div class="mevo-hd"><span class="mevo-nm">${esc(f.nm.split(' ')[0])}${f.prio?'<span class="star">★</span>':''}</span><span class="mevo-v">${last.v}<small>cm</small></span></div>
+        ${hasDelta?`${measureSparkSvg(f.pts)}<div class="mevo-delta">${delta>=0?'+':''}${delta.toFixed(1)}cm desde ${first.date.slice(5)}</div>`:'<div class="mevo-delta">primeira medição</div>'}
+      </div>`;
+    }
+    h+=`</div>`;
+  }
+
+  // HISTÓRICO DE MEDIDAS — cada data é tocável (edita/corrige/exclui)
+  if(ST.measures.length){
+    h+=`<h2 class="sec">Histórico de medidas</h2><div class="histcard">`;
+    ST.measures.slice().reverse().forEach(m=>{
+      const filled=mFields.filter(([k])=>m[k]!=null).length;
+      h+=`<div class="hrow" style="cursor:pointer" onclick="openMeasureEdit('${m.date}')">
+        <div class="hbadge">${I.ruler}</div>
+        <div class="hmeta">
+          <div class="hnm">${esc(m.date.slice(5).replace('-','/'))}</div>
+          <div class="hsub">${filled} medida${filled!==1?'s':''}${m.nota?' · '+esc(m.nota):''}</div>
+        </div>
+        <div class="hdur">${I.chevR}</div>
       </div>`;
     });
     h+=`</div>`;
+    if(ST.measures.length>=2){
+      h+=`<div class="tools" style="margin-bottom:14px"><button onclick="openMeasureCompare()">${I.trend} Comparar 2 datas</button></div>`;
+    }
   }
-  h+=`</div>`;
+
+  // FOTOS (módulo 3 — pixels no IndexedDB, ver renderPhotoSection)
+  h+=renderPhotoSection();
 
   app.innerHTML=h;
+  renderPhotoThumbs();
 }
 
 function saveMeasures(){
   const t=today();
   const m={date:t};
   let any=false;
-  for(const [k] of MEASURE_FIELDS){
+  for(const [k] of allMeasureFields()){
     const el=document.getElementById('m_'+k);
     if(el && el.value.trim()){ m[k]=num(el.value); any=true; }
   }
+  const notaEl=document.getElementById('m_nota');
+  if(notaEl && notaEl.value.trim()) m.nota=notaEl.value.trim();
   if(!any){ showToast('Preencha pelo menos uma medida', 'warn', 2000); return; }
   ST.measures = ST.measures.filter(x=>x.date!==t);
   ST.measures.push(m);
@@ -4363,32 +4542,500 @@ function saveMeasures(){
   renderCorpo();
 }
 
-function addPhoto(input){
+/* ---- Campos customizados de medida ---- */
+function addCustomMeasureField(){
+  const label=prompt('Nome da medida (ex: Pescoço, Bíceps E):');
+  if(!label || !label.trim()) return;
+  const lbl=label.trim().slice(0,40);
+  const existingKeys=new Set(allMeasureFields().map(f=>f[0]));
+  let key=slugify(lbl);
+  while(existingKeys.has(key)) key=key+'_'+String(Math.random()).slice(2,4);
+  ST.measureCfg.custom.push({key, label:lbl+' (cm)'});
+  saveK('measureCfg');
+  renderCorpo();
+  showToast('Medida adicionada', 'ok', 1600);
+}
+function removeCustomMeasureField(key){
+  if(!confirm('Remover esta medida da lista? O histórico já registrado continua guardado.')) return;
+  const f=ST.measureCfg.custom.find(x=>x.key===key);
+  if(f) f.removed=true;
+  saveK('measureCfg');
+  renderCorpo();
+}
+
+/* ---- Evolução por medida (sparkline neutro) ---- */
+function measureFieldStats(key){
+  return ST.measures.filter(m=>m[key]!=null).map(m=>({date:m.date, v:m[key]}));
+}
+function measureSparkSvg(pts){
+  if(pts.length<2) return '';
+  const vals=pts.map(p=>p.v);
+  const min=Math.min(...vals), max=Math.max(...vals);
+  const rng=Math.max(0.5, max-min);
+  const w=140, hh=28;
+  const line=pts.map((p,i)=>{
+    const x=(i/(pts.length-1))*w;
+    const y=hh-((p.v-min)/rng)*hh;
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(' ');
+  return `<svg class="mspark" viewBox="0 0 ${w} ${hh}" preserveAspectRatio="none"><polyline points="${line}" fill="none" stroke="#9c8f99" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+}
+
+/* ---- Editar/corrigir/excluir uma medição de qualquer data ---- */
+let measureEditDate=null;
+function openMeasureEdit(date){
+  measureEditDate = date || today();
+  const existing = ST.measures.find(x=>x.date===measureEditDate) || {};
+  const isNew = !ST.measures.some(x=>x.date===measureEditDate);
+  const fields = allMeasureFields();
+  const rows = fields.map(([k,nm,prio],i)=>`<div class="ilog" style="${i>0?'border-top:1px solid var(--line);padding-top:10px':''}">
+      <span class="lb">${esc(nm)}${prio?'<span class="star">★</span>':''}</span>
+      <input id="me_${k}" inputmode="decimal" value="${existing[k]!=null?existing[k]:''}" placeholder="cm">
+      <span class="u">cm</span>
+    </div>`).join('');
+  let ov=document.getElementById('measureEdit');
+  if(!ov){ ov=document.createElement('div'); ov.id='measureEdit'; ov.className='exedit-back'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true'); ov.onclick=(e)=>{ if(e.target===ov) closeMeasureEdit(); }; document.body.appendChild(ov); }
+  ov.innerHTML = `<div class="exedit-card">
+    <div class="exedit-hd"><span>${isNew?'Nova medição':'Editar medição'}</span><button class="exedit-x" onclick="closeMeasureEdit()" aria-label="Fechar">×</button></div>
+    <label class="exedit-l" for="me_date">Data</label>
+    <input id="me_date" class="exedit-in" type="date" value="${measureEditDate}" max="${today()}">
+    ${rows}
+    <label class="exedit-l" for="me_nota">Nota (opcional)</label>
+    <input id="me_nota" class="exedit-in" type="text" maxlength="200" value="${esc(existing.nota||'')}" placeholder="Ex: de manhã, em jejum">
+    <div class="exedit-ctrl">
+      ${!isNew?`<button class="exedit-btn ghost" onclick="deleteMeasureDate()" style="color:var(--push)">Excluir</button>`:''}
+      <button class="exedit-btn cancel" onclick="closeMeasureEdit()">Cancelar</button>
+      <button class="exedit-btn save" onclick="saveMeasureEdit()">Salvar</button>
+    </div>
+  </div>`;
+  ov.classList.remove('hidden');
+}
+function closeMeasureEdit(){ const ov=document.getElementById('measureEdit'); if(ov) ov.classList.add('hidden'); measureEditDate=null; }
+function saveMeasureEdit(){
+  const dateEl=document.getElementById('me_date');
+  const newDate=(dateEl && dateEl.value) || measureEditDate;
+  if(!newDate) return;
+  if(newDate!==measureEditDate && ST.measures.some(x=>x.date===newDate)){
+    if(!confirm('Já existe uma medição em '+newDate.slice(5)+'. Substituir os valores dela?')) return;
+  }
+  const m={date:newDate};
+  let any=false;
+  for(const [k] of allMeasureFields()){
+    const el=document.getElementById('me_'+k);
+    if(el && el.value.trim()){ m[k]=num(el.value); any=true; }
+  }
+  const notaEl=document.getElementById('me_nota');
+  if(notaEl && notaEl.value.trim()) m.nota=notaEl.value.trim();
+  if(!any){ showToast('Preencha pelo menos uma medida', 'warn', 2000); return; }
+  if(measureEditDate && measureEditDate!==newDate){
+    ST.measures = ST.measures.filter(x=>x.date!==measureEditDate);
+  }
+  ST.measures = ST.measures.filter(x=>x.date!==newDate);
+  ST.measures.push(m);
+  ST.measures.sort((a,b)=>a.date<b.date?-1:1);
+  saveK('measures');
+  closeMeasureEdit();
+  renderCorpo();
+  showToast('Medição salva ✓', 'ok', 1800);
+}
+function deleteMeasureDate(){
+  if(!measureEditDate) return;
+  if(!confirm('Excluir a medição de '+measureEditDate.slice(5)+'?')) return;
+  ST.measures = ST.measures.filter(x=>x.date!==measureEditDate);
+  saveK('measures');
+  closeMeasureEdit();
+  renderCorpo();
+}
+
+/* ---- Comparar 2 datas (com peso mais próximo de cada) ---- */
+function nearestBW(date){
+  if(!ST.bw.length) return null;
+  let best=null, bestDiff=Infinity;
+  for(const b of ST.bw){
+    const diff=Math.abs(daysBetween(b.date, date));
+    if(diff<bestDiff){ bestDiff=diff; best=b; }
+  }
+  return best;
+}
+function openMeasureCompare(){
+  const dates=ST.measures.map(m=>m.date);
+  if(dates.length<2){ showToast('Precisa de pelo menos 2 medições', 'warn'); return; }
+  renderMeasureCompareBody(dates[0], dates[dates.length-1]);
+}
+function renderMeasureCompareBody(dateA, dateB){
+  const dates=ST.measures.map(m=>m.date);
+  const optsFor=(sel)=>dates.map(d=>`<option value="${d}"${d===sel?' selected':''}>${d.slice(5)}</option>`).join('');
+  const mA=ST.measures.find(m=>m.date===dateA)||{};
+  const mB=ST.measures.find(m=>m.date===dateB)||{};
+  const bwA=nearestBW(dateA), bwB=nearestBW(dateB);
+  const rows=allMeasureFields().filter(([k])=>mA[k]!=null||mB[k]!=null).map(([k,nm])=>{
+    const a=mA[k], b=mB[k];
+    const delta=(a!=null && b!=null)?(b-a):null;
+    const dTxt=delta!=null?`<b style="color:${delta<=0?'var(--ok)':'var(--push)'}">${delta>=0?'+':''}${delta.toFixed(1)}</b>`:'—';
+    return `<tr><td>${esc(nm.split(' ')[0])}</td><td>${a!=null?a+'cm':'—'}</td><td>${b!=null?b+'cm':'—'}</td><td>${dTxt}</td></tr>`;
+  }).join('');
+  let bwRow='';
+  if(bwA || bwB){
+    const a=bwA?bwA.kg:null, b=bwB?bwB.kg:null;
+    const delta=(a!=null && b!=null)?(b-a):null;
+    const dTxt=delta!=null?`<b style="color:${delta<=0?'var(--ok)':'var(--push)'}">${delta>=0?'+':''}${delta.toFixed(1)}</b>`:'—';
+    const noteA=bwA&&bwA.date!==dateA?` <small>(${esc(bwA.date.slice(5))})</small>`:'';
+    const noteB=bwB&&bwB.date!==dateB?` <small>(${esc(bwB.date.slice(5))})</small>`:'';
+    bwRow=`<tr><td>Peso</td><td>${a!=null?a+'kg'+noteA:'—'}</td><td>${b!=null?b+'kg'+noteB:'—'}</td><td>${dTxt}</td></tr>`;
+  }
+  let ov=document.getElementById('measureCompare');
+  if(!ov){ ov=document.createElement('div'); ov.id='measureCompare'; ov.className='exedit-back'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true'); ov.onclick=(e)=>{ if(e.target===ov) closeMeasureCompare(); }; document.body.appendChild(ov); }
+  ov.innerHTML = `<div class="exedit-card">
+    <div class="exedit-hd"><span>Comparar medidas</span><button class="exedit-x" onclick="closeMeasureCompare()" aria-label="Fechar">×</button></div>
+    <div class="mcmp-sel">
+      <select id="mcmp_a" onchange="renderMeasureCompareBody(this.value, document.getElementById('mcmp_b').value)">${optsFor(dateA)}</select>
+      <span>${I.chevR}</span>
+      <select id="mcmp_b" onchange="renderMeasureCompareBody(document.getElementById('mcmp_a').value, this.value)">${optsFor(dateB)}</select>
+    </div>
+    <table class="mcmp-table"><thead><tr><th></th><th>${esc(dateA.slice(5))}</th><th>${esc(dateB.slice(5))}</th><th>Δ</th></tr></thead><tbody>${rows}${bwRow}</tbody></table>
+  </div>`;
+  ov.classList.remove('hidden');
+}
+function closeMeasureCompare(){ const ov=document.getElementById('measureCompare'); if(ov) ov.classList.add('hidden'); }
+
+/* ============ FOTOS: IndexedDB pros pixels (módulo 3) ============
+   localStorage estoura em ~1 ano de fotos (base64 inteiro no ST.photos antigo).
+   Pixels agora ficam no IndexedDB (sem teto prático de manutenção); metadados leves
+   (photometa = [{id,date,angle}]) ficam no localStorage e entram no backup "de dados".
+   Backup dos PIXELS é separado (grande, ocasional) — ver exportPhotosBackup.
+   Se IndexedDB não disponível, cai pro fallback antigo (ST.photos com dataUrl inline)
+   sem perder nada — a migração tenta de novo a cada boot. */
+const PHOTO_DB_NAME='treinoela_photos_db', PHOTO_DB_VERSION=1, PHOTO_STORE='pixels';
+let _photoDB=null, _photoDBFailed=false;
+function openPhotoDB(){
+  if(_photoDB) return Promise.resolve(_photoDB);
+  if(_photoDBFailed || typeof indexedDB==='undefined') return Promise.resolve(null);
+  return new Promise((resolve)=>{
+    let req;
+    try{ req=indexedDB.open(PHOTO_DB_NAME, PHOTO_DB_VERSION); }
+    catch(e){ _photoDBFailed=true; resolve(null); return; }
+    req.onupgradeneeded=()=>{ if(!req.result.objectStoreNames.contains(PHOTO_STORE)) req.result.createObjectStore(PHOTO_STORE); };
+    req.onsuccess=()=>{ _photoDB=req.result; resolve(_photoDB); };
+    req.onerror=()=>{ _photoDBFailed=true; resolve(null); };
+    req.onblocked=()=>{ resolve(null); };
+  });
+}
+function photoDBPut(id, dataUrl){
+  return openPhotoDB().then(db=>{
+    if(!db) return false;
+    return new Promise((resolve)=>{
+      let tx; try{ tx=db.transaction(PHOTO_STORE,'readwrite'); }catch(e){ resolve(false); return; }
+      tx.objectStore(PHOTO_STORE).put(dataUrl, id);
+      tx.oncomplete=()=>resolve(true);
+      tx.onerror=()=>resolve(false);
+      tx.onabort=()=>resolve(false);
+    });
+  });
+}
+function photoDBGet(id){
+  return openPhotoDB().then(db=>{
+    if(!db) return null;
+    return new Promise((resolve)=>{
+      let tx; try{ tx=db.transaction(PHOTO_STORE,'readonly'); }catch(e){ resolve(null); return; }
+      const req=tx.objectStore(PHOTO_STORE).get(id);
+      req.onsuccess=()=>resolve(req.result||null);
+      req.onerror=()=>resolve(null);
+    });
+  });
+}
+function photoDBDelete(id){
+  return openPhotoDB().then(db=>{
+    if(!db) return false;
+    return new Promise((resolve)=>{
+      let tx; try{ tx=db.transaction(PHOTO_STORE,'readwrite'); }catch(e){ resolve(false); return; }
+      tx.objectStore(PHOTO_STORE).delete(id);
+      tx.oncomplete=()=>resolve(true);
+      tx.onerror=()=>resolve(false);
+    });
+  });
+}
+function photoDBGetAll(){
+  return openPhotoDB().then(db=>{
+    if(!db) return {};
+    return new Promise((resolve)=>{
+      let tx; try{ tx=db.transaction(PHOTO_STORE,'readonly'); }catch(e){ resolve({}); return; }
+      const store=tx.objectStore(PHOTO_STORE);
+      const out={};
+      if(store.getAllKeys && store.getAll){
+        const rKeys=store.getAllKeys(), rVals=store.getAll();
+        tx.oncomplete=()=>{ (rKeys.result||[]).forEach((k,i)=>{ out[k]=(rVals.result||[])[i]; }); resolve(out); };
+        tx.onerror=()=>resolve(out);
+      } else {
+        const req=store.openCursor();
+        req.onsuccess=(e)=>{ const cur=e.target.result; if(cur){ out[cur.key]=cur.value; cur.continue(); } else resolve(out); };
+        req.onerror=()=>resolve(out);
+      }
+    });
+  });
+}
+function photoDBClear(){
+  return openPhotoDB().then(db=>{
+    if(!db) return false;
+    return new Promise((resolve)=>{
+      let tx; try{ tx=db.transaction(PHOTO_STORE,'readwrite'); }catch(e){ resolve(false); return; }
+      tx.objectStore(PHOTO_STORE).clear();
+      tx.oncomplete=()=>resolve(true);
+      tx.onerror=()=>resolve(false);
+    });
+  });
+}
+// Migração não-destrutiva: só remove do fallback antigo (ST.photos) o que confirmou gravado no IDB.
+// Idempotente — roda todo boot; se IDB indisponível não mexe em nada e tenta de novo depois.
+async function migrateLegacyPhotos(){
+  if(!ST.photos || !ST.photos.length) return;
+  const remaining=[];
+  for(const p of ST.photos){
+    const id=uid();
+    const ok=await photoDBPut(id, p.dataUrl);
+    if(ok) ST.photometa.push({id, date:p.date, angle:p.angle||'frente'});
+    else remaining.push(p);
+  }
+  const migrated = remaining.length < ST.photos.length;
+  ST.photos=remaining;
+  if(migrated){ saveK('photos'); saveK('photometa'); if(tab==='corpo') renderCorpo(); }
+}
+
+const PHOTO_ANGLES=[['frente','Frente'],['lado','Lado'],['costas','Costas']];
+function allPhotoAngles(){
+  const custom=((ST.photoCfg&&ST.photoCfg.customAngles)||[]).filter(c=>!c.removed).map(c=>[c.key,c.label,true]);
+  return [...PHOTO_ANGLES.map(a=>[a[0],a[1],false]), ...custom];
+}
+function addPhotoAngle(){
+  const label=prompt('Nome do ângulo (ex: Bíceps, Perna):');
+  if(!label || !label.trim()) return;
+  const lbl=label.trim().slice(0,30);
+  const existing=new Set(allPhotoAngles().map(a=>a[0]));
+  let key=slugify(lbl);
+  while(existing.has(key)) key=key+'_'+String(Math.random()).slice(2,4);
+  ST.photoCfg.customAngles.push({key, label:lbl});
+  saveK('photoCfg');
+  renderCorpo();
+}
+function removePhotoAngle(key){
+  if(!confirm('Remover este ângulo da lista? As fotos já tiradas continuam guardadas.')) return;
+  const f=ST.photoCfg.customAngles.find(x=>x.key===key);
+  if(f) f.removed=true;
+  saveK('photoCfg');
+  renderCorpo();
+}
+// Une IDB (pixels async, via photometa) + fallback legado (dataUrl já em mão) numa lista só.
+function allPhotoRecords(){
+  const idb=ST.photometa.map(p=>({id:p.id, date:p.date, angle:p.angle||'frente', legacy:false}));
+  const leg=ST.photos.map((p,i)=>({id:'legacy_'+i, date:p.date, angle:p.angle||'frente', legacy:true, dataUrl:p.dataUrl}));
+  return [...idb, ...leg].sort((a,b)=>a.date<b.date?1:-1);
+}
+function addPhoto(input, angle){
   const f=input.files&&input.files[0]; if(!f) return;
   const r=new FileReader();
   r.onload=()=>{
     const img=new Image();
-    img.onload=()=>{
+    img.onload=async ()=>{
       const maxW=800; const ratio=Math.min(1, maxW/img.width);
-      const w=Math.round(img.width*ratio), h=Math.round(img.height*ratio);
-      const c=document.createElement('canvas'); c.width=w; c.height=h;
-      const ctx=c.getContext('2d'); ctx.drawImage(img,0,0,w,h);
+      const w=Math.round(img.width*ratio), hh=Math.round(img.height*ratio);
+      const c=document.createElement('canvas'); c.width=w; c.height=hh;
+      const ctx=c.getContext('2d'); ctx.drawImage(img,0,0,w,hh);
       const dataUrl=c.toDataURL('image/jpeg', 0.78);
-      ST.photos.push({date:today(), dataUrl});
-      if(!saveK('photos')){
-        ST.photos.pop(); // rollback
-        alert('Sem espaço! Apague fotos antigas (toque no ×) e tente de novo.');
+      const id=uid();
+      const ok=await photoDBPut(id, dataUrl);
+      if(!ok){
+        ST.photos.push({date:today(), dataUrl, angle});
+        if(!saveK('photos')){ ST.photos.pop(); alert('Sem espaço! Apague fotos antigas e tente de novo.'); return; }
+        renderCorpo();
         return;
       }
+      ST.photometa.push({id, date:today(), angle});
+      saveK('photometa');
       renderCorpo();
     };
     img.src=r.result;
   };
   r.readAsDataURL(f);
+  input.value='';
 }
-function delPhoto(idx){
+async function delPhoto(id, legacy){
   if(!confirm('Apagar essa foto?')) return;
-  ST.photos.splice(idx,1); saveK('photos'); renderCorpo();
+  if(legacy){
+    const idx=parseInt(String(id).replace('legacy_',''));
+    ST.photos.splice(idx,1);
+    saveK('photos');
+  } else {
+    await photoDBDelete(id);
+    ST.photometa=ST.photometa.filter(p=>p.id!==id);
+    saveK('photometa');
+  }
+  renderCorpo();
+}
+function renderPhotoSection(){
+  const angles=allPhotoAngles();
+  const all=allPhotoRecords();
+  let h=`<h2 class="sec">Fotos · progresso</h2>
+  <div class="check-card">
+    <h3><span class="ic" style="color:var(--pull)">${I.camera}</span>Tire foto cada 2 semanas (mesma luz/pose)</h3>
+    <div class="pangle-btns">`;
+  for(const [key,label,custom] of angles){
+    h+=`<div class="pangle-btn-wrap">
+      <label class="uploadbtn pangle-btn">${I.camera} ${esc(label)}
+        <input type="file" accept="image/*" capture="environment" onchange="addPhoto(this,'${key}')">
+      </label>
+      ${custom?`<button class="mrm pangle-rm" onclick="removePhotoAngle('${key}')" aria-label="Remover ângulo">×</button>`:''}
+    </div>`;
+  }
+  h+=`</div><button class="maddfield" onclick="addPhotoAngle()">+ Outra</button>`;
+  if(all.length){
+    for(const [key,label] of angles){
+      const items=all.filter(p=>p.angle===key);
+      if(!items.length) continue;
+      h+=`<div class="pangle-group"><div class="pangle-hd">${esc(label)} <span class="pangle-cnt">${items.length}</span></div><div class="photos-grid">`;
+      items.forEach(p=>{
+        h+=`<div class="pthumb">
+          ${p.legacy?`<img src="${p.dataUrl}" alt="${esc(p.date)}">`:`<img data-pid="${p.id}" alt="${esc(p.date)}">`}
+          <button class="px" onclick="delPhoto('${p.id}',${!!p.legacy})">×</button>
+          <div class="pdate">${esc(p.date.slice(5))}</div>
+        </div>`;
+      });
+      h+=`</div></div>`;
+    }
+    if(all.length>=2){
+      h+=`<div class="tools" style="margin-top:10px"><button onclick="openPhotoCompare()">${I.trend} Comparar fotos</button></div>`;
+    }
+  }
+  h+=`</div>`;
+  return h;
+}
+function renderPhotoThumbs(){
+  document.querySelectorAll('img[data-pid]').forEach(async img=>{
+    const id=img.dataset.pid;
+    const dataUrl=await photoDBGet(id);
+    if(dataUrl && img.isConnected) img.src=dataUrl;
+  });
+}
+
+/* ---- Comparar fotos: abas de ângulo + 2 datas + 3 modos ---- */
+let photoCmpMode='side', photoCmpAngle=null, photoCmpA=null, photoCmpB=null;
+function openPhotoCompare(){
+  const angles=allPhotoAngles().map(a=>a[0]).filter(k=>allPhotoRecords().some(p=>p.angle===k));
+  if(!angles.length){ showToast('Sem fotos suficientes', 'warn'); return; }
+  photoCmpAngle=angles.includes(photoCmpAngle)?photoCmpAngle:angles[0];
+  const items=allPhotoRecords().filter(p=>p.angle===photoCmpAngle).sort((a,b)=>a.date<b.date?-1:1);
+  photoCmpA=items[0]&&items[0].date; photoCmpB=items[items.length-1]&&items[items.length-1].date;
+  photoCmpMode='side';
+  renderPhotoCompareBody();
+}
+async function fillCmpImg(elId, rec){
+  if(!rec) return;
+  const src = rec.legacy ? rec.dataUrl : await photoDBGet(rec.id);
+  const el=document.getElementById(elId);
+  if(src && el) el.src=src;
+}
+function renderPhotoCompareBody(){
+  const angles=allPhotoAngles().filter(([k])=>allPhotoRecords().some(p=>p.angle===k));
+  const items=allPhotoRecords().filter(p=>p.angle===photoCmpAngle).sort((a,b)=>a.date<b.date?-1:1);
+  const dates=items.map(p=>p.date);
+  const pA=items.find(p=>p.date===photoCmpA)||items[0];
+  const pB=items.find(p=>p.date===photoCmpB)||items[items.length-1];
+  const bwA=pA&&nearestBW(pA.date), bwB=pB&&nearestBW(pB.date);
+  const tabs=angles.map(([k,lbl])=>`<button class="pcmp-tab ${k===photoCmpAngle?'on':''}" onclick="photoCmpAngle='${k}';openPhotoCompareAngle()">${esc(lbl)}</button>`).join('');
+  const optsFor=(sel)=>dates.map(d=>`<option value="${d}"${d===sel?' selected':''}>${esc(d.slice(5))}</option>`).join('');
+  const modeLabels={side:'Lado a lado', slider:'Slider', overlay:'Sobreposição'};
+  const modeBtns=Object.keys(modeLabels).map(m=>`<button class="pcmp-mode ${m===photoCmpMode?'on':''}" onclick="photoCmpMode='${m}';renderPhotoCompareBody()">${modeLabels[m]}</button>`).join('');
+
+  let body;
+  if(!pA || !pB || pA===pB){
+    body=`<p style="color:var(--muted);font-size:13px;padding:16px 0;text-align:center">Precisa de 2 fotos diferentes nesse ângulo.</p>`;
+  } else if(photoCmpMode==='slider'){
+    body=`<div class="pcmp-slider-stack">
+        <img id="pcmp_img_b" class="pcmp-img pcmp-base">
+        <div class="pcmp-clip" id="pcmp_clip"><img id="pcmp_img_a" class="pcmp-img"></div>
+      </div>
+      <input type="range" min="0" max="100" value="50" oninput="document.getElementById('pcmp_clip').style.clipPath='inset(0 '+(100-this.value)+'% 0 0)'">
+      <div class="pcmp-cap">${esc(pA.date.slice(5))}${bwA?` · ${bwA.kg}kg`:''} → ${esc(pB.date.slice(5))}${bwB?` · ${bwB.kg}kg`:''}</div>`;
+  } else if(photoCmpMode==='overlay'){
+    body=`<div class="pcmp-overlay-stack">
+        <img id="pcmp_img_a" class="pcmp-img">
+        <img id="pcmp_img_b" class="pcmp-img pcmp-over" style="opacity:.5">
+      </div>
+      <input type="range" min="0" max="100" value="50" oninput="document.getElementById('pcmp_img_b').style.opacity=(this.value/100)">
+      <div class="pcmp-cap">${esc(pA.date.slice(5))} ↔ ${esc(pB.date.slice(5))}</div>`;
+  } else {
+    body=`<div class="pcmp-side">
+        <div class="pcmp-half"><img id="pcmp_img_a" class="pcmp-img"><div class="pcmp-cap">${esc(pA.date.slice(5))}${bwA?` · ${bwA.kg}kg`:''}</div></div>
+        <div class="pcmp-half"><img id="pcmp_img_b" class="pcmp-img"><div class="pcmp-cap">${esc(pB.date.slice(5))}${bwB?` · ${bwB.kg}kg`:''}</div></div>
+      </div>`;
+  }
+
+  let ov=document.getElementById('photoCompare');
+  if(!ov){ ov=document.createElement('div'); ov.id='photoCompare'; ov.className='exedit-back'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true'); ov.onclick=(e)=>{ if(e.target===ov) closePhotoCompare(); }; document.body.appendChild(ov); }
+  ov.innerHTML=`<div class="exedit-card">
+    <div class="exedit-hd"><span>Comparar fotos</span><button class="exedit-x" onclick="closePhotoCompare()" aria-label="Fechar">×</button></div>
+    <div class="pcmp-tabs">${tabs}</div>
+    ${pA&&pB?`<div class="mcmp-sel">
+      <select onchange="photoCmpA=this.value;renderPhotoCompareBody()">${optsFor(photoCmpA)}</select>
+      <span>${I.chevR}</span>
+      <select onchange="photoCmpB=this.value;renderPhotoCompareBody()">${optsFor(photoCmpB)}</select>
+    </div>
+    <div class="pcmp-modes">${modeBtns}</div>`:''}
+    ${body}
+  </div>`;
+  ov.classList.remove('hidden');
+  if(pA && pB && pA!==pB){ fillCmpImg('pcmp_img_a', pA); fillCmpImg('pcmp_img_b', pB); }
+}
+function openPhotoCompareAngle(){
+  const items=allPhotoRecords().filter(p=>p.angle===photoCmpAngle).sort((a,b)=>a.date<b.date?-1:1);
+  photoCmpA=items[0]&&items[0].date; photoCmpB=items[items.length-1]&&items[items.length-1].date;
+  renderPhotoCompareBody();
+}
+function closePhotoCompare(){ const ov=document.getElementById('photoCompare'); if(ov) ov.classList.add('hidden'); }
+
+/* ---- Backup de fotos (separado — pode ficar grande, prefere share/download a clipboard) ---- */
+async function exportPhotosBackup(){
+  const pixels=await photoDBGetAll();
+  const full={_v:1, _at:new Date().toISOString(), photometa:ST.photometa, pixels};
+  const json=JSON.stringify(full);
+  const filename=`meutreino-fotos-${today()}.json`;
+  try{
+    if(navigator.share){
+      const file=new File([json], filename, {type:'application/json'});
+      if(navigator.canShare && navigator.canShare({files:[file]})){
+        await navigator.share({files:[file], title:'Backup de fotos'});
+        showToast('Backup de fotos compartilhado', 'ok', 2200);
+        return;
+      }
+    }
+  }catch(e){ /* cancelado ou não suportado — cai pro download */ }
+  const blob=new Blob([json], {type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 4000);
+  showToast('Backup de fotos baixado', 'ok', 2200);
+}
+async function importPhotosBackupData(o){
+  let added=0, skipped=0;
+  const existingIds=new Set(ST.photometa.map(p=>p.id));
+  for(const meta of (o.photometa||[])){
+    if(existingIds.has(meta.id)){ skipped++; continue; }
+    const px=o.pixels && o.pixels[meta.id];
+    if(!px){ skipped++; continue; }
+    const ok=await photoDBPut(meta.id, px);
+    if(ok){ ST.photometa.push(meta); existingIds.add(meta.id); added++; } else skipped++;
+  }
+  saveK('photometa');
+  return {added, skipped};
+}
+function importPhotosBackup(){
+  const v=document.getElementById('impPhotos').value.trim(); if(!v) return;
+  let o;
+  try{ o=JSON.parse(v); }catch(e){ alert('Backup de fotos inválido: '+e.message); return; }
+  if(!o.photometa || !o.pixels){ alert('Backup de fotos inválido: formato não reconhecido.'); return; }
+  importPhotosBackupData(o).then(({added,skipped})=>{
+    alert(`Fotos importadas: ${added} novas, ${skipped} já existiam ou vieram incompletas.`);
+    renderCorpo();
+  });
 }
 
 /* ============ MAIS — princípios + nutrição + backup ============ */
@@ -4485,7 +5132,7 @@ function renderMais(){
 
   <h2 class="sec">Backup dos teus dados</h2>
   <div class="infocard">
-    <p>Os registros (treinos, peso, sono, fotos) ficam neste dispositivo. Faça backup periódico.</p>
+    <p>Os registros (treinos, peso, sono, medidas) ficam neste dispositivo. Faça backup periódico.</p>
     <div class="tools">
       <button onclick="exportData()">Exportar</button>
       <button onclick="document.getElementById('imp').classList.toggle('hidden')">Importar</button>
@@ -4495,6 +5142,17 @@ function renderMais(){
     <textarea id="exp" class="hidden" readonly></textarea>
     <textarea id="imp" class="hidden" placeholder="Cole aqui um backup e toque em 'Confirmar importação'"></textarea>
     <div class="tools hidden" id="impbtn"><button onclick="importData()">Confirmar importação</button></div>
+  </div>
+
+  <h2 class="sec">Backup das fotos</h2>
+  <div class="infocard">
+    <p>As fotos ficam separadas dos dados (arquivo maior, backup mais espaçado). Guarde esse arquivo num lugar seguro de vez em quando.</p>
+    <div class="tools">
+      <button onclick="exportPhotosBackup()">Exportar fotos</button>
+      <button onclick="document.getElementById('impPhotos').classList.toggle('hidden');document.getElementById('impPhotosBtn').classList.toggle('hidden')">Importar fotos</button>
+    </div>
+    <textarea id="impPhotos" class="hidden" placeholder="Cole aqui um backup de fotos e toque em 'Confirmar importação'"></textarea>
+    <div class="tools hidden" id="impPhotosBtn"><button onclick="importPhotosBackup()">Confirmar importação de fotos</button></div>
   </div>
   <div class="foot">Adicione à Tela de Início no Android: menu do Chrome (⋮) → "Adicionar à tela inicial".<br>Feito sob medida pro seu treino — força, não balança.<br><span style="color:var(--faint);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px">versão ${APP_VERSION}</span></div>`;
   app.innerHTML=h;
@@ -4565,6 +5223,7 @@ document.addEventListener('input',e=>{
 function resetData(){
   if(confirm('Apagar TODOS os registros deste app (treinos, peso, sono, fotos)?')){
     for(const k of Object.keys(LS)){ ST[k]=JSON.parse(JSON.stringify(DEFAULTS[k])); saveK(k); }
+    photoDBClear();
     render();
   }
 }
@@ -5065,6 +5724,8 @@ async function boot(){
   maybeShowA2HSBanner();
   // 5. Backup reminder semanal (delay 1.5s pra não competir com outros toasts no boot)
   setTimeout(checkBackupReminder, 1500);
+  // 6. Migração de fotos legadas (localStorage) pro IndexedDB — não-destrutiva, idempotente
+  migrateLegacyPhotos();
 }
 setTimer(90);
 migrateLogsStableId();
