@@ -4511,9 +4511,12 @@ function renderCorpo(){
     });
     h+=`</div>`;
     if(ST.measures.length>=2){
-      h+=`<div class="tools" style="margin-bottom:14px"><button onclick="openMeasureCompare()">${I.trend} Comparar 2 datas</button></div>`;
+      h+=`<div class="tools" style="margin-bottom:10px"><button onclick="openMeasureCompare()">${I.trend} Comparar 2 datas</button></div>`;
     }
   }
+  h+=`<div class="tools" style="margin-bottom:6px"><button onclick="document.getElementById('impMeasures').classList.toggle('hidden');document.getElementById('impMeasuresBtn').classList.toggle('hidden')">Importar medidas (JSON)</button></div>
+  <textarea id="impMeasures" class="hidden" placeholder='Cole aqui um JSON de medidas — soma ao que já existe, nunca sobrescreve uma data que já tem medição'></textarea>
+  <div class="tools hidden" id="impMeasuresBtn" style="margin-bottom:14px"><button onclick="importMeasuresBackup()">Confirmar importação de medidas</button></div>`;
 
   // FOTOS (módulo 3 — pixels no IndexedDB, ver renderPhotoSection)
   h+=renderPhotoSection();
@@ -4697,6 +4700,34 @@ function renderMeasureCompareBody(dateA, dateB){
   ov.classList.remove('hidden');
 }
 function closeMeasureCompare(){ const ov=document.getElementById('measureCompare'); if(ov) ov.classList.add('hidden'); }
+
+/* ---- Importar medidas via JSON — aditivo, nunca sobrescreve uma data já existente ---- */
+function importMeasuresBackup(){
+  const v=document.getElementById('impMeasures').value.trim(); if(!v) return;
+  let o;
+  try{ o=JSON.parse(v); }catch(e){ alert('JSON inválido: '+e.message); return; }
+  const incoming = Array.isArray(o) ? o : (o && Array.isArray(o.measures) ? o.measures : null);
+  if(!incoming){ alert('Formato não reconhecido. Espera um array de medições, ou {measures:[...], measureCfg?:{custom:[...]}}.'); return; }
+  const customIn = (!Array.isArray(o) && o.measureCfg && o.measureCfg.custom) || [];
+  const existingKeys = new Set(ST.measureCfg.custom.map(c=>c.key));
+  for(const c of customIn){
+    if(c && c.key && !existingKeys.has(c.key)){ ST.measureCfg.custom.push({key:c.key, label:c.label||c.key}); existingKeys.add(c.key); }
+  }
+  saveK('measureCfg');
+  let added=0, skipped=0;
+  const existingDates=new Set(ST.measures.map(m=>m.date));
+  for(const m of incoming){
+    if(!m || !m.date || existingDates.has(m.date)){ skipped++; continue; }
+    ST.measures.push(m);
+    existingDates.add(m.date);
+    added++;
+  }
+  ST.measures.sort((a,b)=>a.date<b.date?-1:1);
+  saveK('measures');
+  document.getElementById('impMeasures').value='';
+  renderCorpo();
+  showToast(`Medidas importadas: ${added} novas${skipped?`, ${skipped} já existiam ou eram inválidas`:''}`, 'ok', 2800);
+}
 
 /* ============ FOTOS: IndexedDB pros pixels (módulo 3) ============
    localStorage estoura em ~1 ano de fotos (base64 inteiro no ST.photos antigo).
