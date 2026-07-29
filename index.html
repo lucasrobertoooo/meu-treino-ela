@@ -2132,6 +2132,15 @@ const ST = JSON.parse(JSON.stringify(DEFAULTS));
 for(const k of Object.keys(LS)){
   try{ const r=localStorage.getItem(LS[k]); if(r) ST[k]=JSON.parse(r); }catch(e){}
 }
+// Migração defensiva/blindagem: logs deve ser {exId: [{date, sets:[...]}]}.
+// Remove entradas malformadas (ex: JSON de outro import colado no campo errado —
+// já aconteceu: um backup de medidas foi colado aqui e virou ST.logs.measures,
+// travando o app inteiro ao tentar ler .sets de algo que não é uma sessão real).
+if(!ST.logs || typeof ST.logs!=='object' || Array.isArray(ST.logs)) ST.logs={};
+for(const _lk of Object.keys(ST.logs)){
+  const _lv=ST.logs[_lk];
+  if(!Array.isArray(_lv) || _lv.some(s=>!s || typeof s!=='object' || !Array.isArray(s.sets))){ delete ST.logs[_lk]; }
+}
 // Migração: protein por dia. Schema antigo era {0:count, 1:count}; novo é [{n,q,p},...]
 for(const date in ST.protein){
   if(!Array.isArray(ST.protein[date])) ST.protein[date]=[];
@@ -5164,9 +5173,10 @@ function renderMais(){
   <h2 class="sec">Backup dos teus dados</h2>
   <div class="infocard">
     <p>Os registros (treinos, peso, sono, medidas) ficam neste dispositivo. Faça backup periódico.</p>
+    <p style="color:var(--push);font-weight:600">Atenção: "Importar" aqui SUBSTITUI TUDO (restaura um backup completo). Pra só medidas ou só fotos, use os botões específicos (aba Corpo ou logo abaixo).</p>
     <div class="tools">
-      <button onclick="exportData()">Exportar</button>
-      <button onclick="document.getElementById('imp').classList.toggle('hidden')">Importar</button>
+      <button onclick="exportData()">Exportar backup completo</button>
+      <button onclick="document.getElementById('imp').classList.toggle('hidden')">Importar backup completo (substitui tudo)</button>
       <button onclick="clearTodayData()">Apagar dados de hoje</button>
       <button onclick="resetData()">Apagar tudo</button>
     </div>
@@ -5224,22 +5234,39 @@ async function exportData(){
   }catch(e){ /* share cancel ou unsupported, segue */ }
   if(!copied) showToast('Backup gerado abaixo — copie pra um lugar seguro', 'info', 3000);
 }
+// Formato ANTIGUÍSSIMO (pré-versionamento): objeto raiz = {exId: [{date, sets:[...]}]} direto,
+// sem chave 'logs'. Só aceita como isso se TODO valor bater com essa forma — senão é
+// provável que seja outro tipo de arquivo (medidas, fotos, backup incompleto) colado no
+// campo errado, e tratar como "logs cru" corrompe o app inteiro (já aconteceu uma vez).
+function looksLikeAncientRawLogs(o){
+  if(!o || typeof o!=='object' || Array.isArray(o)) return false;
+  const keys=Object.keys(o);
+  if(!keys.length) return false;
+  return keys.every(k=>{
+    const v=o[k];
+    return Array.isArray(v) && v.every(s=>s && typeof s==='object' && typeof s.date==='string' && Array.isArray(s.sets));
+  });
+}
 function importData(){
   const v=document.getElementById('imp').value.trim(); if(!v) return;
   try{
     const o=JSON.parse(v);
-    // Reset ST inteiro pro default antes de aplicar (evita Frankenstein)
     if(o.logs!==undefined){
+      // Reset ST inteiro pro default antes de aplicar (evita Frankenstein)
       for(const k of Object.keys(LS)){
         ST[k] = (o[k]!==undefined) ? o[k] : JSON.parse(JSON.stringify(DEFAULTS[k]));
         saveK(k);
       }
-    } else {
+    } else if(looksLikeAncientRawLogs(o)){
       // backup MUITO antigo: só logs em raiz
       for(const k of Object.keys(LS)){
         ST[k] = JSON.parse(JSON.stringify(DEFAULTS[k]));
+        saveK(k);
       }
       ST.logs=o; saveK('logs');
+    } else {
+      alert('Esse texto não parece um backup completo do Meu Treino (faltou a chave "logs" e não bate com o formato antigo). Nada foi alterado.\n\nPra importar só medidas, use "Importar medidas (JSON)" na aba Corpo. Pra importar só fotos, use "Importar fotos" aqui embaixo.');
+      return;
     }
     // re-roda migração de protein
     for(const date in ST.protein){
