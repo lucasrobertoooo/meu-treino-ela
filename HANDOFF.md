@@ -2,7 +2,7 @@
 
 PWA single-file de treino pra ela. Android/Chrome. Fork do MeuTreino (do Lucas) que **já divergiu bastante** — não assuma que o que vale lá vale aqui.
 
-**Última atualização:** 2026-08-15.01 (auditoria: 8 correções de bug, ver § Auditoria 2026-08-15. SHELL v42)
+**Última atualização:** 2026-08-15.04 (dia de mais cardio; camada de inteligência reescrita; auditoria de 8 bugs. SHELL v45)
 
 ## Antes de codar: ler primeiro
 - **§ Diferenças pro MeuTreino** — o que diverge, e por quê. É onde mora quase todo bug de porte.
@@ -128,9 +128,31 @@ session, freelog, exmeta, prog, measureCfg, photometa, photoCfg
 
 ---
 
+## Camada de inteligência (2026-08-15.03)
+
+O app dava conselho útil por ~8 semanas e depois repetia a mesma frase pra sempre. Simulei 24 semanas rodando o código real: da semana 10 à 24 ele mostrava "bateu o topo, sobe carga", "plateau" e "considere trocar" ao mesmo tempo, se contradizendo.
+
+- **`progressState(id, ex)`** é o ponto único: um estado, uma mensagem, uma ação. Estados: `inicio`, `progredindo`, `tentando`, `travado-passo`, `fadiga`, `mantendo`, `trocar`, `travado`. Substituiu os três banners independentes. **Nada é gravado**: o conselho anterior é recalculado da sessão anterior via `suggestFrom`, então funciona sobre o histórico atual, sem migração e sem chave nova.
+- **`globalLoadStep()` / `loadStepFor()`** — o app fabricava o platô que depois diagnosticava, sugerindo +1kg numa pilha de placas de 5. `inferLoadStep` sozinho não resolve: travada, o exercício nunca acumula 2 cargas distintas. Agora cai pro passo do app inteiro.
+- **`sessionRIR()`** — o RIR era gravado em toda série e nenhuma função lia. 3+ sessões travadas com RIR ≤1 viram diagnóstico de fadiga, não "troque de exercício".
+- **`bwTrend()`** — a progressão nunca lia `ST.bw`. Carga parada com peso caindo é massa magra preservada (Helms, Aragon & Fitschen 2014), não fracasso. **Depende de ela se pesar** (mínimo 4 pesagens em 28 dias); sem isso cai no estado genérico.
+- **`autoDetectDeload()`** (no boot) — semana leve é o que ela FAZ, não o que declara. Janela móvel de 7 dias contra as 4 anteriores (alinhadas por dia da semana por construção); ≤60% do volume marca sozinho. Antes o alerta vermelho ficava aceso até alguém tocar em "Feito".
+- **`refSession()`** — depois do deload o app prescrevia a carga do deload. Detecta sessão leve pelo número de séries e retoma de onde parou.
+- **`shouldSwapExercise()`** perdeu o gatilho "12 semanas no mesmo exercício", que ficava aceso por meses. Só sugere depois de deload feito (Fonseca et al 2014 e Baz-Valle et al 2019 argumentam contra variar por variar).
+
+## Dia de mais cardio (2026-08-15.04)
+
+Toggle no topo do treino aberto (`cardioDayOn` / `toggleCardioDay` / `cardioPlan`). Ligado, apaga os exercícios que menos fazem falta hoje e estende a bike com o tempo liberado.
+
+Ordem de decisão em `cardioPlan(d)`: (1) o que o corpo **ainda não recebeu esta semana** (`weeklyVolume` dos últimos 7 dias contra `MG_TARGETS`), (2) `MG_PRIORITY` (glúteo e glúteo médio), (3) composto sai por último, (4) o primeiro exercício do dia nunca sai. Teto: sempre sobram 3 exercícios de força.
+
+Dias A/B/D dobram (15→30 min). O dia C não dobra (25→43): dobrar 25 min exigiria apagar quase o treino inteiro. **Quando não dobra, a UI diz o número real** (`plan.dobrou` é a flag honesta). Exercício apagado continua registrável e conta no volume. Marcação por data em `ST.meta.cardioDays`, expira em 30 dias, entra no backup.
+
 ## Pendências (precisam de decisão do Lucas)
 - **Metas nutricionais** ainda são as dele (150p/350c/2800kcal). Pra 60kg em perda de gordura, 2800 é superávit.
-- **Frequência do superior:** só o dia C treina a parte de cima. Se ela treina 3x/semana, o superior sai ~0,7x/semana.
+- **Frequência do superior:** ela **escolheu manter 1x/semana** (2026-08-15). Com isso o dia C passa a ser manutenção, não crescimento, o que é legítimo num déficit. Não reabrir sem ela pedir.
+- **Equilíbrio do `WK_CASA`:** dia B tem 52 min contra 68 do C. Proposta pendente: acrescentar concha com mini-band 3×15-20 e bom dia com halter leve 3×12-15 (ambos zero joelho, sobem glúteo médio 8→11 e posterior 8,5→11,5, e emparelham os 4 dias em 63-68 min).
+- **Ponte de glúteo** no `WK_CASA` (`b_5c`, `d_5c`): **confirmado que fica** (2026-08-15). Joelho flexionado e parado, carga passa pelo quadril: sem prejuízo pro joelho dela.
 - **Sequência A→B:** cadeira extensora aparece nos dois dias, que são consecutivos na rotação.
 - **`HOME_SESSIONS`** do fork: remover ou substituir pelos templates dela.
 - **`index.html.bak-*`** (9 arquivos, 2,2MB): gitignorados, não vão pro Pages, mas poluem qualquer `grep` na pasta.
