@@ -655,6 +655,28 @@
     background:rgba(255,107,92,.08); border:1px solid rgba(255,107,92,.25);
     font-size:12px; color:#ffbab2; font-weight:600;
   }
+  /* ---- dia de mais cardio ---- */
+  .cardioday{
+    display:flex; align-items:center; gap:11px; width:100%; text-align:left;
+    margin:0 0 12px; padding:11px 13px; border-radius:14px; cursor:pointer;
+    background:rgba(138,148,166,.10); border:1px solid rgba(138,148,166,.26);
+    color:var(--ink); font-family:inherit;
+  }
+  .cardioday.on{ background:rgba(122,208,192,.13); border-color:rgba(122,208,192,.40); }
+  .cardioday .cd-ic{ display:inline-flex; color:#8a94a6; flex:none; }
+  .cardioday.on .cd-ic{ color:#7ad0c0; }
+  .cardioday .cd-body{ display:flex; flex-direction:column; gap:2px; min-width:0; }
+  .cardioday .cd-t{ font-size:13.5px; font-weight:700; }
+  .cardioday .cd-s{ font-size:11.5px; color:var(--muted); font-weight:600; line-height:1.4; }
+  /* exercício que o app recomenda pular hoje: apagado, mas continua clicável e registrável */
+  .ex.cd-off{ opacity:.42; filter:saturate(.35); position:relative; }
+  .ex.cd-off .cd-tag{
+    position:absolute; z-index:3; top:8px; left:8px; padding:4px 9px; border-radius:8px;
+    background:rgba(10,12,16,.82); color:#c3cad6; font-size:10.5px; font-weight:700;
+    letter-spacing:.02em;
+  }
+  .met.cd-up{ color:#7ad0c0; font-weight:700; }
+
   /* estado bom que parece ruim: carga parada com peso caindo = massa magra preservada */
   .holding{
     margin-top:8px; padding:9px 12px; border-radius:12px;
@@ -1698,7 +1720,7 @@
 
 <script>
 /* ============ VERSÃO (visível na aba Mais pra confirmar deploy) ============ */
-const APP_VERSION = '2026-08-15.03';
+const APP_VERSION = '2026-08-15.04';
 
 /* ============ ÍCONES (Lucide, inline) ============ */
 const I = {
@@ -3629,6 +3651,84 @@ function autoDetectDeload(){
     saveK('meta');
   }
 }
+/* ============ DIA DE MAIS CARDIO ============
+   Ela marca "hoje quero mais cardio" e o app escolhe o que vale manter pra abrir tempo,
+   apagando o resto. Não bloqueia nada: é recomendação, ela pode fazer o que quiser.
+
+   O que decide o que fica:
+   1. o que o corpo dela ainda não recebeu ESTA SEMANA (weeklyVolume vs MG_TARGETS) — é a
+      parte "olha os treinos anteriores": se glúteo já levou 16 séries nos últimos 7 dias e
+      posterior levou 3, o posterior fica e o glúteo é o primeiro a sair;
+   2. prioridade do objetivo dela (glúteo e glúteo médio, MG_PRIORITY);
+   3. composto rende mais músculo por minuto que isolador, então sai por último;
+   4. o primeiro exercício do dia nunca sai (é o carro-chefe do treino).
+
+   O tempo liberado é medido de verdade (séries × (execução + descanso)) e a meta é liberar
+   o suficiente pra DOBRAR o cardio daquele dia. */
+function exMinutes(e){
+  if(!e || e.t==='cardio') return 0;
+  const rest = REST[e.t] ?? 90;
+  const work = e.t==='comp' ? 40 : 35;
+  return (parseInt(e.s)||3) * (work + rest) / 60;
+}
+function cardioDayOn(d){
+  const m=(ST.meta && ST.meta.cardioDays) || {};
+  return m[today()]===d;
+}
+function toggleCardioDay(d){
+  ST.meta=ST.meta||{};
+  ST.meta.cardioDays=ST.meta.cardioDays||{};
+  const t=today();
+  if(ST.meta.cardioDays[t]===d) delete ST.meta.cardioDays[t];
+  else ST.meta.cardioDays[t]=d;
+  // guarda só os últimos 30 dias, senão isso cresce pra sempre
+  for(const k of Object.keys(ST.meta.cardioDays)){
+    if(daysBetween(k, t)>30 || daysBetween(k, t)<-1) delete ST.meta.cardioDays[k];
+  }
+  saveK('meta');
+  render();
+}
+function cardioPlan(d){
+  const ex=dayEx(d).map(exEff);
+  const idx=ex.map((e,i)=>i);
+  const cardio=ex.find(e=>e.t==='cardio');
+  const baseMin=cardio ? (parseInt(cardio.r)||0) : 0;
+  const alvo=baseMin;                                  // dobrar = liberar o mesmo tanto de tempo
+  const vol=weeklyVolume();
+  const valor=(e)=>{
+    let s=0;
+    for(const [mg,w] of Object.entries(e.mg||{})){
+      if(mg==='cardio') continue;
+      const meta=MG_TARGETS[mg]||0;
+      const feito=vol[mg]||0;
+      const falta=meta>0 ? Math.max(0, Math.min(1,(meta-feito)/meta)) : 0.5;
+      s += w * (falta*2 + (MG_PRIORITY[mg] ? 1.5 : 0));
+    }
+    if(e.t==='comp') s+=1;
+    if(e.t==='core') s-=0.3;
+    return s;
+  };
+  // candidatos a sair: tudo menos o cardio e o primeiro exercício do dia
+  const cand=idx.filter(i=>ex[i].t!=='cardio' && i!==0)
+                .sort((a,b)=> valor(ex[a])-valor(ex[b]) || b-a);
+  const fora=new Set();
+  let liberado=0;
+  /* Teto: sempre sobram pelo menos 3 exercícios de força. Sem isso, o dia C (25 min de bike)
+     precisaria apagar quase tudo pra dobrar, e um "treino" de 2 exercícios não é treino.
+     Quando não dá pra dobrar, o app estende o cardio no tanto que conseguiu abrir e diz o
+     número real, em vez de prometer o dobro e entregar outra coisa. */
+  const nForca=idx.filter(i=>ex[i].t!=='cardio').length;
+  const maxFora=Math.max(1, nForca-3);
+  for(const i of cand){
+    if(liberado>=alvo || fora.size>=maxFora) break;
+    fora.add(i);
+    liberado+=exMinutes(ex[i]);
+  }
+  liberado=Math.round(liberado);
+  const extra=Math.min(liberado, alvo);             // nunca passa do dobro
+  return {fora, liberado, baseMin, cardioMin: baseMin? baseMin+extra : 0, dobrou: baseMin>0 && extra>=baseMin};
+}
+
 function needsDeload(){
   // a cada 5 semanas treinadas sem uma semana leve (a semana leve é detectada sozinha)
   const last=ST.meta.lastDeloadWeek||0;
@@ -3835,11 +3935,30 @@ function renderDay(d){
     </div>`;
   }
 
+  // Dia de mais cardio: toggle + plano do que vale manter
+  const cdOn = cardioDayOn(d);
+  const cdPlan = cdOn ? cardioPlan(d) : null;
+  {
+    const c0=dayEx(d).map(exEff).find(x=>x.t==='cardio');
+    if(c0){
+      h+=`<button class="cardioday ${cdOn?'on':''}" onclick="toggleCardioDay('${d}')">
+        <span class="cd-ic">${I.hourglass}</span>
+        <span class="cd-body">
+          <span class="cd-t">${cdOn?`Dia de mais cardio · bike de ${cdPlan.cardioMin} min`:'Quero mais cardio hoje'}</span>
+          <span class="cd-s">${cdOn
+            ? `${cdPlan.fora.size} ${cdPlan.fora.size===1?'exercício apagado abre':'exercícios apagados abrem'} ${cdPlan.liberado} min${cdPlan.dobrou?', o dobro da bike':''}. Ficaram os que o corpo ainda não recebeu esta semana. Toque pra voltar ao treino cheio.`
+            : `O app apaga o que já foi bem servido esta semana e estende a bike com o tempo que abrir.`}</span>
+        </span>
+      </button>`;
+    }
+  }
+
   dayEx(d).forEach((e0,i)=>{
     const e=exEff(e0);
     const id=exId(d,i);
     const last=lastSession(id);
     const tod=todaySession(id);
+    const cdSkip = !!(cdPlan && cdPlan.fora.has(i));
     const pillT = e.t==="comp"?"composto":(e.t==="core"?"core":(e.t==="cardio"?"cardio":"isolador"));
     const pillC = e.t==="comp"?"comp":(e.t==="core"?"core":(e.t==="cardio"?"cardio":"iso"));
     const nset=parseInt(e.s)||3;
@@ -3945,11 +4064,12 @@ function renderDay(d){
            </div>
          </div>`;
 
-    h+=`<div class="ex">
+    h+=`<div class="ex${cdSkip?' cd-off':''}">
+      ${cdSkip?`<div class="cd-tag">pode pular hoje · abre ${Math.round(exMinutes(e))} min de bike</div>`:''}
       ${photoBlock}
       <div class="body">
         <div class="target">${e.t==='cardio'
-          ? `<span class="met"><b>${e.r}</b></span><span class="dot"></span><span class="met">bike · Zona 2</span>`
+          ? `<span class="met"><b>${cdPlan && cdPlan.cardioMin ? cdPlan.cardioMin+' min' : e.r}</b></span><span class="dot"></span><span class="met">bike · Zona 2</span>${cdPlan?`<span class="dot"></span><span class="met cd-up">${cdPlan.dobrou?'dobrado hoje':'+'+(cdPlan.cardioMin-cdPlan.baseMin)+' min hoje'}</span>`:''}`
           : `<span class="met"><b>${e.s}</b> séries</span>
           <span class="dot"></span>
           <span class="met"><b>${e.r}</b> reps</span>
