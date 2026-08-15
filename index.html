@@ -1649,7 +1649,7 @@
     </div>
     <div class="presets">
       <button class="preset" data-s="90" onclick="setTimer(90)">1:30 iso</button>
-      <button class="preset" data-s="120" onclick="setTimer(120)">2:00 comp.</button>
+      <button class="preset" data-s="150" onclick="setTimer(150)">2:30 comp.</button>
       <button class="preset core" data-s="45" onclick="setTimer(45)">0:45</button>
     </div>
     <div class="tctrl">
@@ -1690,7 +1690,7 @@
 
 <script>
 /* ============ VERSÃO (visível na aba Mais pra confirmar deploy) ============ */
-const APP_VERSION = '2026-07-15.01';
+const APP_VERSION = '2026-08-15.01';
 
 /* ============ ÍCONES (Lucide, inline) ============ */
 const I = {
@@ -2518,10 +2518,21 @@ function cleanupPhantomSessions(){
     console.log(`[boot] limpou ${cleaned} sessão(ões) fantasma`);
   }
 }
-function todayISO(){ return new Date().toISOString().slice(0,10); }
+/* Data LOCAL (não UTC). toISOString() é UTC: no Brasil (UTC-3) tudo que fosse registrado
+   das 21h à meia-noite ganhava a data de AMANHÃ — sets, peso, sono, macros, medidas. */
+function localISO(d){
+  d = d || new Date();
+  const p = n => String(n).padStart(2,'0');
+  return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());
+}
+function todayISO(){ return localISO(); }
+/* Usada só pela faxina de sessões fantasma do boot — que APAGA o que não passar aqui.
+   Exigia kg>0, então toda sessão de cardio (bike, só minutos) e todo treino de casa sem
+   carga (flexão, prancha, agachamento na parede) era deletado em silêncio no boot seguinte.
+   Mesma regra do isValidDone: o que protege contra sessão fantasma é o reps>0. */
 function hasValidDoneSafe(sets){
   if(!Array.isArray(sets)) return false;
-  return sets.some(s => s && s.done && parseFloat(String(s.kg||'').replace(',','.'))>0 && parseFloat(String(s.reps||'').replace(',','.'))>0);
+  return sets.some(s => s && s.done && parseFloat(String(s.reps||'').replace(',','.'))>0);
 }
 
 /* ============ Persistent storage + quota check ============ */
@@ -2557,8 +2568,8 @@ function checkBackupReminder(){
     showToast(`Último backup há ${days} dias — exporta novo`, 'warn', 4500);
   }
 }
-function today(){ return new Date().toISOString().slice(0,10); }
-function dateAdd(iso, days){ const d=new Date(iso+'T12:00:00'); d.setDate(d.getDate()+days); return d.toISOString().slice(0,10); }
+function today(){ return localISO(); }
+function dateAdd(iso, days){ const d=new Date(iso+'T12:00:00'); d.setDate(d.getDate()+days); return localISO(d); }
 function daysBetween(a,b){ const da=new Date(a+'T12:00:00'), db=new Date(b+'T12:00:00'); return Math.round((db-da)/86400000); }
 function _progMode(){ return (ST.meta && ST.meta.local==='casa') ? 'casa' : 'academia'; }
 function _progBase(){ return _progMode()==='casa' ? WK_CASA : WK_GYM; }
@@ -2686,7 +2697,7 @@ function openBankPicker(purpose, addDay){
   }).join('');
   let ov=document.getElementById('exSwap');
   if(!ov){ ov=document.createElement('div'); ov.id='exSwap'; ov.className='exedit-back'; ov.setAttribute('role','dialog'); ov.onclick=(e)=>{ if(e.target===ov) closeSwapPicker(); }; document.body.appendChild(ov); }
-  ov.innerHTML = `<div class="exedit-card swap-card"><div class="exedit-hd"><span>${bankPurpose==='add'?'Adicionar exercício':'Trocar por…'}</span><button class="exedit-x" onclick="closeSwapPicker()" aria-label="Fechar">×</button></div><div class="swap-hint">${bankPurpose==='add'?'Escolha o exercício pra adicionar no fim do treino.':'Escolha o substituto. O histórico deste exercício zera (vira um exercício novo).'}</div><div class="swap-list">${groups}</div></div>`;
+  ov.innerHTML = `<div class="exedit-card swap-card"><div class="exedit-hd"><span>${bankPurpose==='add'?'Adicionar exercício':'Trocar por…'}</span><button class="exedit-x" onclick="closeSwapPicker()" aria-label="Fechar">×</button></div><div class="swap-hint">${bankPurpose==='add'?'Escolha o exercício pra adicionar no fim do treino.':'Escolha o substituto. Ele começa com a progressão do zero; o histórico do exercício antigo fica guardado no backup.'}</div><div class="swap-list">${groups}</div></div>`;
   ov.classList.remove('hidden');
 }
 function closeSwapPicker(){ const ov=document.getElementById('exSwap'); if(ov) ov.classList.add('hidden'); }
@@ -2703,9 +2714,11 @@ function pickBank(role, ix){
   }
   if(exEditDay==null || exEditIdx==null) return;
   const arr = ensureProgDay(exEditDay);
-  const old = arr[exEditIdx];
   arr[exEditIdx] = {...it, id:uid()};
-  if(old && old.id && ST.logs[old.id]){ delete ST.logs[old.id]; saveK('logs'); }
+  /* O substituto entra com id NOVO, então a progressão já começa do zero por construção —
+     não é preciso apagar nada. Antes havia um delete ST.logs[old.id] aqui: apagava para
+     sempre todo o histórico do exercício antigo (e o backup seguinte levava o buraco junto).
+     O histórico fica guardado sob o id antigo; some da tela porque o exercício saiu do programa. */
   saveK('prog'); closeSwapPicker(); closeExEdit(); render();
   showToast('Exercício trocado', 'ok');
 }
@@ -2968,8 +2981,20 @@ function parseRange(r){
   if(m) return {min:+m[1], max:+m[2]};
   const n=parseInt(r); return n? {min:n,max:n} : {min:8,max:12};
 }
+/* Passo de carga que a academia REALMENTE tem: infere pelas cargas já usadas neste exercício
+   em vez de chutar (evita sugerir 22.5kg numa máquina que só tem placas de 5). Precisa de ≥2
+   cargas distintas; senão usa o padrão. Zero configuração, se auto-corrige com o histórico. */
+function inferLoadStep(id){
+  const vals=[...new Set((ST.logs[id]||[]).flatMap(s=>(s.sets||[]).map(x=>num(x.kg))).filter(v=>v>0))];
+  if(vals.length<2) return 0;
+  for(const step of [5,2.5,2,1]){
+    if(vals.every(v=>Math.abs(v/step-Math.round(v/step))<1e-9)) return step;
+  }
+  return 0;
+}
 // Sugestão baseada na última sessão: se TOP set bateu top range com mesma kg, sugere +incremento; senão +1 rep ou repete.
 function suggestNext(id, e){
+  if(e && e.t==='cardio') return null;      // cardio é tempo, não carga/reps
   const last=lastSession(id);
   if(!last) return null;
   const rng=parseRange(e.r);
@@ -2978,7 +3003,9 @@ function suggestNext(id, e){
   const maxKg=Math.max(...done.map(s=>num(s.kg)));
   const topSets=done.filter(s=>num(s.kg)===maxKg);
   const minRepsTop = Math.min(...topSets.map(s=>num(s.reps)));
-  const inc = e.t==='comp' ? (maxKg>=40?5:2.5) : (maxKg>=20?2.5:1);
+  const baseInc = e.t==='comp' ? (maxKg>=40?5:2.5) : (maxKg>=20?2.5:1);
+  const step = inferLoadStep(id);
+  const inc = step ? Math.max(step, Math.round(baseInc/step)*step) : baseInc;
   if(minRepsTop >= rng.max){
     return {kg:maxKg+inc, reps:rng.min, why:"bateu o topo · sobe carga"};
   }
@@ -2987,12 +3014,32 @@ function suggestNext(id, e){
   }
   return {kg:maxKg, reps:rng.min, why:"foca em chegar no mínimo"};
 }
-// Plateau: 3 últimas sessões VÁLIDAS sem subir e1RM
+/* "Top set" da sessão: maior carga e, entre as séries nessa carga, a melhor rep.
+   Mede progresso do MESMO jeito que suggestNext prescreve (dupla progressão). Necessário porque
+   o e1RM capa reps em 12 (Brzycki): nas faixas com topo ≥13 (abdutora, extensora, flexora,
+   panturrilha, lateral, abdominais — 16 dos 25 exercícios do programa de academia) subir
+   13→15→17 reps dá e1RM IDÊNTICO, e a detecção antiga acusava "plateau" e mandava trocar o
+   exercício enquanto ela seguia exatamente o que a sugestão tinha pedido (+1 rep). */
+function sessionTop(sets){
+  const valid=(sets||[]).filter(s=>s&&num(s.kg)>0&&num(s.reps)>0);
+  if(!valid.length) return null;
+  const kg=Math.max(...valid.map(s=>num(s.kg)));
+  const reps=Math.max(...valid.filter(s=>num(s.kg)===kg).map(s=>num(s.reps)));
+  return {kg, reps};
+}
+// >0 se A progrediu em relação a B (mais carga, ou mesma carga com mais reps)
+function cmpTop(a,b){
+  if(!a||!b) return 0;
+  if(a.kg!==b.kg) return a.kg>b.kg?1:-1;
+  if(a.reps!==b.reps) return a.reps>b.reps?1:-1;
+  return 0;
+}
+// Plateau: 3 últimas sessões VÁLIDAS sem progredir (nem carga, nem reps na mesma carga)
 function detectPlateau(id){
-  const h=(ST.logs[id]||[]).filter(s=>bestE1RM(s.sets)>0);
+  const h=(ST.logs[id]||[]).filter(s=>sessionTop(s.sets));
   if(h.length<3) return false;
-  const last3=h.slice(-3).map(s=>bestE1RM(s.sets));
-  return last3[2] <= last3[0] && last3[2] <= last3[1];
+  const t=h.slice(-3).map(s=>sessionTop(s.sets));
+  return cmpTop(t[2],t[0])<=0 && cmpTop(t[2],t[1])<=0;
 }
 // Quantas semanas o usuário tem treinado esse exercício específico
 function weeksOnExercise(id){
@@ -3412,11 +3459,37 @@ function needsDeload(){
 }
 function markDeloadDone(){ ST.meta.lastDeloadWeek = weeksTraining(); saveK('meta'); }
 // Próximo treino sugerido baseado no último feito (ciclo ABCD)
+/* Descobre a que DIA (A/B/C/D) pertence a chave de um log.
+   As chaves viraram id ESTÁVEL do exercício ("a_1h", "b_6g", "c_7", "u3_18402"...) na migração
+   migrateLogsStableId, mas quem lia continuou fazendo id.split("_")[0] — que devolve "a"/"b"/"c"
+   minúsculo, dá indexOf(-1) e fazia suggestedNextDay responder SEMPRE "A". Além disso o id não
+   é rótulo de dia: "c_7" mora no dia A. A ordem importa: o programa editado (ST.prog) é o que
+   está de fato na tela, então ele tem prioridade sobre o programa base. */
+function dayOfExId(id){
+  if(!id) return null;
+  if(ST.prog){
+    for(const m of Object.keys(ST.prog)){
+      for(const d of Object.keys(ST.prog[m]||{})){
+        if((ST.prog[m][d]||[]).some(x=>x&&x.id===id)) return d;
+      }
+    }
+  }
+  for(const prog of [WK_GYM, WK_CASA]){
+    for(const d of Object.keys(prog)){
+      if((prog[d].ex||[]).some(x=>x&&x.id===id)) return d;
+    }
+  }
+  // chave posicional antiga ("A_0"), de backup anterior à migração
+  const p=String(id).split('_');
+  if(p.length===2 && ['A','B','C','D'].indexOf(p[0])>=0 && /^\d+$/.test(p[1])) return p[0];
+  return null;
+}
 function suggestedNextDay(){
   const seq=["A","B","C","D"];
   let lastDay=null, lastDate="0000-00-00";
   for(const id of Object.keys(ST.logs)){
-    const day=id.split("_")[0];
+    const day=dayOfExId(id);
+    if(seq.indexOf(day)<0) continue;
     for(const sess of ST.logs[id]){
       if(hasValidDone(sess.sets) && sess.date>lastDate){
         lastDate=sess.date; lastDay=day;
@@ -3425,6 +3498,7 @@ function suggestedNextDay(){
   }
   if(!lastDay) return "A";
   const idx=seq.indexOf(lastDay);
+  if(idx<0) return "A";
   return seq[(idx+1)%4];
 }
 
@@ -3445,7 +3519,7 @@ function sessionsForDay(day){
 function todayTrainedDays(){
   const t=today(); const set=new Set();
   for(const id of Object.keys(ST.logs)){
-    const day=id.split('_')[0];
+    const day=dayOfExId(id);
     if(!(day==='A'||day==='B'||day==='C'||day==='D')) continue;
     for(const s of ST.logs[id]){ if(s.date===t && hasValidDone(s.sets)){ set.add(day); break; } }
   }
@@ -3486,7 +3560,14 @@ function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').rep
 function fmtKg(v){ const n=num(v); return n? (Math.round(n*10)/10).toString() : '–'; }
 function fmtInt(v){ const n=parseInt(v); return isFinite(n)?String(n):'–'; }
 // Helper: set é "válido feito" se done + kg + reps preenchidos
-function isValidDone(s){ return !!(s && s.done && num(s.kg)>0 && num(s.reps)>0); }
+/* Set feito = marcado + número preenchido (reps, minutos ou segundos).
+   Exigia kg>0 também, e isso descartava TUDO que não tem carga: os 4 cardios da semana
+   (bike, só minutos), a flexão, a prancha e o agachamento na parede do programa de casa.
+   Efeito: a barra "Cardio" do volume ficava sempre em 0, o dia não contava como treino
+   (streak e "X/4 desta semana") e a conclusão automática do treino nunca disparava.
+   O reps>0 já é a proteção contra set fantasma (linha marcada sem nada digitado); as funções
+   de carga (suggestNext, bestE1RM, sessionTop) continuam exigindo kg>0 por conta própria. */
+function isValidDone(s){ return !!(s && s.done && num(s.reps)>0); }
 function validDoneCount(sets){ return (sets||[]).filter(isValidDone).length; }
 function hasValidDone(sets){ return (sets||[]).some(isValidDone); }
 
@@ -5203,6 +5284,10 @@ async function exportData(){
   const t=document.getElementById('exp'); t.classList.remove('hidden');
   const full={_v:1, _at:new Date().toISOString()};
   for(const k of Object.keys(LS)) full[k]=ST[k];
+  /* O token do GitHub (ST.meta.syncPat) NÃO vai no backup: este JSON é copiado pra área de
+     transferência e passa pelo share sheet (Notes, e-mail, WhatsApp, Arquivos). Cópia rasa
+     do meta pra não mexer no que está salvo — o token continua no app. */
+  if(full.meta && full.meta.syncPat){ full.meta={...full.meta}; delete full.meta.syncPat; }
   const json=JSON.stringify(full);
   t.value=json; t.select();
   // Marca data do backup pra evitar nag até 7d
@@ -5223,7 +5308,7 @@ async function exportData(){
   // Oferece share sheet (cole no Notes, Mail, Files, etc.)
   try{
     if(navigator.share){
-      const filename=`meutreino-backup-${new Date().toISOString().slice(0,10)}.json`;
+      const filename=`treinoela-backup-${localISO()}.json`;
       const file=new File([json], filename, {type:'application/json'});
       if(navigator.canShare && navigator.canShare({files:[file]})){
         await navigator.share({files:[file], title:'MeuTreino Backup'});
@@ -5251,6 +5336,8 @@ function importData(){
   const v=document.getElementById('imp').value.trim(); if(!v) return;
   try{
     const o=JSON.parse(v);
+    // o backup não carrega o token (ver exportData); preserva o que já está no app
+    const keepPat=(ST.meta && ST.meta.syncPat) || null;
     if(o.logs!==undefined){
       // Reset ST inteiro pro default antes de aplicar (evita Frankenstein)
       for(const k of Object.keys(LS)){
@@ -5272,6 +5359,7 @@ function importData(){
     for(const date in ST.protein){
       if(!Array.isArray(ST.protein[date])) ST.protein[date]=[];
     }
+    if(keepPat && ST.meta && !ST.meta.syncPat){ ST.meta.syncPat=keepPat; saveK('meta'); }
     alert('Backup importado.'); render();
   } catch(e){ alert('Backup inválido: '+e.message); }
 }
