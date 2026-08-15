@@ -1690,7 +1690,7 @@
 
 <script>
 /* ============ VERSÃO (visível na aba Mais pra confirmar deploy) ============ */
-const APP_VERSION = '2026-08-15.01';
+const APP_VERSION = '2026-08-15.02';
 
 /* ============ ÍCONES (Lucide, inline) ============ */
 const I = {
@@ -4123,12 +4123,15 @@ function renderHoje(){
     </div>`;
   }
 
-  // Sessões em casa — recomendadas pra hoje (não competem com ABCD)
-  // Mostra a 1ª recomendada em destaque + "Ver mais opções" pras outras
-  const homeRanked = pickHomeSessions(sug);
-  const topHome = homeRanked[0];
-  const restHome = homeRanked.slice(1);
+  /* Sessões em casa (HOME_SESSIONS) NÃO aparecem mais aqui.
+     Os 5 templates vieram do fork do MeuTreino e foram desenhados pras prioridades do Lucas
+     (largura de ombro, peito superior, calistenia de tríceps), inclusive com grupos musculares
+     que nem existem no MG_LABELS daqui. O modo casa dela é o WK_CASA, pelo toggle Academia/Casa.
+     Mantidos o motor e o ST.freelog intactos (nada é apagado); só saíram da tela. */
+  const topHome = null;
   if(topHome){
+    const homeRanked = pickHomeSessions(sug);
+    const restHome = homeRanked.slice(1);
     const tierLabel = topHome.tier==="best" ? "Recomendado pra hoje" : (topHome.tier==="avoid" ? "Evite hoje" : "Opção pra hoje");
     const reasonLine = topHome.reason || (topHome.tier==="avoid" ? "Foco já está no programa de amanhã" : "Active recovery · contribui pro volume semanal");
     h+=`<div class="home-card ${topHome.tier}" onclick="openHome('${topHome.id}')">
