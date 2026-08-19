@@ -162,10 +162,27 @@ Verificado com 18 asserts em node no código real (5 faixas de classificação, 
 
 ---
 
+## Decisões por evidência — glúteo médio e extensora (2026-08-19.02)
+
+Regra do Lucas: o treino se decide pela evidência, não por preferência. As duas pendências abertas foram fechadas assim.
+
+**1. Abdução no dia D — FEITO.** Glúteo médio estava em 8 séries/semana (meta do app: 10), só em A e B; o dia D, que é de inferiores, não tinha nenhuma. **O próprio `WK_CASA` já tem "Abdução mini-band" no dia D** — ou seja, era inconsistência entre as duas versões do programa, não escolha de design. Entrou `d_abd` (cadeira abdutora 3×12-20) depois do búlgaro: **8→11 séries, 2→3 exposições**.
+- Justificativa principal é **volume**, não frequência: a relação dose-resposta (Schoenfeld, Ogborn & Krieger 2017) sustenta subir séries num músculo prioritário abaixo da meta. O ganho de ir de 2 para 3 exposições é fraco na literatura quando o volume é igualado (Schoenfeld, Ogborn & Krieger 2016) — o que a 3ª exposição garante de fato é robustez: treinando 3-4x/semana, faltar A ou B deixava o glúteo médio com uma única dose na semana.
+- Custo de fadiga é desprezível (isolador de quadril) e a carga no joelho é **zero** — abdução não move a articulação do joelho.
+- Serve duplamente ao objetivo dela: glúteo médio é o que dá forma ao quadril visto de frente, e o fortalecimento de abdutores de quadril entra nas recomendações de manejo de dor patelofemoral junto com o trabalho de quadríceps (Willy et al 2019, JOSPT CPG).
+- **id novo `d_abd`, não `d_3`**: ids reciclados grudariam num histórico antigo no celular dela.
+
+**2. Cadeira extensora em A e B (dias consecutivos) — FICA.** Eu tinha aberto isso como pergunta pra ela; a evidência responde sem precisar perguntar.
+- Fortalecimento de quadríceps é recomendação central no manejo de dor patelofemoral (Willy et al 2019, JOSPT CPG), que é a razão pela qual o exercício está no programa dela.
+- Não há evidência de que isolador de articulação única em dias seguidos prejudique adaptação; o volume semanal e a recuperação é que mandam. 13 séries semanais dedicadas a quadríceps está dentro da faixa produtiva usual (Schoenfeld 2017).
+- Ou seja: **a evidência recomenda manter.** Retirar seria trocar uma prática apoiada por literatura por uma preferência estética de calendário.
+
+---
+
 ## Pendências (precisam de decisão do Lucas)
 - ~~Metas nutricionais~~ **resolvido em 2026-08-19.01** (1550/130/145). Confirmar os números com ela e ajustar pelo ritmo real depois de 2-3 semanas.
-- **Glúteo médio só existe em A e B; o dia D (inferiores) não tem nenhum.** Proposta: 3 séries de abdução em D — aditivo, zero joelho, sobe 8→11 com 3 exposições. Aguarda decisão.
-- **Cadeira extensora em A e B, que são dias consecutivos** (6 séries/sem do mesmo isolador). Pode ser proposital pelo raciocínio do joelho (JOSPT 2019) — conversar com ela antes de mexer.
+- ~~Glúteo médio ausente no dia D~~ **resolvido em 2026-08-19.02** — `d_abd` (cadeira abdutora 3×12-20) entrou em D. Glúteo médio 8→11 séries, 2→3 exposições.
+- ~~Cadeira extensora em A e B consecutivos~~ **decidido em 2026-08-19.02: fica como está.** Ver § Decisões por evidência.
 - **Frequência do superior:** ela **escolheu manter 1x/semana** (2026-08-15). Com isso o dia C passa a ser manutenção, não crescimento, o que é legítimo num déficit. Não reabrir sem ela pedir.
 - **Equilíbrio do `WK_CASA`:** dia B tem 52 min contra 68 do C. Proposta pendente: acrescentar concha com mini-band 3×15-20 e bom dia com halter leve 3×12-15 (ambos zero joelho, sobem glúteo médio 8→11 e posterior 8,5→11,5, e emparelham os 4 dias em 63-68 min).
 - **Ponte de glúteo** no `WK_CASA` (`b_5c`, `d_5c`): **confirmado que fica** (2026-08-15). Joelho flexionado e parado, carga passa pelo quadril: sem prejuízo pro joelho dela.
