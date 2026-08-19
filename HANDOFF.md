@@ -148,8 +148,24 @@ Ordem de decisão em `cardioPlan(d)`: (1) o que o corpo **ainda não recebeu est
 
 Dias A/B/D dobram (15→30 min). O dia C não dobra (25→43): dobrar 25 min exigiria apagar quase o treino inteiro. **Quando não dobra, a UI diz o número real** (`plan.dobrou` é a flag honesta). Exercício apagado continua registrável e conta no volume. Marcação por data em `ST.meta.cardioDays`, expira em 30 dias, entra no backup.
 
+## Metas dela + ritmo de perda visível (2026-08-19.01)
+
+Resolve a primeira pendência aberta e um bug encontrado ao resolvê-la.
+
+**Metas nutricionais eram as dele.** O app ensinava no princípio 9 "déficit lento ~0,5-0,7%/semana" e, na tela de metas, mandava o oposto: 2800 kcal com o rótulo *"Superávit leve pra hipertrofia. Ajuste pela balança: subir 0,2-0,4kg/sem"*, mais textos citando "75kg" e "se balança não sobe, +200 kcal". Agora: **1550 kcal / 130g proteína / 145g carbo**, estimados por Mifflin-St Jeor (60kg, 166cm, 33a → basal ~1310; gasto ~1900-2000 com 3-4 treinos + bike) menos ~400 de déficit. Rótulos reescritos pro perfil dela (pescetariana, perda de gordura) e o ajuste inverteu de "subir" para "descer 0,3-0,4kg/sem" (Garthe et al 2011). **São estimativa: quem manda é a balança.**
+
+**`bwTrend()` subestimava o ritmo em 33%.** Ele comparava a média dos primeiros N pontos com a dos últimos N, mas dividia pelo período INTEIRO da janela — e o centro de cada grupo fica pra dentro das pontas. Com 4 pesagens semanais caindo 0,36kg/sem, reportava 0,24. Isso atrasava o estado `mantendo` da progressão (limiar -0,15) e teria contaminado o número novo da tela. Divisor agora é a distância entre os centroides dos dois grupos.
+
+**Ritmo na aba Corpo (`bwRateInfo`).** O card de peso mostrava só "delta desde a primeira pesagem" — número que só cresce e nunca diz se o ritmo está certo. Agora mostra **kg/semana + %/semana + veredito** contra a faixa 0,5-0,8%: `no alvo` (verde), `rápido — segura, senão perde músculo` (vermelho), `devagar pro alvo` (âmbar), `estável`, `subindo`. Percentual é sobre o peso atual. Sem 4 pesagens em 28 dias não inventa número: convida a pesar.
+
+Verificado com 18 asserts em node no código real (5 faixas de classificação, guardas de dados insuficientes, render dos 3 estados, metas na tela).
+
+---
+
 ## Pendências (precisam de decisão do Lucas)
-- **Metas nutricionais** ainda são as dele (150p/350c/2800kcal). Pra 60kg em perda de gordura, 2800 é superávit.
+- ~~Metas nutricionais~~ **resolvido em 2026-08-19.01** (1550/130/145). Confirmar os números com ela e ajustar pelo ritmo real depois de 2-3 semanas.
+- **Glúteo médio só existe em A e B; o dia D (inferiores) não tem nenhum.** Proposta: 3 séries de abdução em D — aditivo, zero joelho, sobe 8→11 com 3 exposições. Aguarda decisão.
+- **Cadeira extensora em A e B, que são dias consecutivos** (6 séries/sem do mesmo isolador). Pode ser proposital pelo raciocínio do joelho (JOSPT 2019) — conversar com ela antes de mexer.
 - **Frequência do superior:** ela **escolheu manter 1x/semana** (2026-08-15). Com isso o dia C passa a ser manutenção, não crescimento, o que é legítimo num déficit. Não reabrir sem ela pedir.
 - **Equilíbrio do `WK_CASA`:** dia B tem 52 min contra 68 do C. Proposta pendente: acrescentar concha com mini-band 3×15-20 e bom dia com halter leve 3×12-15 (ambos zero joelho, sobem glúteo médio 8→11 e posterior 8,5→11,5, e emparelham os 4 dias em 63-68 min).
 - **Ponte de glúteo** no `WK_CASA` (`b_5c`, `d_5c`): **confirmado que fica** (2026-08-15). Joelho flexionado e parado, carga passa pelo quadril: sem prejuízo pro joelho dela.
