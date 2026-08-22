@@ -2,7 +2,9 @@
 
 PWA single-file de treino pra ela. Android/Chrome. Fork do MeuTreino (do Lucas) que **já divergiu bastante** — não assuma que o que vale lá vale aqui.
 
-**Última atualização:** 2026-08-15.04 (dia de mais cardio; camada de inteligência reescrita; auditoria de 8 bugs. SHELL v45)
+**Última atualização:** 2026-08-19.03 (**Estado `carga-alta`** — o app nunca mandava BAIXAR carga; portado do MeuTreino. SHELL v48)
+
+**Antes: 2026-08-15.04 (dia de mais cardio; camada de inteligência reescrita; auditoria de 8 bugs. SHELL v45)
 
 ## Antes de codar: ler primeiro
 - **§ Diferenças pro MeuTreino** — o que diverge, e por quê. É onde mora quase todo bug de porte.
@@ -176,6 +178,24 @@ Regra do Lucas: o treino se decide pela evidência, não por preferência. As du
 - Fortalecimento de quadríceps é recomendação central no manejo de dor patelofemoral (Willy et al 2019, JOSPT CPG), que é a razão pela qual o exercício está no programa dela.
 - Não há evidência de que isolador de articulação única em dias seguidos prejudique adaptação; o volume semanal e a recuperação é que mandam. 13 séries semanais dedicadas a quadríceps está dentro da faixa produtiva usual (Schoenfeld 2017).
 - Ou seja: **a evidência recomenda manter.** Retirar seria trocar uma prática apoiada por literatura por uma preferência estética de calendário.
+
+---
+
+## Estado `carga-alta` — portado do MeuTreino (2026-08-19.03)
+
+Mesmo beco sem saída que o app dele tinha: `suggestFrom` não possuía **nenhuma** saída que sugerisse reduzir carga. Ficando abaixo do piso da faixa, o app respondia "foca em chegar no mínimo" com a mesma carga, indefinidamente.
+
+**Pesa mais aqui do que no app dele:** 28 das 71 faixas deste programa começam em 12+ reps, e em déficit calórico travar abaixo do piso é o esperado, não a exceção — progressão de carga estagna naturalmente quando se está comendo menos.
+
+Dispara com 3+ sessões consecutivas abaixo do piso na mesma carga (ou maior); sugere descer um passo de equipamento (`loadStepFor`) ou 10%.
+
+**Não usa o contador `travadas`:** com as reps oscilando 12→13→12→14 o topo sobe de vez em quando, `travadas` zera e o app classifica como `progredindo` enquanto ela está parada abaixo do piso há semanas. O sinal é ficar abaixo do piso, independente do vaivém de 1 rep.
+
+Ordem em `progressState`: `tentando` → **`carga-alta`** → `travadas` → `progredindo` → `fadiga` → ... (o bloco precisa vir antes do early return de `progredindo`, senão nunca é alcançado no caso que trata).
+
+Verificado com o cenário da cadeira abdutora travada em 40kg sem fechar 12 reps (antes: "40kg × 12" pra sempre; agora: 36kg × 12 com diagnóstico), 3 guardas de não-disparo, o caso de `t:'cardio'` (devolve null, sem alerta) e os 4 renders.
+
+**Ainda NÃO portado do MeuTreino:** o modo "sessão curta" (Completo / 45 min / Essencial). Ela já tem o "dia de mais cardio", que resolve tempo por outro caminho — decidir se vale ter os dois.
 
 ---
 
