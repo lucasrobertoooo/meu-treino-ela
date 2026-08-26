@@ -1026,6 +1026,26 @@
   .spark-card svg.spark{width:100%; height:50px; display:block; margin-top:6px;}
 
   /* ============ DELOAD ALERT ============ */
+  .addset{
+    width:100%; margin-top:8px; padding:9px; border-radius:11px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:6px;
+    background:none; border:1px dashed var(--line-2);
+    color:var(--muted); font-size:12.5px; font-weight:600; font-family:inherit;
+  }
+  .addset:active{background:var(--hi-soft);}
+  .addset svg{width:13px; height:13px;}
+  .curva{display:flex; align-items:center; gap:9px; margin:-2px 0 10px;}
+  .mspark{width:96px; height:26px; flex:none;}
+  .cv-t{font-size:10.5px; color:var(--faint); font-weight:600;}
+  .cv-t b{margin-left:5px; font-size:11.5px;}
+  .swap-acts{display:flex; gap:7px; margin-top:10px;}
+  .swap-btn{
+    flex:1; padding:9px 8px; border-radius:10px; cursor:pointer; font-family:inherit;
+    font-size:12px; font-weight:600; background:var(--glass-2);
+    border:1px solid var(--line-2); color:var(--ink);
+  }
+  .swap-btn.ghost{flex:0 0 auto; background:none; color:var(--muted);}
+  .swap-btn:active{opacity:.8;}
   .deload-alert{
     background:linear-gradient(135deg, rgba(255,107,92,.18), rgba(229,72,56,.05));
     border:1px solid rgba(255,107,92,.35);
@@ -1735,7 +1755,7 @@
 
 <script>
 /* ============ VERSÃO (visível na aba Mais pra confirmar deploy) ============ */
-const APP_VERSION = '2026-08-19.03';
+const APP_VERSION = '2026-08-19.04';
 
 /* ============ ÍCONES (Lucide, inline) ============ */
 const I = {
@@ -3061,7 +3081,59 @@ function loadStepFor(id, e){
   return inferLoadStep(id) || globalLoadStep() || 0;
 }
 // Sessões que contam pra progressão. Ponto único: se um dia entrar fronteira de troca, muda aqui.
-function progressSessions(id){ return ST.logs[id]||[]; }
+/* TROCA DE EXERCÍCIO — fronteira, não apagamento (portado do MeuTreino).
+   Ao marcar "Troquei", grava a data em ST.meta.swapAt[id]. As funções de progressão só
+   olham sessões a partir dela: as cargas do exercício antigo param de contaminar as
+   sugestões do novo. Nada é deletado — o histórico continua no storage e no backup. */
+function progressSessions(id){
+  const all=ST.logs[id]||[];
+  const from=(ST.meta && ST.meta.swapAt && ST.meta.swapAt[id])||null;
+  return from ? all.filter(s=>s && s.date>=from) : all;
+}
+function markExerciseSwapped(id){
+  if(!confirm('Marcar que você trocou este exercício?\n\nO histórico antigo é preservado, mas as sugestões de carga recomeçam do zero — as cargas do exercício anterior não valem pro novo.')) return;
+  if(!ST.meta || typeof ST.meta!=='object') ST.meta={};
+  if(!ST.meta.swapAt) ST.meta.swapAt={};
+  ST.meta.swapAt[id]=today();
+  if(ST.meta.swapSnooze) delete ST.meta.swapSnooze[id];
+  saveK('meta'); render(); showToast('Progressão reiniciada pro exercício novo','ok',2600);
+}
+function snoozeSwap(id){
+  if(!ST.meta || typeof ST.meta!=='object') ST.meta={};
+  if(!ST.meta.swapSnooze) ST.meta.swapSnooze={};
+  ST.meta.swapSnooze[id]=dateAdd(today(), 56);
+  saveK('meta'); render(); showToast('Ok — não sugiro trocar por 8 semanas','ok',2400);
+}
+function swapSnoozed(id){
+  const until=(ST.meta && ST.meta.swapSnooze && ST.meta.swapSnooze[id])||null;
+  return !!(until && until>today());
+}
+
+/* CURVA DE PROGRESSO POR EXERCÍCIO (portado do MeuTreino).
+   Não usa o e1RM daqui: o Brzycki capa reps em 12 e este programa tem 28 das 71 faixas
+   começando em 12+ reps — a curva sairia reta justo onde ela progride por reps. Produto
+   kg×reps inverte no salto de carga. Epley sem capa sobe nos dois eixos; resta ~2% de
+   queda residual no salto de carga, que é ambiguidade real entre sets equivalentes.
+   Fica só no gráfico: PR e plateau seguem no Brzycki. */
+function progressoScore(sets){
+  const t=sessionTop(sets);
+  return t ? t.kg*(1+t.reps/30) : 0;
+}
+function curvaProgresso(id, max){
+  return progressSessions(id).filter(s=>sessionTop(s.sets)).slice(-(max||10))
+    .map(s=>({date:s.date, val:progressoScore(s.sets)}));
+}
+function miniSpark(series){
+  if(!series||series.length<2) return '';
+  const w=96,hh=26,pad=3;
+  const vals=series.map(s=>s.val), mn=Math.min(...vals), mx=Math.max(...vals), rng=Math.max(0.1,mx-mn);
+  const pts=series.map((s,i)=>{
+    const x=pad+(i/(series.length-1))*(w-2*pad);
+    const y=hh-pad-((s.val-mn)/rng)*(hh-2*pad);
+    return x.toFixed(1)+','+y.toFixed(1);
+  }).join(' ');
+  return `<svg class="mspark" viewBox="0 0 ${w} ${hh}" preserveAspectRatio="none"><polyline points="${pts}" fill="none" stroke="var(--pull)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+}
 /* Núcleo da sugestão, rodando sobre QUALQUER sessão (não só a última).
    Rodar sobre a penúltima é o que permite ao app saber o que ele mesmo aconselhou
    e comparar com o que aconteceu, sem gravar nada. */
@@ -3144,6 +3216,7 @@ function weeksOnExercise(id){
    mesmo exercício": ele disparava sozinho e ficava aceso por meses, virando ruído. Agora só
    sugere trocar depois que um deload FOI FEITO e mesmo assim não destravou. */
 function shouldSwapExercise(id){
+  if(swapSnoozed(id)) return null;            // ela escolheu manter este exercício
   if(!detectPlateau(id)) return null;
   const lastDeload = ST.meta.lastDeloadWeek||0;
   if(lastDeload>0 && weeksOnExercise(id)>=6) return "plateau-pos-deload";
@@ -3794,11 +3867,36 @@ function cardioPlan(d){
   return {fora, liberado, baseMin, cardioMin: baseMin? baseMin+extra : 0, dobrou: baseMin>0 && extra>=baseMin};
 }
 
+/* ÍNDICE DE FADIGA (portado do MeuTreino). O RIR era gravado em toda série e só alimentava
+   o diagnóstico de UM exercício. Deload por calendário não sabe se ela está fadigada — e em
+   déficit calórico a recuperação é pior, então fadiga acumulada aparece mais rápido.
+   Sinal coletivo: quantos exercícios travados AO MESMO TEMPO e com que RIR médio. */
+function fadigaGlobal(){
+  let travados=0, comHist=0; const rirs=[];
+  for(const d of ['A','B','C','D']){
+    (dayEx(d)||[]).forEach((e,i)=>{
+      if(!e || e.t==='core' || e.t==='cardio') return;   // não são sinal de fadiga sistêmica
+      const h=progressSessions(exId(d,i)).filter(x=>sessionTop(x.sets));
+      if(h.length<3) return;
+      comHist++;
+      const t=h.slice(-3).map(x=>sessionTop(x.sets));
+      if(cmpTop(t[2],t[1])<=0 && cmpTop(t[2],t[0])<=0) travados++;
+      const r=sessionRIR(h[h.length-1].sets); if(r!=null) rirs.push(r);
+    });
+  }
+  if(comHist<4) return null;                             // dado insuficiente: não inventa
+  const pct=travados/comHist;
+  const rirMed=rirs.length ? rirs.reduce((a,b)=>a+b,0)/rirs.length : null;
+  return {travados, comHist, pct, rirMed, alta: pct>=0.5 && (rirMed==null || rirMed<=1.5)};
+}
+/* Deload deixa de ser calendário: dispara por sinal medido. O calendário fica como rede de
+   segurança em 7 semanas (era 5) — sem mesociclo aqui, ele ainda faz falta. */
 function needsDeload(){
-  // a cada 5 semanas treinadas sem uma semana leve (a semana leve é detectada sozinha)
-  const last=ST.meta.lastDeloadWeek||0;
-  const cur=weeksTraining();
-  return cur>0 && (cur-last)>=5;
+  const f=fadigaGlobal();
+  if(f && f.alta) return f;
+  const last=ST.meta.lastDeloadWeek||0, cur=weeksTraining();
+  if(cur>0 && (cur-last)>=7) return {calendario:true, semanas:cur-last};
+  return null;
 }
 function markDeloadDone(){ ST.meta.lastDeloadWeek = weeksTraining(); saveK('meta'); }
 // Próximo treino sugerido baseado no último feito (ciclo ABCD)
@@ -3926,8 +4024,10 @@ function renderDays(){
     h+=`<div class="deload-alert">
       <div class="ic">${I.flame}</div>
       <div class="meta">
-        <div class="t">Semana de DELOAD recomendada</div>
-        <div class="f">Reduza carga -20% ou volume -50% essa semana. Volta forte semana que vem.</div>
+        <div class="t">${deload.calendario ? 'Semana leve recomendada' : 'Fadiga acumulada'}</div>
+        <div class="f">${deload.calendario
+          ? `${deload.semanas} semanas sem uma semana leve. Reduza o volume pela metade essa semana — a carga fica igual, só não vá perto da falha.`
+          : `${deload.travados} de ${deload.comHist} exercícios travados ao mesmo tempo${deload.rirMed!=null?` com RIR médio ${fmtStep(deload.rirMed)}`:''}. Isso é fadiga, não falta de esforço — reduza o volume pela metade essa semana.`}</div>
       </div>
       <button onclick="markDeloadDone(); render();">Feito</button>
     </div>`;
@@ -4026,7 +4126,9 @@ function renderDay(d){
     const cdSkip = !!(cdPlan && cdPlan.fora.has(i));
     const pillT = e.t==="comp"?"composto":(e.t==="core"?"core":(e.t==="cardio"?"cardio":"isolador"));
     const pillC = e.t==="comp"?"comp":(e.t==="core"?"core":(e.t==="cardio"?"cardio":"iso"));
-    const nset=parseInt(e.s)||3;
+    const planned=parseInt(e.s)||3;
+    // séries extras (drop set, série a mais) ficam salvas na própria sessão
+    const nset=Math.max(planned, (tod&&tod.sets&&tod.sets.length)||0);
     const url=photoURL(e.n);                  // foto SEMPRE pela chave original (PHOTO_ID/PHOTO_LOCAL keyados por e.n)
     const nm=exName(e), cue=exCue(e), note=exNote(e);   // nome/cue/nota exibidos (override do usuário se houver)
 
@@ -4062,6 +4164,10 @@ function renderDay(d){
           <div class="swap-head">${I.trend} <b>${esc(st.msg)}</b></div>
           ${alts.length ? `<div class="swap-list">${alts.map(a=>`<div class="swap-alt">• ${esc(a)}</div>`).join('')}</div>` : ''}
           <div class="swap-foot">${esc(st.nota)} Prefira a versão mais alongada (Wolf et al 2023).</div>
+          <div class="swap-acts">
+            <button class="swap-btn" onclick="markExerciseSwapped('${id}')">Troquei — reiniciar progressão</button>
+            <button class="swap-btn ghost" onclick="snoozeSwap('${id}')">Manter esse</button>
+          </div>
         </div>`;
       } else if(st.k==='fadiga' || st.k==='travado-passo' || st.k==='travado' || st.k==='carga-alta'){
         platBlock2 = `<div class="plateau">${I.flame} ${corpo}</div>`;
@@ -4155,8 +4261,13 @@ function renderDay(d){
       </div>
       <div class="log">
         <div class="last">${lastTxt}</div>
+        ${(()=>{ if(e.t==='cardio') return '';
+          const c=curvaProgresso(id); if(c.length<3) return '';
+          const dv=c[c.length-1].val-c[0].val, pct=c[0].val>0?Math.round(dv/c[0].val*100):0;
+          return `<div class="curva">${miniSpark(c)}<span class="cv-t">${c.length} sessões<b style="color:${dv>=0?'var(--ok)':'var(--push)'}">${dv>=0?'+':''}${pct}%</b></span></div>`; })()}
         ${e.t==='cardio' ? '<div class="colhead r-cardio"><span></span><span>min</span><span></span></div>' : '<div class="colhead r4"><span></span><span>kg</span><span>reps</span><span>RIR</span><span></span></div>'}
         ${rows}
+        ${e.t==='cardio' ? '' : `<button class="addset" onclick="addSet('${id}')">${I.plus}<span>Série extra${nset>planned?` · ${nset-planned} a mais`:''}</span></button>`}
         <div class="loghint"><span>RIR = reps em reserva (0-2 = ideal)</span><span class="saved" id="sv_${id}">${I.check2} salvo</span></div>
         ${dayCommentBlock('logs', id)}
       </div>
@@ -4186,6 +4297,17 @@ function flashSaved(id){
   const el=document.getElementById('sv_'+id); if(!el) return;
   el.classList.add('show'); clearTimeout(svTimer);
   svTimer=setTimeout(()=>el.classList.remove('show'),1200);
+}
+/* Série extra além do planejado (drop set, série a mais). Blindado: usa o DOM pra pegar o
+   que foi digitado e ainda não salvou, mas NUNCA encolhe o que já está gravado. */
+function addSet(id){
+  const tod=todaySession(id);
+  const stored=(tod&&Array.isArray(tod.sets))?tod.sets:[];
+  const fromDom=collect(id);
+  const sets = fromDom.length>=stored.length ? fromDom : stored.slice();
+  sets.push({kg:'', reps:'', rir:'', done:false});
+  upsertToday(id, sets);
+  render();
 }
 function onLog(inp){ const id=inp.dataset.id; upsertToday(id, collect(id)); flashSaved(id); }
 

@@ -2,7 +2,9 @@
 
 PWA single-file de treino pra ela. Android/Chrome. Fork do MeuTreino (do Lucas) que **já divergiu bastante** — não assuma que o que vale lá vale aqui.
 
-**Última atualização:** 2026-08-19.03 (**Estado `carga-alta`** — o app nunca mandava BAIXAR carga; portado do MeuTreino. SHELL v48)
+**Última atualização:** 2026-08-19.04 (**Porte do MeuTreino**: curva de progresso por exercício, fronteira de troca ("Troquei"/"Manter"), série extra e deload por fadiga medida. SHELL v49)
+
+**Antes: 2026-08-19.03 (**Estado `carga-alta`** — o app nunca mandava BAIXAR carga; portado do MeuTreino. SHELL v48)
 
 **Antes: 2026-08-15.04 (dia de mais cardio; camada de inteligência reescrita; auditoria de 8 bugs. SHELL v45)
 
@@ -196,6 +198,26 @@ Ordem em `progressState`: `tentando` → **`carga-alta`** → `travadas` → `pr
 Verificado com o cenário da cadeira abdutora travada em 40kg sem fechar 12 reps (antes: "40kg × 12" pra sempre; agora: 36kg × 12 com diagnóstico), 3 guardas de não-disparo, o caso de `t:'cardio'` (devolve null, sem alerta) e os 4 renders.
 
 **Ainda NÃO portado do MeuTreino:** o modo "sessão curta" (Completo / 45 min / Essencial). Ela já tem o "dia de mais cardio", que resolve tempo por outro caminho — decidir se vale ter os dois.
+
+---
+
+## Porte do MeuTreino — etapa 1 (2026-08-19.04)
+
+Quatro coisas que o app dele ganhou e este não tinha. **Não foi cópia cega**: o comentário do dia já existia aqui em formato próprio (`dayCommentBlock`/`saveDayComment`) e foi mantido, e o banco de exercícios com "+ Adicionar" é daqui e não existe lá.
+
+**Vantagem estrutural deste app:** os logs são keyados por **id estável** (`exId` devolve `ex.id`, com `migrateLogsStableId`), não por posição — então acrescentar coisa aqui não corre o risco de grudar histórico no exercício errado, que é o que limita o app dele.
+
+- **Curva de progresso** (`progressoScore`/`curvaProgresso`/`miniSpark`): sparkline das últimas 10 sessões + variação %, abaixo de 3 sessões não desenha. Usa Epley sem capa, não o e1RM Brzycki dos PRs — **28 das 71 faixas deste programa começam em 12+ reps**, onde o Brzycki capa e a curva sairia reta. PR e plateau seguem no Brzycki.
+- **Fronteira de troca** (`markExerciseSwapped`/`snoozeSwap`): "Troquei" grava `ST.meta.swapAt[id]` e `progressSessions` passa a filtrar por ela — as cargas do exercício antigo param de contaminar o novo, sem deletar nada. "Manter esse" silencia por 8 semanas.
+- **Série extra** (`addSet`): `nset` vira `max(planejado, salvo)`. Blindado pra nunca encolher o que já está gravado. Não aparece em exercício de cardio.
+- **Deload por fadiga medida** (`fadigaGlobal`): o RIR era gravado em toda série e só alimentava o diagnóstico de um exercício. Agora o sinal é coletivo — ≥50% dos exercícios travados com RIR médio ≤1,5. **Vale mais aqui do que no app dele: em déficit a recuperação é pior.** Core e cardio ficam de fora; menos de 4 exercícios com histórico devolve `null`. O calendário virou rede de segurança em 7 semanas (era 5) e o alerta agora diz o número medido.
+
+### Ainda não portado (etapa 2, precisa de decisão)
+- **Blocos de ênfase + mesociclo com rampa de volume.** Os dele são "peito/braços ↔ perna"; aqui o objetivo principal é perda de gordura e glúteo já é foco permanente — o conteúdo dos blocos é decisão de programa. Sem o mesociclo, o deload aqui só **avisa**, não corta as séries sozinho.
+- **Sessão curta** (Completo/45min/Essencial). Este app já tem o "dia de mais cardio", que resolve tempo por outro caminho. Ter os dois pode ficar redundante.
+
+### Verificação
+25 asserts no código real: métrica da curva nos dois eixos, fronteira zerando a progressão com `ST.logs` intacto, snooze silenciando, fadiga alta vs. saudável vs. dado insuficiente, série extra sem truncar, e os renders.
 
 ---
 
