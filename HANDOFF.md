@@ -2,7 +2,9 @@
 
 PWA single-file de treino pra ela. Android/Chrome. Fork do MeuTreino (do Lucas) que **já divergiu bastante** — não assuma que o que vale lá vale aqui.
 
-**Última atualização:** 2026-08-19.04 (**Porte do MeuTreino**: curva de progresso por exercício, fronteira de troca ("Troquei"/"Manter"), série extra e deload por fadiga medida. SHELL v49)
+**Última atualização:** 2026-08-19.05 (**Mesociclo com rampa de volume** — 4 semanas: base, base, acúmulo, semana leve. O deload agora corta as séries sozinho. SHELL v50)
+
+**Antes: 2026-08-19.04 (**Porte do MeuTreino**: curva de progresso por exercício, fronteira de troca ("Troquei"/"Manter"), série extra e deload por fadiga medida. SHELL v49)
 
 **Antes: 2026-08-19.03 (**Estado `carga-alta`** — o app nunca mandava BAIXAR carga; portado do MeuTreino. SHELL v48)
 
@@ -218,6 +220,37 @@ Quatro coisas que o app dele ganhou e este não tinha. **Não foi cópia cega**:
 
 ### Verificação
 25 asserts no código real: métrica da curva nos dois eixos, fronteira zerando a progressão com `ST.logs` intacto, snooze silenciando, fadiga alta vs. saudável vs. dado insuficiente, série extra sem truncar, e os renders.
+
+---
+
+## Mesociclo — etapa 2 parcial (2026-08-19.05)
+
+Da etapa 2 pendente, esta parte **não dependia de decisão de programa**: o mesociclo é universal; só os blocos de ênfase precisam do objetivo dela.
+
+As séries eram fixas — progressão de **carga** existia, de **volume** não. Agora roda um ciclo de 4 semanas:
+
+| Semana | Fase | Glúteo | Total |
+|---|---|---|---|
+| 1-2 | Base | 22 | 82 |
+| 3 | Acúmulo | **28** | 88 |
+| 4 | Semana leve | 12 | **50** (−39%) |
+
+O **+1 do acúmulo entra só em glúteo e glúteo médio** (`MG_PRIORITY`, que já era dela). Quadríceps e superior ficam na base. **Cardio nunca muda** — é tempo, não série.
+
+**Vale mais aqui do que no app dele:** em déficit calórico a recuperação é pior, então uma semana leve programada a cada 4 evita que a fadiga vire estagnação.
+
+O corte do deload é ~39%, não 50% exatos, porque exercício de 3 séries arredonda pra 2 e não 1,5 — está na faixa usual (40-60%) e o piso de 1 série impede zerar exercício.
+
+**O alerta de fadiga agora corta de verdade:** o botão era "Feito" (só marcava a data); virou **"Semana leve"**, que aciona `anteciparDeload()` e reduz as séries por 7 dias. E o alerta para de aparecer enquanto ela está em semana leve.
+
+**Âncora:** `ST.meta.mesoDesde` é gravado no primeiro boot com a data de hoje, pra ela começar na semana 1 (base) em vez de cair no meio de um ciclo calculado retroativamente.
+
+### Ainda pendente (precisa de decisão)
+- **Blocos de ênfase.** Os dele são "peito/braços ↔ perna". Aqui o objetivo principal é perda de gordura e glúteo já é foco permanente — o conteúdo dos blocos é decisão de programa, não de código. Sem eles, o mesociclo roda sozinho e já entrega a rampa.
+- **Sessão curta** (Completo/45min/Essencial) vs o **"dia de mais cardio"** que já existe aqui: escolher se convivem.
+
+### Verificação
+20 asserts: a rampa nas 8 semanas com ciclo 1-2-3-4, o acúmulo subindo só glúteo (quadríceps e cardio intactos), profundidade do deload comparada nos dois apps, antecipar cortando com `ST.logs` intacto, a âncora do primeiro boot, e os renders.
 
 ---
 

@@ -1046,6 +1046,20 @@
   }
   .swap-btn.ghost{flex:0 0 auto; background:none; color:var(--muted);}
   .swap-btn:active{opacity:.8;}
+  .meso{
+    background:var(--glass); border:1px solid var(--line-2);
+    border-radius:var(--r-lg); padding:13px 14px; margin-bottom:14px; box-shadow:var(--shadow-1);
+  }
+  .meso.f-acumulo{background:rgba(224,149,44,.07); border-color:rgba(224,149,44,.28);}
+  .meso.f-deload{background:rgba(179,18,42,.06); border-color:rgba(179,18,42,.22);}
+  .ms-hd{display:flex; align-items:baseline; justify-content:space-between;}
+  .ms-l{font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--faint); font-weight:700;}
+  .ms-w{font-size:12px; font-weight:700; color:var(--muted); font-variant-numeric:tabular-nums;}
+  .ms-w small{color:var(--faint);}
+  .ms-n{font-size:17px; font-weight:800; color:var(--ink); letter-spacing:-.01em; margin-top:3px;}
+  .meso.f-acumulo .ms-n{color:var(--core);}
+  .meso.f-deload .ms-n{color:var(--pull);}
+  .ms-r{font-size:11.5px; color:var(--muted); line-height:1.5; margin-top:4px;}
   .deload-alert{
     background:linear-gradient(135deg, rgba(255,107,92,.18), rgba(229,72,56,.05));
     border:1px solid rgba(255,107,92,.35);
@@ -1755,7 +1769,7 @@
 
 <script>
 /* ============ VERSÃO (visível na aba Mais pra confirmar deploy) ============ */
-const APP_VERSION = '2026-08-19.04';
+const APP_VERSION = '2026-08-19.05';
 
 /* ============ ÍCONES (Lucide, inline) ============ */
 const I = {
@@ -1898,6 +1912,50 @@ const MG_COLOR = {
   biceps:"#9b8ad0", triceps:"#c98aa0",
 };
 const MG_PRIORITY = {gluteo:true, gluteo_med:true};
+
+/* ============ MESOCICLO: rampa de volume + deload que corta sozinho ============
+   Portado do MeuTreino. As séries eram fixas: progressão de CARGA existia, de VOLUME não.
+   Ciclo de 4 semanas: 1-2 base, 3 acúmulo (+1 nos músculos prioritários), 4 deload (metade).
+   Vale mais aqui do que lá: em déficit calórico a recuperação é pior, então uma semana leve
+   programada a cada 4 evita que a fadiga se acumule até virar estagnação.
+   Ressalva honesta: sobrecarga progressiva é consenso; que a RAMPA seja superior a volume
+   fixo tem base mais prática (modelo MEV/MAV/MRV) que de ensaio controlado.
+   Os BLOCOS DE ÊNFASE do app dele não vieram — o conteúdo deles é decisão de programa
+   (lá é "peito/braços ↔ perna"; aqui o objetivo principal é perda de gordura). */
+function mesoDesde(){ return (ST.meta && ST.meta.mesoDesde) || null; }
+function mesoSemana(){
+  const d=mesoDesde(); if(!d) return 1;
+  return ((Math.floor(daysBetween(d, today())/7)) % 4) + 1;   // 1..4
+}
+function emDeload(){
+  const ate = ST.meta && ST.meta.deloadAte;
+  if(ate && daysBetween(today(), ate) >= 0) return true;      // antecipado por fadiga
+  return mesoSemana()===4;
+}
+function faseMeso(){
+  if(emDeload()) return {k:'deload', nome:'Semana leve', nota:'Séries cortadas pela metade. A carga fica igual — só não vá perto da falha.'};
+  return mesoSemana()<=2
+    ? {k:'base', nome:'Base', nota:'Volume de base. É daqui que a rampa sobe.'}
+    : {k:'acumulo', nome:'Acúmulo', nota:'Semana mais pesada: uma série a mais em glúteo e glúteo médio.'};
+}
+// Séries planejadas do exercício AGORA (fase do mesociclo aplicada ao que está no programa)
+function exSets(e){
+  if(!e) return 3;
+  const base=parseInt(e.s)||3;
+  if(e.t==='cardio') return base;                             // cardio é tempo, não série
+  if(emDeload()) return Math.max(1, Math.round(base*0.5));
+  if(mesoSemana()===3){
+    const foco=Object.entries(e.mg||{}).some(([mg,w])=>w>=1 && MG_PRIORITY[mg]);
+    return foco ? base+1 : base;
+  }
+  return base;
+}
+function anteciparDeload(){
+  if(!confirm('Fazer a semana leve agora?\n\nAs séries caem pela metade por 7 dias. Serve pra descarregar fadiga — a carga continua a mesma, só não vá perto da falha.')) return;
+  if(!ST.meta || typeof ST.meta!=='object') ST.meta={};
+  ST.meta.deloadAte = dateAdd(today(), 6);
+  saveK('meta'); render(); showToast('Semana leve começou', 'ok', 2400);
+}
 
 /* Mapeamento exercício → foto. Prefere imagens locais (img/*.jpg) quando existem;
    fallback pro Free Exercise DB (yuhonas/free-exercise-db). */
@@ -2486,7 +2544,7 @@ function isWorkoutComplete(day){
   const W=WK[day]; if(!W) return false;
   let plannedTotal=0, doneTotal=0;
   dayEx(day).forEach((e,i)=>{
-    plannedTotal += parseInt(e.s)||3;
+    plannedTotal += exSets(e);
     const tod=todaySession(exId(day,i));
     if(tod) doneTotal += tod.sets.filter(isValidDone).length;
   });
@@ -3807,7 +3865,7 @@ function exMinutes(e){
   if(!e || e.t==='cardio') return 0;
   const rest = REST[e.t] ?? 90;
   const work = e.t==='comp' ? 40 : 35;
-  return (parseInt(e.s)||3) * (work + rest) / 60;
+  return exSets(e) * (work + rest) / 60;
 }
 function cardioDayOn(d){
   const m=(ST.meta && ST.meta.cardioDays) || {};
@@ -3892,13 +3950,14 @@ function fadigaGlobal(){
 /* Deload deixa de ser calendário: dispara por sinal medido. O calendário fica como rede de
    segurança em 7 semanas (era 5) — sem mesociclo aqui, ele ainda faz falta. */
 function needsDeload(){
+  if(emDeload()) return null;              // já está em semana leve
   const f=fadigaGlobal();
   if(f && f.alta) return f;
   const last=ST.meta.lastDeloadWeek||0, cur=weeksTraining();
   if(cur>0 && (cur-last)>=7) return {calendario:true, semanas:cur-last};
   return null;
 }
-function markDeloadDone(){ ST.meta.lastDeloadWeek = weeksTraining(); saveK('meta'); }
+function markDeloadDone(){ ST.meta.lastDeloadWeek = weeksTraining(); ST.meta.deloadAte=null; saveK('meta'); }
 // Próximo treino sugerido baseado no último feito (ciclo ABCD)
 /* Descobre a que DIA (A/B/C/D) pertence a chave de um log.
    As chaves viraram id ESTÁVEL do exercício ("a_1h", "b_6g", "c_7", "u3_18402"...) na migração
@@ -4029,9 +4088,15 @@ function renderDays(){
           ? `${deload.semanas} semanas sem uma semana leve. Reduza o volume pela metade essa semana — a carga fica igual, só não vá perto da falha.`
           : `${deload.travados} de ${deload.comHist} exercícios travados ao mesmo tempo${deload.rirMed!=null?` com RIR médio ${fmtStep(deload.rirMed)}`:''}. Isso é fadiga, não falta de esforço — reduza o volume pela metade essa semana.`}</div>
       </div>
-      <button onclick="markDeloadDone(); render();">Feito</button>
+      <button onclick="anteciparDeload()">Semana leve</button>
     </div>`;
   }
+  const _fase=faseMeso();
+  h+=`<div class="meso f-${_fase.k}">
+    <div class="ms-hd"><span class="ms-l">Fase da semana</span><span class="ms-w">semana ${mesoSemana()}<small>/4</small></span></div>
+    <div class="ms-n">${_fase.nome}</div>
+    <div class="ms-r">${esc(_fase.nota)}</div>
+  </div>`;
   h+=`<div class="stats">
     <div class="stat streak"><div class="l"><span style="display:inline-flex;vertical-align:-3px;margin-right:4px">${I.flame}</span>Semanas seguidas</div><div class="v">${weekN}<small> sem</small></div><div class="s">${weekN>0?'≥3 treinos/sem':'comece esta semana'}</div></div>
     <div class="stat"><div class="l">Esta semana</div><div class="v">${wkN}<small>/4</small></div><div class="s">treinos completados</div></div>
@@ -4126,7 +4191,7 @@ function renderDay(d){
     const cdSkip = !!(cdPlan && cdPlan.fora.has(i));
     const pillT = e.t==="comp"?"composto":(e.t==="core"?"core":(e.t==="cardio"?"cardio":"isolador"));
     const pillC = e.t==="comp"?"comp":(e.t==="core"?"core":(e.t==="cardio"?"cardio":"iso"));
-    const planned=parseInt(e.s)||3;
+    const planned=exSets(e);
     // séries extras (drop set, série a mais) ficam salvas na própria sessão
     const nset=Math.max(planned, (tod&&tod.sets&&tod.sets.length)||0);
     const url=photoURL(e.n);                  // foto SEMPRE pela chave original (PHOTO_ID/PHOTO_LOCAL keyados por e.n)
@@ -6374,6 +6439,9 @@ async function boot(){
 }
 setTimer(90);
 migrateLogsStableId();
+/* Primeiro boot com mesociclo: ancora hoje, pra ela começar na semana 1 (base) em vez de
+   cair no meio de um ciclo calculado de trás pra frente. */
+if(!(ST.meta && ST.meta.mesoDesde)){ ST.meta=ST.meta||{}; ST.meta.mesoDesde=today(); saveK('meta'); }
 try{ autoDetectDeload(); }catch(_){}   // semana leve se marca sozinha, sem depender de botão
 render();
 restoreTimer();
