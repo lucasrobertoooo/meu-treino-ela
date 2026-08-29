@@ -2,7 +2,9 @@
 
 PWA single-file de treino pra ela. Android/Chrome. Fork do MeuTreino (do Lucas) que **já divergiu bastante** — não assuma que o que vale lá vale aqui.
 
-**Última atualização:** 2026-08-19.05 (**Mesociclo com rampa de volume** — 4 semanas: base, base, acúmulo, semana leve. O deload agora corta as séries sozinho. SHELL v50)
+**Última atualização:** 2026-08-19.06 (**Séries extras visíveis e removíveis** + **botão de abrir no navegador**. SHELL v51)
+
+**Antes: 2026-08-19.05 (**Mesociclo com rampa de volume** — 4 semanas: base, base, acúmulo, semana leve. O deload agora corta as séries sozinho. SHELL v50)
 
 **Antes: 2026-08-19.04 (**Porte do MeuTreino**: curva de progresso por exercício, fronteira de troca ("Troquei"/"Manter"), série extra e deload por fadiga medida. SHELL v49)
 
@@ -251,6 +253,22 @@ O corte do deload é ~39%, não 50% exatos, porque exercício de 3 séries arred
 
 ### Verificação
 20 asserts: a rampa nas 8 semanas com ciclo 1-2-3-4, o acúmulo subindo só glúteo (quadríceps e cardio intactos), profundidade do deload comparada nos dois apps, antecipar cortando com `ST.logs` intacto, a âncora do primeiro boot, e os renders.
+
+---
+
+## Séries extras + abrir no navegador (2026-08-19.06)
+
+Mesma dupla aplicada no MeuTreino, adaptada aqui.
+
+- **Cabeçalho** mostra o **recomendado da fase** (`planned`, com a rampa do mesociclo) e um selo **`+N extra`** quando há sobra. Só no ramo NÃO-cardio: cardio é tempo, não série.
+- **Linhas extras** com classe `.extra` e **botão ×** exclusivo delas. `isExtra` já nasce falso para `t:'cardio'`.
+- **`removeSet(id,k)`** com a blindagem do `addSet` (nunca encolhe o que está gravado); confirma só quando a série tem registro.
+- **"Abrir no navegador"** na aba Mais, com `?r=<timestamp>` no clique pra furar o cache do navegador. Aqui o alvo é Chrome/Android, mas o `<a target="_blank">` é o mesmo.
+
+**Bug que os testes pegaram:** a substituição do cabeçalho caiu no `renderHomeDay`, onde `planned` não existe — quebraria as sessões de casa com `ReferenceError`. Revertido lá e aplicado no ramo certo do `renderDay`. A bateria passou a renderizar o home day.
+
+### Verificação
+28 asserts nos dois apps, incluindo `renderHomeDay` sem erro.
 
 ---
 
