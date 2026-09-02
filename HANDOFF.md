@@ -336,7 +336,9 @@ Mesmo módulo do MeuTreino. Envia sozinho no máximo 1× a cada 6h quando há tr
 
 **Separacao por app:** este app manda `?app=treinoela` e o dele manda `?app=meutreino`. Podem dividir o MESMO Worker sem um sobrescrever o outro — separar por token nao resolveria, porque compartilhar worker significa compartilhar o `SHARED_TOKEN`.
 
-**Precisa do Worker configurado** na aba Mais (mesma config do push). Sem isso o card explica e o backup automático fica desligado.
+**Este app NAO tem `push-worker` proprio** — o diretorio so existe no MeuTreino. Mas tem o cliente completo de push (vapid-key, subscribe, schedule, cancel, test) e o setter de `workerUrl`, entao ele aponta pro Worker DELE. Era exatamente o caso de colisao que a separacao por `?app=` resolve: mesmo Worker, mesmo `SHARED_TOKEN`, backups separados.
+
+**Precisa do Worker configurado** na aba Mais, em *Notificações do descanso* (mesma config do push, e pode ser a mesma URL e o mesmo token do app dele). Sem isso o card explica e o backup automático fica desligado.
 
 24 asserts com Worker falso.
 
