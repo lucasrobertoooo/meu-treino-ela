@@ -1048,6 +1048,7 @@
   .openweb:active{opacity:.82;}
   .openweb small{font-size:10.5px; color:var(--faint); font-weight:500;}
   /* ==== CARD DO EXERCÍCIO REORDENADO ==== */
+  .lastd{white-space:nowrap;}   /* a data quebrava no meio: "(08-" / "26):" */
   .exhead{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:9px;}
   .exname{font-size:18px; font-weight:800; color:var(--ink); letter-spacing:-.015em; line-height:1.2; flex:1 1 auto; min-width:0;}
   .pr-inline{
@@ -1819,7 +1820,7 @@
 
 <script>
 /* ============ VERSÃO (visível na aba Mais pra confirmar deploy) ============ */
-const APP_VERSION = '2026-08-19.08';
+const APP_VERSION = '2026-08-19.09';
 
 /* ============ ÍCONES (Lucide, inline) ============ */
 const I = {
@@ -4266,7 +4267,7 @@ function renderDay(d){
       const e1=bestE1RM(last.sets);
       const e1Txt = e1>0?` · e1RM <b style="color:var(--core)">${(Math.round(e1*10)/10)}kg</b>`:'';
       const cmtTxt = last.cmt ? ` <span class="cmt-inline">· ${esc(last.cmt)}</span>` : '';
-      lastTxt=`${I.hist} Última (${esc(last.date.slice(5))}): ${sets}${e1Txt}${cmtTxt}`;
+      lastTxt=`${I.hist} <span class="lastd">Última (${esc(last.date.slice(5))}):</span> ${sets}${e1Txt}${cmtTxt}`;
     } else {
       lastTxt=`${I.hist} Primeira vez — crie sua base. Comece leve e suba 1-2 séries.`;
     }
@@ -4636,7 +4637,7 @@ function renderHomeDay(templateId){
         return `<b>${kg}${fmtInt(s.reps)||'–'}${rir}</b>`;
       }).join(" · ");
       const cmtTxt = last.cmt ? ` <span class="cmt-inline">· ${esc(last.cmt)}</span>` : '';
-      lastTxt=`${I.hist} Última (${esc(last.date.slice(5))}): ${sets}${cmtTxt}`;
+      lastTxt=`${I.hist} <span class="lastd">Última (${esc(last.date.slice(5))}):</span> ${sets}${cmtTxt}`;
     } else {
       lastTxt=`${I.hist} Primeira vez — começa do que aguentar.`;
     }
