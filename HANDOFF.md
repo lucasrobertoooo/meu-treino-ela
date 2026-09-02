@@ -2,7 +2,9 @@
 
 PWA single-file de treino pra ela. Android/Chrome. Fork do MeuTreino (do Lucas) que **já divergiu bastante** — não assuma que o que vale lá vale aqui.
 
-**Última atualização:** 2026-09-02.01 (auditoria de código/estrutura: Atalhos iOS removidos, push do descanso ligado, cardio semanal em minutos. SHELL v65)
+**Última atualização:** 2026-09-02.02 (push do descanso funcionando de verdade: worker dispara no segundo certo. SHELL v65)
+
+**Antes: 2026-09-02.01 (auditoria de código/estrutura: Atalhos iOS removidos, push do descanso ligado, cardio semanal em minutos. SHELL v65)
 
 **Antes: 2026-08-19.19 (**config do Worker ficou alcançável** — antes era impossível ligar o backup. SHELL v64)
 
@@ -440,3 +442,24 @@ A copy dizia que o aviso chega "mesmo com a tela apagada ou o app minimizado, po
 ### Não mexi (de propósito)
 - **`HOME_SESSIONS`** continua no app (pendência antiga: "remover ou substituir"). É conteúdo de treino, não estrutura — fora do escopo. Só corrigi as chaves `mg` inválidas.
 - **Metas nutricionais** default do Lucas — decisão dele, já registrada.
+
+---
+
+## Push do descanso com tela apagada (2026-09-02.02)
+
+O Lucas pediu que o aviso chegue com a tela apagada. **Não precisou de Worker novo** — o `meu-treino-push` dele já implementa `/vapid-key`, `/subscribe`, `/schedule`, `/cancel`, `/test` e `/backup`, e o `sw.js` daqui já tem o listener de `push`. O que faltava era o botão (ver .01) **e um furo de timing no Worker**.
+
+### O furo: o cron de 1 minuto não serve pra timer de descanso
+`/schedule` só gravava `pending:<fireAt>:<hash>:<id>` no KV; quem disparava era o cron `* * * * *`. Pra um descanso de 90s isso entrega o aviso com **~30s de atraso médio (até 60s)** — bem depois de ela já ter voltado pra série. O caso de uso principal era justamente o que não funcionava.
+
+**Correção (no `~/Documents/MeuTreino/push-worker`, compartilhado com o app dele):** quando o alarme é curto (≤ 4 min, `PRECISO_MS`), o próprio `/schedule` espera o delta exato em `ctx.waitUntil` e dispara na hora. O cron continua como **rede de segurança** (instância morreu → entrega atrasado, mas entrega).
+
+**Trava anti-duplicata:** a chave do KV virou o lock — os dois caminhos fazem `delete` **antes** de enviar. Se ainda escapar, o `tag: 'meutreino-push'` do service worker substitui a notificação em vez de empilhar.
+
+Testado em node com KV falso: **2ms** de erro no disparo (contra até 60000ms do cron sozinho), cron não reenvia o que o preciso já mandou, e o que sobra sem caminho preciso é entregue pelo cron. Endpoints verificados depois do deploy.
+
+### Pra ativar no aparelho dela (só isso)
+1. Aba **Mais** → seção **Worker (push e backup)** → confirmar URL (`https://meu-treino-push.lucasrobertoooo.workers.dev`) e o token.
+2. Tocar em **"Ativar push do descanso"** → aceitar a permissão do Android.
+3. Tocar em **"Testar push"** (só aparece depois de ativar) → deve chegar em ~5s.
+4. Teste real: iniciar um descanso, **apagar a tela** e esperar.
