@@ -1884,7 +1884,7 @@
 
 <script>
 /* ============ VERSÃO (visível na aba Mais pra confirmar deploy) ============ */
-const APP_VERSION = '2026-08-19.18';
+const APP_VERSION = '2026-08-19.19';
 
 /* ============ ÍCONES (Lucide, inline) ============ */
 const I = {
@@ -2717,11 +2717,6 @@ function manualStartSession(){
   const wkId = (typeof openDay==='string' && openDay) ? openDay : suggestedNextDay();
   startSession(wkId);
 }
-function toggleSessionPauseResume(){
-  if(!isSessionActive()) return;
-  if(isSessionPaused()) resumeSession();
-  else pauseSession();
-}
 function manualEndSession(){
   if(!isSessionActive()) return;
   const wk=ST.session.active.workoutId;
@@ -3010,7 +3005,6 @@ function exOverride(e){ return (e && e.id && ST.exmeta[e.id]) || {}; }
 function exName(e){ const o=exOverride(e); return (o.n!=null && o.n!=='') ? o.n : e.n; }
 function exCue(e){ const o=exOverride(e); return (o.cue!=null && o.cue!=='') ? o.cue : e.cue; }
 function exNote(e){ const o=exOverride(e); return (o.note!=null) ? o.note : ''; }
-function exHasOverride(e){ const o=exOverride(e); return !!(o.n || o.cue || (o.note && o.note.trim())); }
 function saveExMeta(id, patch){
   if(!id) return;
   const cur = ST.exmeta[id] || {};
@@ -3023,8 +3017,10 @@ function saveExMeta(id, patch){
 function resetExMeta(id){ if(id && ST.exmeta[id]){ delete ST.exmeta[id]; saveK('exmeta'); } }
 
 /* ============ BANCO DE EXERCÍCIOS + TROCA (swap no lugar) ============
-   Permite trocar um exercício por outro do banco, preservando a posição
-   (logs continuam posicionais). O swap fica em ST.exmeta[id].swap (não vai
+   Permite trocar um exercício por outro do banco, preservando a posição.
+   (O comentário antigo dizia "logs continuam posicionais" — falso desde a migração pra id
+   estável: exId devolve ex.id, então o histórico segue o EXERCÍCIO, não a casa dele.)
+   O swap fica em ST.exmeta[id].swap (não vai
    pro código, entra no backup). "Restaurar padrão" desfaz. */
 const EX_BANK = {
   "Glúteo": [
@@ -3330,7 +3326,7 @@ function pickHomeSessions(nextDay){
         reason=reason || `Faz e pode pular ${skip.length} exercício${skip.length>1?'s':''} amanhã`;
       }
     }
-    // Bonus se mg principal foca em prioridade (ombro_lat, peito_sup, biceps, triceps)
+    // Bonus se mg principal foca em prioridade (ver MG_PRIORITY)
     for(const mg of Object.keys(tmpl.ex[0]?.mg||{})){
       if(MG_PRIORITY[mg]) score+=10;
     }
@@ -3838,7 +3834,7 @@ const HOME_SESSIONS = {
     canSkipNextDay:{},      // não substitui exercício do programa
     ex:[
       {id:"peito_triceps_1", n:"Pike push-up", s:3, r:"6-12", t:"comp", mg:{ombro_ant:1, triceps:0.7, ombro_lat:0.3}, cue:"Pés elevados (sofá), quadril alto, mãos no chão. Desce a cabeça em direção ao chão. <em>Substituto de desenvolvimento.</em>"},
-      {id:"peito_triceps_2", n:"Decline push-up", s:3, r:"8-15", t:"comp", mg:{peito_sup:1, ombro_ant:0.5, triceps:0.5}, cue:"Pés no sofá, mãos no chão. Único bodyweight que prioriza peito superior. Excêntrica 3s."},
+      {id:"peito_triceps_2", n:"Decline push-up", s:3, r:"8-15", t:"comp", mg:{peito_med:1, ombro_ant:0.5, triceps:0.5}, cue:"Pés no sofá, mãos no chão. Único bodyweight que prioriza peito superior. Excêntrica 3s."},
       {id:"peito_triceps_3", n:"Diamond push-up", s:3, r:"6-12", t:"comp", mg:{triceps:1, peito_med:0.5}, cue:"Mãos juntas (polegares + indicadores formam diamante). Pega cabeça medial do tríceps. Se muito difícil, faz com joelhos."},
       {id:"peito_triceps_4", n:"Tríceps mergulho no sofá", s:3, r:"10-15", t:"iso", mg:{triceps:1, ombro_ant:0.3}, cue:"Mãos na borda do sofá, pernas estendidas no chão. Desce até cotovelos 90°. Sobe pelo tríceps."},
       {id:"peito_triceps_5", n:"Flexão diamante negativa lenta", s:2, r:"5", t:"iso", mg:{triceps:0.7, peito_med:0.3}, cue:"Só excêntrica: desce em 5s, sobe como puder (joelho). Foco no dano muscular."},
@@ -3854,9 +3850,9 @@ const HOME_SESSIONS = {
     canSkipNextDay:{},      // não substitui — é EXTRA pra prioridade #1
     ex:[
       {id:"ombro_postura_1", n:"Elevação lateral isométrica (mochila/livros)", s:3, r:"30s", t:"iso", mg:{ombro_lat:1}, cue:"Segura peso (mochila com livros, garrafas). Braços a 90° na lateral, mantém 30s. Fadiga lateral real. Volume extra pra <em>prioridade #1</em>."},
-      {id:"ombro_postura_2", n:"Face pull com elástico (ou toalha)", s:3, r:"15", t:"iso", mg:{ombro_post:1}, cue:"Elástico preso numa maçaneta, puxa pra perto da testa, cotovelos altos. Deltoide posterior + postura. Sem elástico: toalha esticada entre as mãos."},
-      {id:"ombro_postura_3", n:"YTW prone (deitado de bruços)", s:3, r:"8 cada letra", t:"iso", mg:{ombro_post:0.7}, cue:"Deitado bruços, braços formam Y (cima), T (lateral), W (cotovelos dobrados). Levanta do chão e segura 1s cada rep."},
-      {id:"ombro_postura_4", n:"Wall slide", s:3, r:"10", t:"iso", mg:{ombro_post:0.3}, cue:"Costas, lombar e braços encostados na parede. Desliza braços pra cima sem tirar contato. Mobilidade de ombro + postura."},
+      {id:"ombro_postura_2", n:"Face pull com elástico (ou toalha)", s:3, r:"15", t:"iso", mg:{ombro_lat:1}, cue:"Elástico preso numa maçaneta, puxa pra perto da testa, cotovelos altos. Deltoide posterior + postura. Sem elástico: toalha esticada entre as mãos."},
+      {id:"ombro_postura_3", n:"YTW prone (deitado de bruços)", s:3, r:"8 cada letra", t:"iso", mg:{ombro_lat:0.7}, cue:"Deitado bruços, braços formam Y (cima), T (lateral), W (cotovelos dobrados). Levanta do chão e segura 1s cada rep."},
+      {id:"ombro_postura_4", n:"Wall slide", s:3, r:"10", t:"iso", mg:{ombro_lat:0.3}, cue:"Costas, lombar e braços encostados na parede. Desliza braços pra cima sem tirar contato. Mobilidade de ombro + postura."},
       {id:"ombro_postura_5", n:"Elevação frontal com mochila", s:2, r:"12", t:"iso", mg:{ombro_ant:0.7}, cue:"Opcional. Pega a mochila com as duas mãos, sobe na frente até a altura do ombro. Controla a descida."},
     ],
   },
@@ -3902,19 +3898,6 @@ function weeklyVolume(){
   return out;
 }
 // Programada por semana (sem precisar marcar) — usada como referência teórica
-function plannedWeeklyVolume(){
-  const out={};
-  for(const mg of Object.keys(MG_LABELS)) out[mg]=0;
-  for(const d of Object.keys(WK)){
-    for(const ex of dayEx(d)){
-      if(!ex.mg) continue;
-      for(const [mg,w] of Object.entries(ex.mg)){
-        out[mg] = (out[mg]||0) + (ex.s||0) * w;
-      }
-    }
-  }
-  return out;
-}
 
 /* ============ STREAK, SEMANA, DELOAD ============ */
 function workoutDates(){
@@ -4147,7 +4130,6 @@ function registrarDeloadEmCurso(){
     if(sem>0 && (ST.meta.lastDeloadWeek||0) < sem){ ST.meta.lastDeloadWeek=sem; saveK('meta'); }
   }catch(e){}
 }
-function markDeloadDone(){ ST.meta.lastDeloadWeek = weeksTraining(); ST.meta.deloadAte=null; saveK('meta'); }
 // Próximo treino sugerido baseado no último feito (ciclo ABCD)
 /* Descobre a que DIA (A/B/C/D) pertence a chave de um log.
    As chaves viraram id ESTÁVEL do exercício ("a_1h", "b_6g", "c_7", "u3_18402"...) na migração
@@ -6094,6 +6076,21 @@ function renderMais(){
     <textarea id="impPhotos" class="hidden" placeholder="Cole aqui um backup de fotos e toque em 'Confirmar importação'"></textarea>
     <div class="tools hidden" id="impPhotosBtn"><button onclick="importPhotosBackup()">Confirmar importação de fotos</button></div>
   </div>
+  <h2 class="sec">Worker (push e backup)</h2>
+  <div class="check-card">
+    <h3><span class="ic">${I.bolt}</span>Conexão com o Cloudflare Worker</h3>
+    <p style="font-size:12px;color:var(--muted);line-height:1.45;margin-bottom:10px">Serve o push do descanso <b>e</b> o backup na nuvem. Pode ser o mesmo Worker e o mesmo token do outro app — os backups ficam separados.</p>
+    <div class="ilog">
+      <span class="lb">Worker URL</span>
+      <input inputmode="url" placeholder="https://meu-treino-push.SEUUSER.workers.dev" value="${esc((ST.meta&&ST.meta.workerUrl)||'')}" oninput="setWorkerUrl(this.value)">
+    </div>
+    <div class="ilog" style="border-top:1px solid var(--line);padding-top:12px">
+      <span class="lb">Shared token</span>
+      <input type="password" placeholder="hex de 64 chars" value="${esc((ST.meta&&ST.meta.workerToken)||'')}" oninput="setWorkerToken(this.value)">
+    </div>
+    <p style="font-size:11px;color:${nuvemPronta()?'var(--ok)':'var(--faint)'};margin-top:10px">${nuvemPronta()?'✓ Configurado — backup automático ligado':'Falta preencher os dois campos'}</p>
+  </div>
+
   <h2 class="sec">Backup na nuvem</h2>
   <div class="infocard">
     ${nuvemPronta()
@@ -6103,7 +6100,7 @@ function renderMais(){
            <button class="nvb" onclick="enviarNuvem()">Enviar agora</button>
            <button class="nvb ghost" onclick="restaurarNuvem()">Restaurar</button>
          </div>`
-      : `<p>Configure o Worker em <b>Notificações do descanso</b>, mais acima nesta aba, e o backup automático liga sozinho. Pode ser o mesmo Worker e o mesmo token do app dele — os backups ficam separados. Sem isso, o histórico vive só neste aparelho.</p>`}
+      : `<p>Preencha os dois campos em <b>Worker</b>, logo acima, e o backup automático liga sozinho. Sem isso, o histórico vive só neste aparelho.</p>`}
   </div>
 
   <h2 class="sec">Foco do treino</h2>

@@ -2,7 +2,9 @@
 
 PWA single-file de treino pra ela. Android/Chrome. Fork do MeuTreino (do Lucas) que **já divergiu bastante** — não assuma que o que vale lá vale aqui.
 
-**Última atualização:** 2026-08-19.18 (medida com campo desconhecido não fica mais invisível. SHELL v63)
+**Última atualização:** 2026-08-19.19 (**config do Worker ficou alcançável** — antes era impossível ligar o backup. SHELL v64)
+
+**Antes: 2026-08-19.18 (medida com campo desconhecido não fica mais invisível. SHELL v63)
 
 **Antes: 2026-08-19.17 (**Volta de pausa** + **tabela de alternativas reescrita** — era a do app dele. SHELL v62)
 
@@ -372,6 +374,23 @@ Mesma correção do MeuTreino: medida importada com campo fora de `MEASURE_FIELD
 **Diferença que quebrou na primeira tentativa:** aqui os campos customizados vivem em `ST.measureCfg.custom`, NÃO em `ST.meta.customMeasures` como no app dele. Escrever no lugar errado deixava o campo invisível do mesmo jeito (o `allMeasureFields` daqui não lê `meta`) e **duplicava a cada boot**, porque nunca entrava no conjunto de conhecidos. Pego no teste.
 
 20 asserts nos dois apps.
+
+---
+
+## Auditoria de código (2026-08-19.19)
+
+### O achado grave: não dava pra configurar o Worker
+`setWorkerUrl` e `setWorkerToken` existiam e **nunca eram chamadas** — não havia campo nenhum na interface. A seção *Notificações do descanso* só tinha `enableNotifications()` e o PAT do GitHub. Ou seja: o backup na nuvem que eu tinha acabado de portar era **impossível de ligar neste app**, e o card ainda mandava configurar numa seção que não tinha os campos.
+
+Criada a seção **Worker (push e backup)**, com os dois campos e um selo de estado ("✓ Configurado" / "Falta preencher"), logo acima do card de backup. Texto do card corrigido pra apontar pra ela.
+
+### Comentário que contradizia o código
+O bloco do banco de exercícios afirmava *"(logs continuam posicionais)"* — falso desde a migração pra id estável: `exId` devolve `ex.id`, então o histórico segue o exercício, não a casa dele. Corrigido, com a nota do que mudou.
+
+### Código morto
+Removidas 4 funções definidas e nunca referenciadas: `toggleSessionPauseResume`, `plannedWeeklyVolume`, `exHasOverride`, `markDeloadDone`. Pausar/encerrar seguem acessíveis pelo despachante `act`.
+
+**Limpo:** 0 função duplicada, 0 handler quebrado, 0 chave de storage sem uso.
 
 ---
 
