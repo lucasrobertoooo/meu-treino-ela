@@ -2,7 +2,9 @@
 
 PWA single-file de treino pra ela. Android/Chrome. Fork do MeuTreino (do Lucas) que **já divergiu bastante** — não assuma que o que vale lá vale aqui.
 
-**Última atualização:** 2026-08-19.14 (**Backup automático na nuvem** — restauração funde, não substitui. SHELL v59)
+**Última atualização:** 2026-08-19.17 (**Volta de pausa** + **tabela de alternativas reescrita** — era a do app dele. SHELL v62)
+
+**Antes: 2026-08-19.14 (**Backup automático na nuvem** — restauração funde, não substitui. SHELL v59)
 
 **Antes: 2026-08-19.13 (**Foco configurável** e faixas 12-16. SHELL v58)
 
@@ -341,6 +343,23 @@ Mesmo módulo do MeuTreino. Envia sozinho no máximo 1× a cada 6h quando há tr
 **Precisa do Worker configurado** na aba Mais, em *Notificações do descanso* (mesma config do push, e pode ser a mesma URL e o mesmo token do app dele). Sem isso o card explica e o backup automático fica desligado.
 
 24 asserts com Worker falso.
+
+---
+
+## Auditoria de longo prazo (2026-08-19.15 a .17)
+
+### A tabela de alternativas era a DELE
+`EXERCISE_ALTERNATIVES` tinha sido copiada do MeuTreino e nunca adaptada: **26 chaves apontavam pra exercícios que ela não faz** (supino inclinado halter 30°, tríceps francês...) e **17 dos 26 exercícios dela não tinham alternativa nenhuma**. Quando o app dizia "considere trocar", não tinha o que sugerir em 65% dos casos.
+
+Reescrita pro programa dela, com três critérios: mesmo músculo-alvo; preferência pela versão mais alongada (Wolf et al 2023); e tudo amigável ao joelho — nada de agachamento profundo livre nem impacto, seguindo a linha JOSPT 2019 que o app já adota. Resultado: 0 exercícios sem alternativa.
+
+### Volta de pausa
+Mesmo achado do app dele: depois de meses parado, o app sugeria subir a carga da última sessão. `fatorVolta(id)`: até 14 dias nada muda; 15-28 repete a carga no piso da faixa; 29-90 corta 10%; 90+ corta 25%. Vira o estado `volta`, com aviso no card, e some na primeira sessão registrada.
+
+### Verificado
+Simulação de 12 meses (1.352 sessões, 245 kB) sem quebrar; casos-limite (pausa de 8 meses, virada de ano, estagnação, dado sujo, data futura) todos resistem; 0 exercício sem `cue`, 0 grupo muscular inválido, 0 id duplicado, 0 faixa malformada.
+
+*Limitação da checagem estática:* ela lê só o programa de academia (`WK`), não o `WK_CASA` — chaves de alternativa para exercícios de casa aparecem como "órfãs" sem serem.
 
 ---
 
