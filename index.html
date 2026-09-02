@@ -1080,6 +1080,7 @@
     font-family:inherit; font-size:12px; font-weight:600;
   }
   .fe-nota{font-size:11px; color:var(--faint); margin-top:9px;}
+  .plateau.volta{background:rgba(91,158,255,.08); border-color:rgba(91,158,255,.28);}
   /* ==== RECUPERAÇÃO SUBJETIVA ==== */
   .reccard{
     background:var(--glass); border:1px solid var(--line-2); border-radius:var(--r-lg);
@@ -1883,7 +1884,7 @@
 
 <script>
 /* ============ VERSÃO (visível na aba Mais pra confirmar deploy) ============ */
-const APP_VERSION = '2026-08-19.16';
+const APP_VERSION = '2026-08-19.17';
 
 /* ============ ÍCONES (Lucide, inline) ============ */
 const I = {
@@ -3469,11 +3470,41 @@ function refSession(id){
   if(ult.length>1 && cont[cont.length-1] < tipico*0.6) return ult[ult.length-2];
   return ult[ult.length-1];
 }
+/* ============ VOLTA DE PAUSA ============
+   Achado na auditoria de longo prazo: depois de 300 dias parado o app dizia "progredindo" e
+   mandava SUBIR a carga em relação à última sessão — de quase um ano atrás. Conselho errado e
+   com risco de lesão.
+
+   Força se mantém bem até ~2-3 semanas de inatividade e cai de forma relevante depois disso
+   (revisões de destreinamento, ex. McMaster et al 2013). Ressalva honesta: as porcentagens
+   abaixo são orientação PRÁTICA de retorno, não número de ensaio controlado. A direção é que
+   está bem estabelecida — e reconstruir é mais rápido que construir. */
+function diasParado(id){
+  const h=progressSessions(id).filter(s=>hasValidDone(s.sets));
+  if(!h.length) return null;
+  const d=daysBetween(h[h.length-1].date, today());
+  return d>=0 ? d : 0;                       // data futura (relógio errado) não vira negativo
+}
+function fatorVolta(id){
+  const d=diasParado(id);
+  if(d==null || d<=14) return null;          // até 2 semanas: nada muda
+  if(d<=28)  return {f:1.00, d, txt:'quase um mês parado', nota:'Repete a carga da última vez e fica no piso da faixa. Só sobe quando fechar a faixa de novo.'};
+  if(d<=90)  return {f:0.90, d, txt:Math.round(d/7)+' semanas parado', nota:'Cortei ~10% da carga pra reentrada. Você recupera rápido — em 2-3 semanas costuma estar de volta ao que era.'};
+  return       {f:0.75, d, txt:Math.round(d/30)+' meses parado', nota:'Cortei ~25% da carga. Reconstruir é bem mais rápido que construir da primeira vez, mas começar no peso antigo é como se machuca.'};
+}
 function suggestNext(id, e){
   if(!e || e.t==='cardio') return null;      // cardio é tempo, não carga/reps
   const ref=refSession(id);
   if(!ref) return null;
-  return suggestFrom(ref.sets, e, id);
+  const base=suggestFrom(ref.sets, e, id);
+  if(!base) return null;
+  const v=fatorVolta(id);
+  if(!v) return base;
+  // reentrada: nunca sobe. Corta a carga e volta pro piso da faixa.
+  const rng=parseRange(e.r);
+  const passo=loadStepFor(id, e) || 2.5;
+  const alvo=Math.max(passo, Math.round((num(ref && sessionTop(ref.sets) ? sessionTop(ref.sets).kg : base.kg)*v.f)/passo)*passo);
+  return {kg:alvo, reps:rng.min, why:'volta de pausa · '+v.txt, de:base.de, inc:base.inc, volta:v};
 }
 /* "Top set" da sessão: maior carga e, entre as séries nessa carga, a melhor rep.
    Mede progresso do MESMO jeito que suggestNext prescreve (dupla progressão). Necessário porque
@@ -3582,6 +3613,10 @@ function progressState(id, e){
   const sug=suggestNext(id, e);
   const h=progressSessions(id).filter(s=>sessionTop(s.sets));
   if(h.length<2) return {k:'inicio', sug, msg:'', nota:'Duas sessões registradas e eu já começo a sugerir carga.'};
+  /* Volta de pausa vem antes de tudo: comparar com uma sessão de meses atrás produziria
+     "progredindo" e mandaria subir carga que já não existe. */
+  const _v=fatorVolta(id);
+  if(_v) return {k:'volta', sug, msg:'Você ficou '+_v.txt+'.', nota:_v.nota};
 
   const rng=parseRange(e.r);
   const tops=h.map(s=>sessionTop(s.sets));
@@ -3660,173 +3695,39 @@ function progressState(id, e){
     nota:'Antes de mudar o treino: confere o sono e a comida da semana. É o que trava progresso com mais frequência.'};
 }
 // Mapa de alternativas — priorizando posição alongada (Wolf et al 2023) e mesmo grupo
+/* Alternativas por exercício. ATENÇÃO: esta tabela era a do MeuTreino, copiada e nunca
+   adaptada — 26 chaves apontavam pra exercícios que ela não faz (supino inclinado, tríceps
+   francês...) e 17 dos 26 exercícios dela não tinham alternativa nenhuma. Ou seja: quando o
+   app dizia "considere trocar", não tinha o que sugerir em 65% dos casos.
+   Reescrita pro programa DELA. Critérios: (1) mesmo músculo-alvo; (2) preferência por versão
+   mais alongada, que rende mais hipertrofia (Wolf et al 2023); (3) tudo amigável ao joelho —
+   nada de agachamento profundo livre nem impacto, pela lesão (linha JOSPT 2019 que o app já
+   segue). */
 const EXERCISE_ALTERNATIVES = {
-  "Cadeira flexora (sentada)":[
-    "Stiff com halter (alongado)",
-    "Cadeira flexora (alternativa)",
-    "Bom dia leve",
-  ],
-  "Leg press HORIZONTAL (sentada)":[
-    "Agachamento livre (amplitude sem dor)",
-    "Agachamento no Smith (pés à frente)",
-    "Hack machine",
-  ],
-  "Agachamento no Smith (pés à frente, foco glúteo)":[
-    "Leg press horizontal (pés altos)",
-    "Hack machine (pés altos)",
-    "Agachamento búlgaro",
-  ],
-  "Graviton pegada NEUTRA":[
-    "Puxada na polia (pegada neutra/fechada)",
-    "Puxada na polia (pegada aberta)",
-    "Remada máquina pegada neutra",
-  ],
-  "Coice na polia (extensão de quadril)":[
-    "Extensão de quadril na máquina",
-    "Coice de glúteo (4 apoios, tornozeleira)",
-    "Coice no banco (kickback apoiado)",
-  ],
-  "Abdominal no banco inclinado":[
-    "Abdominal declinado com anilha",
-    "Abdominal na polia (ajoelhada)",
-    "Elevação de pernas suspensa",
-  ],
-  "Supino inclinado halter 30°":[
-    "Supino inclinado na máquina (mais estável)",
-    "Crucifixo inclinado na máquina (alongado)",
-    "Supino inclinado smith (carga maior)",
-  ],
-  "Supino reto halter ou máquina":[
-    "Crucifixo reto na máquina (alongado)",
-    "Supino reto smith",
-    "Flexão de braço (lastra com mochila)",
-  ],
-  "Crucifixo na polia baixa":[
-    "Crucifixo na máquina (mais alongado)",
-    "Peck deck",
-    "Crucifixo com halter inclinado",
-  ],
-  "Elevação lateral com halter em pé (bilateral)":[
-    "Lateral no cabo atrás do corpo (alongado)",
-    "Lateral na máquina (constante)",
-    "Lateral inclinada com halter",
-  ],
-  "Elevação lateral na polia unilateral em pé":[
-    "Lateral no cabo atrás do corpo (alongado)",
-    "Lateral inclinada com halter",
-    "Lateral na máquina (constante)",
-  ],
-  "Elevação lateral com halter no banco inclinado 75°":[
-    "Lateral no cabo atrás do corpo (alongado)",
-    "Lateral na máquina (constante)",
-    "Elevação lateral com halter em pé (bilateral)",
-  ],
-  "Elevação lateral polia unilateral cabo atrás do corpo (alongado)":[
-    "Elevação lateral na polia unilateral em pé",
-    "Lateral inclinada com halter",
-    "Lateral na máquina (constante)",
-  ],
-  "Tríceps francês / extensão acima da cabeça":[
-    "Francês com halter inclinado (mais alongado)",
-    "Extensão na polia overhead com corda",
-    "Skull crusher com barra EZ",
-  ],
-  "Tríceps na polia (corda)":[
-    "Tríceps polia barra reta",
-    "Mergulho em paralelas (carga corporal+lastra)",
-    "Coice na polia",
-  ],
-  "Tríceps na polia":[
-    "Tríceps polia corda",
-    "Mergulho em paralelas (carga corporal+lastra)",
-    "Extensão na polia overhead",
-  ],
-  "Puxada na polia (pegada aberta)":[
-    "Puxada na polia (pegada neutra)",
-    "Remada cavalinho (alongado)",
-    "Barra fixa lastra (se aguentar)",
-  ],
-  "Puxada na polia (pegada neutra/fechada)":[
-    "Puxada na polia (pegada aberta)",
-    "Remada cavalinho (alongado)",
-    "Pullover na polia (alongado)",
-  ],
-  "Remada sentada na polia ou máquina":[
-    "Remada cavalinho (alongado)",
-    "Remada curvada com halter",
-    "Remada baixa com barra T",
-  ],
-  "Remada na polia ou máquina":[
-    "Remada cavalinho (alongado)",
-    "Remada curvada com halter",
-    "Pullover na polia",
-  ],
-  "Crucifixo inverso (peck deck/polia)":[
-    "Crucifixo inverso na polia (cruzado, alongado)",
-    "Face pull na polia alta",
-    "Voador inverso na máquina",
-  ],
-  "Crucifixo inverso":[
-    "Face pull na polia alta",
-    "Crucifixo inverso na polia (cruzado, alongado)",
-    "Voador inverso com halter inclinado",
-  ],
-  "Rosca inclinada com halter":[
-    "Rosca scott com halter (alongado)",
-    "Rosca no cabo baixo unilateral (alongado)",
-    "Rosca concentrada",
-  ],
-  "Rosca direta na polia ou halter":[
-    "Rosca inclinada com halter (alongado)",
-    "Rosca scott na máquina",
-    "Rosca martelo no cabo com corda",
-  ],
-  "Rosca martelo":[
-    "Rosca martelo no cabo corda",
-    "Rosca inversa com barra",
-    "Rosca martelo cruzada",
-  ],
-  "Desenvolvimento sentado com halter":[
-    "Desenvolvimento na máquina",
-    "Desenvolvimento smith sentado",
-    "Arnold press",
-  ],
-  "Peck deck ou crucifixo máquina":[
-    "Crucifixo inclinado na máquina (alongado)",
-    "Crucifixo na polia alta (cruzado)",
-    "Supino com halter foco em squeeze",
-  ],
-  "Extensão de tríceps acima da cabeça":[
-    "Francês deitado com EZ",
-    "Tríceps polia overhead com corda",
-    "Tríceps unilateral overhead com halter",
-  ],
-  "Mesa flexora":[
-    "Stiff com halter (alongado)",
-    "Cadeira flexora (alternativa)",
-    "Bom dia leve",
-  ],
-  "Cadeira extensora":[
-    "Hack machine leve (se não der náusea)",
-    "Agachamento goblet leve (controlado)",
-    "Sissy squat",
-  ],
-  "Abdominal declinado com anilha":[
-    "Crunch na polia alta (lastra)",
-    "Abdominal na máquina",
-    "Abdominal infra com elástico",
-  ],
-  "Cadeira romana (joelho dobrado)":[
-    "Elevação de pernas suspenso (joelho dobrado)",
-    "Abdominal infra na cadeira",
-    "Reverse crunch no banco declinado",
-  ],
-  "Panturrilha":[
-    "Panturrilha em pé na máquina",
-    "Panturrilha sentado (sóleo)",
-    "Panturrilha no leg press",
-  ],
-};
+  "Leg press HORIZONTAL (sentada)": ["Leg press 45° (pés altos, foco glúteo)", "Hack machine com pés à frente", "Agachamento no Smith, pés bem à frente"],
+  "Cadeira extensora": ["Extensora unilateral (corrige assimetria)", "Leg press pé baixo na plataforma", "Agachamento no Smith parcial (sem passar de 90°)"],
+  "Agachamento sumô com halter": ["Agachamento sumô no Smith", "Leg press pés altos e afastados", "Elevação pélvica com barra"],
+  "Cadeira abdutora": ["Abdução em pé na polia", "Abdução deitada de lado com caneleira", "Caminhada lateral com mini band"],
+  "Panturrilha em pé": ["Panturrilha no leg press", "Panturrilha no Smith", "Panturrilha em pé unilateral"],
+  "Panturrilha sentada": ["Panturrilha sentada na máquina (outro ângulo)", "Panturrilha no leg press joelho dobrado", "Panturrilha sentada com anilha no joelho"],
+  "Abdominal no banco inclinado": ["Abdominal na polia alta ajoelhada", "Elevação de pernas suspensa", "Abdominal máquina"],
+  "Abdominal na polia ou máquina": ["Abdominal no banco inclinado", "Prancha com peso", "Elevação de pernas no banco"],
+  "Abdominal declinado ou infra": ["Elevação de pernas suspensa", "Abdominal na polia ajoelhada", "Canivete no banco"],
+  "Levantamento terra romeno (RDL) com barra": ["RDL com halteres (mais amplitude)", "Stiff na barra guiada", "Bom-dia no Smith"],
+  "Stiff / RDL com barra ou halteres": ["RDL unilateral com halter", "Mesa flexora deitada", "Extensão de quadril no banco (hiperextensão 45°)"],
+  "Cadeira flexora (sentada)": ["Mesa flexora deitada (mais alongada)", "Flexora unilateral", "Nórdico assistido"],
+  "Coice na polia (extensão de quadril)": ["Coice na máquina (glute kickback)", "Extensão de quadril no banco 45°", "Elevação pélvica unilateral"],
+  "Agachamento no Smith (pés à frente, foco glúteo)": ["Agachamento búlgaro no Smith", "Leg press pés altos", "Elevação pélvica com barra"],
+  "Agachamento búlgaro (apoio atrás)": ["Afundo estático no Smith", "Passada no lugar com halteres", "Elevação pélvica unilateral"],
+  "Supino máquina ou halter (acessório superior)": ["Supino inclinado com halteres", "Peck deck", "Flexão de braço com apoio elevado"],
+  "Desenvolvimento de ombro (acessório superior)": ["Desenvolvimento na máquina", "Desenvolvimento com halteres sentada", "Arnold press leve"],
+  "Remada na polia/máquina (acessório costas)": ["Remada curvada com halteres", "Puxada na polia pegada neutra", "Remada unilateral com halter"],
+  "Graviton pegada NEUTRA": ["Puxada na polia pegada neutra", "Remada na máquina", "Puxada assistida com elástico"],
+  "Elevação lateral": ["Elevação lateral na polia unilateral", "Elevação lateral no banco inclinado", "Elevação lateral na máquina"],
+  "Elevação lateral com halteres": ["Elevação lateral na polia", "Elevação lateral sentada", "Elevação lateral com elástico"],
+  "Rosca martelo (acessório)": ["Rosca inclinada com halteres (mais alongada)", "Rosca direta na polia", "Rosca concentrada"],
+  "Cardio Z2 na bike": ["Elíptico em Z2", "Esteira em inclinação, caminhando", "Bike horizontal"],
+};;
 
 /* ============ TREINOS EM CASA (sessões livres, sem equipamento) ============
    Filosofia: não competem com a rotação ABCD nem com a sugestão de progressão.
@@ -4490,6 +4391,8 @@ function renderDay(d){
             <button class="swap-btn ghost" onclick="snoozeSwap('${id}')">Manter esse</button>
           </div>
         </div>`;
+      } else if(st.k==='volta'){
+        platBlock2 = `<div class="plateau volta">${I.hist} ${corpo}</div>`;
       } else if(st.k==='fadiga' || st.k==='travado-passo' || st.k==='travado' || st.k==='carga-alta'){
         platBlock2 = `<div class="plateau">${I.flame} ${corpo}</div>`;
       } else {
