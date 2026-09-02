@@ -2,7 +2,9 @@
 
 PWA single-file de treino pra ela. Android/Chrome. Fork do MeuTreino (do Lucas) que **já divergiu bastante** — não assuma que o que vale lá vale aqui.
 
-**Última atualização:** 2026-08-19.13 (**Foco configurável** e faixas 12-16. SHELL v58)
+**Última atualização:** 2026-08-19.14 (**Backup automático na nuvem** — restauração funde, não substitui. SHELL v59)
+
+**Antes: 2026-08-19.13 (**Foco configurável** e faixas 12-16. SHELL v58)
 
 **Antes: 2026-08-19.10 (**Auditoria completa**: 3 furos na fronteira de troca corrigidos, card do exercício reordenado, autorregulação por recuperação subjetiva. SHELL v55)
 
@@ -321,6 +323,20 @@ O Lucas pediu pra não mexer no treino dela; ficam registrados:
 5. **Quadríceps 13 × glúteo 11**, com glúteo sendo o foco. Só observação: já houve um erro de leitura meu nessa direção antes (ver a retratação de 2026-08-19.01).
 
 Ordem sugerida se ele liberar: tríceps → panturrilha → costas 2×/semana. A ordem dos exercícios só depois de confirmar a pré-exaustão.
+
+---
+
+## Backup na nuvem (2026-08-19.14)
+
+Mesmo módulo do MeuTreino. Envia sozinho no máximo 1× a cada 6h quando há treino do dia; o Worker guarda os 5 últimos snapshots.
+
+**A restauração funde, não substitui**: `fundirBackup()` só acrescenta o que falta, então uma cópia da nuvem mais velha não apaga sessão nova. `meta` fica de fora (preferências do aparelho).
+
+**Adaptação daqui:** `ST.prog` (o programa editável, que o app dele não tem) só é aceito da nuvem se localmente estiver vazio — o programa do aparelho vence.
+
+**Precisa do Worker configurado** na aba Mais (mesma config do push). Sem isso o card explica e o backup automático fica desligado.
+
+24 asserts com Worker falso.
 
 ---
 
