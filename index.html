@@ -1884,7 +1884,7 @@
 
 <script>
 /* ============ VERSÃO (visível na aba Mais pra confirmar deploy) ============ */
-const APP_VERSION = '2026-08-19.17';
+const APP_VERSION = '2026-08-19.18';
 
 /* ============ ÍCONES (Lucide, inline) ============ */
 const I = {
@@ -2470,6 +2470,37 @@ const MEASURE_FIELDS = [
   ["panturrilha","Panturrilha (cm)",false],
 ];
 // campos base + customizados ativos (não removidos). Uniforme: [key,label,prio,custom?]
+/* Medida importada com campo que o app não conhece ficava GRAVADA E INVISÍVEL: não aparecia
+   na lista, não entrava no gráfico, não comparava. Agora todo campo desconhecido vira campo
+   customizado na hora, com rótulo legível. Nada importado pode ficar mudo. */
+function rotuloDeCampo(k){
+  const s=String(k).replace(/[_-]+/g,' ').trim();
+  return s ? s.charAt(0).toUpperCase()+s.slice(1) : k;
+}
+function registrarCamposDesconhecidos(lista){
+  if(!Array.isArray(lista) || !lista.length) return 0;
+  /* ATENÇÃO: aqui os campos customizados vivem em ST.measureCfg.custom, NÃO em
+     ST.meta.customMeasures como no MeuTreino. Escrever no lugar errado deixava o campo
+     invisível (allMeasureFields não lia) e duplicava a cada boot (nunca entrava em
+     `conhecidos`). Pego no teste. */
+  if(!ST.measureCfg || typeof ST.measureCfg!=='object') ST.measureCfg={custom:[]};
+  if(!Array.isArray(ST.measureCfg.custom)) ST.measureCfg.custom=[];
+  const conhecidos=new Set(allMeasureFields().map(f=>f[0]));
+  const ignorar=new Set(['date','id','_at','nota','obs','peso','kg']);
+  let n=0;
+  for(const m of lista){
+    if(!m || typeof m!=='object') continue;
+    for(const k of Object.keys(m)){
+      if(ignorar.has(k) || conhecidos.has(k)) continue;
+      const v=m[k];
+      if(v==null || v==='' || !isFinite(num(v))) continue;
+      ST.measureCfg.custom.push({key:k, label:rotuloDeCampo(k)+' (cm)'});
+      conhecidos.add(k); n++;
+    }
+  }
+  if(n) saveK('measureCfg');
+  return n;
+}
 function allMeasureFields(){
   const custom=((ST.measureCfg&&ST.measureCfg.custom)||[]).filter(c=>!c.removed).map(c=>[c.key,c.label,false,true]);
   return [...MEASURE_FIELDS, ...custom];
@@ -5598,10 +5629,11 @@ function importMeasuresBackup(){
     added++;
   }
   ST.measures.sort((a,b)=>a.date<b.date?-1:1);
+  const novosCampos = registrarCamposDesconhecidos(ST.measures);   // nada importado fica invisível
   saveK('measures');
   document.getElementById('impMeasures').value='';
   renderCorpo();
-  showToast(`Medidas importadas: ${added} novas${skipped?`, ${skipped} já existiam ou eram inválidas`:''}`, 'ok', 2800);
+  showToast(`Medidas importadas: ${added} novas${novosCampos?`, ${novosCampos} campo(s) novo(s)`:''}${skipped?`, ${skipped} já existiam ou eram inválidas`:''}`, 'ok', 3000);
 }
 
 /* ============ FOTOS: IndexedDB pros pixels (módulo 3) ============
@@ -6810,6 +6842,7 @@ migrateLogsStableId();
    cair no meio de um ciclo calculado de trás pra frente. */
 if(!(ST.meta && ST.meta.mesoDesde)){ ST.meta=ST.meta||{}; ST.meta.mesoDesde=today(); saveK('meta'); }
 try{ autoDetectDeload(); }catch(_){}
+try{ registrarCamposDesconhecidos(ST.measures); }catch(_){}   // resgata medida com campo desconhecido
 recalcPrioridades();   // antes do 1º render: depende de ST.meta.foco
 try{ registrarDeloadEmCurso(); }catch(_){}   // a semana leve marca a si mesma   // semana leve se marca sozinha, sem depender de botão
 render();

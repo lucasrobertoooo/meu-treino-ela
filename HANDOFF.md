@@ -2,7 +2,9 @@
 
 PWA single-file de treino pra ela. Android/Chrome. Fork do MeuTreino (do Lucas) que **já divergiu bastante** — não assuma que o que vale lá vale aqui.
 
-**Última atualização:** 2026-08-19.17 (**Volta de pausa** + **tabela de alternativas reescrita** — era a do app dele. SHELL v62)
+**Última atualização:** 2026-08-19.18 (medida com campo desconhecido não fica mais invisível. SHELL v63)
+
+**Antes: 2026-08-19.17 (**Volta de pausa** + **tabela de alternativas reescrita** — era a do app dele. SHELL v62)
 
 **Antes: 2026-08-19.14 (**Backup automático na nuvem** — restauração funde, não substitui. SHELL v59)
 
@@ -360,6 +362,16 @@ Mesmo achado do app dele: depois de meses parado, o app sugeria subir a carga da
 Simulação de 12 meses (1.352 sessões, 245 kB) sem quebrar; casos-limite (pausa de 8 meses, virada de ano, estagnação, dado sujo, data futura) todos resistem; 0 exercício sem `cue`, 0 grupo muscular inválido, 0 id duplicado, 0 faixa malformada.
 
 *Limitação da checagem estática:* ela lê só o programa de academia (`WK`), não o `WK_CASA` — chaves de alternativa para exercícios de casa aparecem como "órfãs" sem serem.
+
+---
+
+## Medida invisível (2026-08-19.18)
+
+Mesma correção do MeuTreino: medida importada com campo fora de `MEASURE_FIELDS` era gravada e **nunca aparecia** — não listava, não entrava no gráfico, não comparava. `registrarCamposDesconhecidos()` transforma campo numérico desconhecido em customizado, com rótulo legível. Roda no import, na restauração da nuvem e no boot.
+
+**Diferença que quebrou na primeira tentativa:** aqui os campos customizados vivem em `ST.measureCfg.custom`, NÃO em `ST.meta.customMeasures` como no app dele. Escrever no lugar errado deixava o campo invisível do mesmo jeito (o `allMeasureFields` daqui não lê `meta`) e **duplicava a cada boot**, porque nunca entrava no conjunto de conhecidos. Pego no teste.
+
+20 asserts nos dois apps.
 
 ---
 
