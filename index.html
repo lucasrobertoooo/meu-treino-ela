@@ -1790,7 +1790,7 @@
 
 <script>
 /* ============ VERSÃO (visível na aba Mais pra confirmar deploy) ============ */
-const APP_VERSION = '2026-08-19.06';
+const APP_VERSION = '2026-08-19.07';
 
 /* ============ ÍCONES (Lucide, inline) ============ */
 const I = {
@@ -1975,7 +1975,7 @@ function anteciparDeload(){
   if(!confirm('Fazer a semana leve agora?\n\nAs séries caem pela metade por 7 dias. Serve pra descarregar fadiga — a carga continua a mesma, só não vá perto da falha.')) return;
   if(!ST.meta || typeof ST.meta!=='object') ST.meta={};
   ST.meta.deloadAte = dateAdd(today(), 6);
-  saveK('meta'); render(); showToast('Semana leve começou', 'ok', 2400);
+  saveK('meta'); registrarDeloadEmCurso(); render(); showToast('Semana leve começou', 'ok', 2400);
 }
 
 /* Mapeamento exercício → foto. Prefere imagens locais (img/*.jpg) quando existem;
@@ -3130,7 +3130,7 @@ function parseRange(r){
    em vez de chutar (evita sugerir 22.5kg numa máquina que só tem placas de 5). Precisa de ≥2
    cargas distintas; senão usa o padrão. Zero configuração, se auto-corrige com o histórico. */
 function inferLoadStep(id){
-  const vals=[...new Set((ST.logs[id]||[]).flatMap(s=>(s.sets||[]).map(x=>num(x.kg))).filter(v=>v>0))];
+  const vals=[...new Set(progressSessions(id).flatMap(s=>(s.sets||[]).map(x=>num(x.kg))).filter(v=>v>0))];
   if(vals.length<2) return 0;
   for(const step of [5,2.5,2,1]){
     if(vals.every(v=>Math.abs(v/step-Math.round(v/step))<1e-9)) return step;
@@ -3276,14 +3276,14 @@ function cmpTop(a,b){
 }
 // Plateau: 3 últimas sessões VÁLIDAS sem progredir (nem carga, nem reps na mesma carga)
 function detectPlateau(id){
-  const h=(ST.logs[id]||[]).filter(s=>sessionTop(s.sets));
+  const h=progressSessions(id).filter(s=>sessionTop(s.sets));
   if(h.length<3) return false;
   const t=h.slice(-3).map(s=>sessionTop(s.sets));
   return cmpTop(t[2],t[0])<=0 && cmpTop(t[2],t[1])<=0;
 }
 // Quantas semanas o usuário tem treinado esse exercício específico
 function weeksOnExercise(id){
-  const h=(ST.logs[id]||[]).filter(s=>hasValidDone(s.sets));
+  const h=progressSessions(id).filter(s=>hasValidDone(s.sets));
   if(!h.length) return 0;
   return Math.floor(daysBetween(h[0].date, today())/7)+1;
 }
@@ -3974,9 +3974,20 @@ function needsDeload(){
   if(emDeload()) return null;              // já está em semana leve
   const f=fadigaGlobal();
   if(f && f.alta) return f;
-  const last=ST.meta.lastDeloadWeek||0, cur=weeksTraining();
-  if(cur>0 && (cur-last)>=7) return {calendario:true, semanas:cur-last};
   return null;
+}
+/* O deload agora ACONTECE POR DESENHO (semana 4 do mesociclo ou antecipado por fadiga), não
+   por detecção. Mas `lastDeloadWeek` só era gravado pelo autoDetectDeload, que exige o volume
+   cair a <=60% da média — e o corte do mesociclo dá 61% (dela) / 56% (dele). Resultado: o
+   marcador podia nunca ser gravado, e como `shouldSwapExercise` exige deload feito, a sugestão
+   de trocar exercício nunca disparava. Aqui a semana leve se registra sozinha. */
+function registrarDeloadEmCurso(){
+  try{
+    if(!emDeload()) return;
+    if(!ST.meta || typeof ST.meta!=='object') ST.meta={};
+    const sem=weeksTraining();
+    if(sem>0 && (ST.meta.lastDeloadWeek||0) < sem){ ST.meta.lastDeloadWeek=sem; saveK('meta'); }
+  }catch(e){}
 }
 function markDeloadDone(){ ST.meta.lastDeloadWeek = weeksTraining(); ST.meta.deloadAte=null; saveK('meta'); }
 // Próximo treino sugerido baseado no último feito (ciclo ABCD)
@@ -4104,10 +4115,8 @@ function renderDays(){
     h+=`<div class="deload-alert">
       <div class="ic">${I.flame}</div>
       <div class="meta">
-        <div class="t">${deload.calendario ? 'Semana leve recomendada' : 'Fadiga acumulada'}</div>
-        <div class="f">${deload.calendario
-          ? `${deload.semanas} semanas sem uma semana leve. Reduza o volume pela metade essa semana — a carga fica igual, só não vá perto da falha.`
-          : `${deload.travados} de ${deload.comHist} exercícios travados ao mesmo tempo${deload.rirMed!=null?` com RIR médio ${fmtStep(deload.rirMed)}`:''}. Isso é fadiga, não falta de esforço — reduza o volume pela metade essa semana.`}</div>
+        <div class="t">Fadiga acumulada</div>
+        <div class="f">${deload.travados} de ${deload.comHist} exercícios travados ao mesmo tempo${deload.rirMed!=null?` com RIR médio ${fmtStep(deload.rirMed)}`:''}. Isso é fadiga, não falta de esforço — vale antecipar a semana leve.</div>
       </div>
       <button onclick="anteciparDeload()">Semana leve</button>
     </div>`;
@@ -6495,7 +6504,8 @@ migrateLogsStableId();
 /* Primeiro boot com mesociclo: ancora hoje, pra ela começar na semana 1 (base) em vez de
    cair no meio de um ciclo calculado de trás pra frente. */
 if(!(ST.meta && ST.meta.mesoDesde)){ ST.meta=ST.meta||{}; ST.meta.mesoDesde=today(); saveK('meta'); }
-try{ autoDetectDeload(); }catch(_){}   // semana leve se marca sozinha, sem depender de botão
+try{ autoDetectDeload(); }catch(_){}
+try{ registrarDeloadEmCurso(); }catch(_){}   // a semana leve marca a si mesma   // semana leve se marca sozinha, sem depender de botão
 render();
 restoreTimer();
 setTimeout(function(){ try{ publishTreinoStatus(); }catch(_){}} , 2500);
