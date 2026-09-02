@@ -334,6 +334,8 @@ Mesmo módulo do MeuTreino. Envia sozinho no máximo 1× a cada 6h quando há tr
 
 **Adaptação daqui:** `ST.prog` (o programa editável, que o app dele não tem) só é aceito da nuvem se localmente estiver vazio — o programa do aparelho vence.
 
+**Separacao por app:** este app manda `?app=treinoela` e o dele manda `?app=meutreino`. Podem dividir o MESMO Worker sem um sobrescrever o outro — separar por token nao resolveria, porque compartilhar worker significa compartilhar o `SHARED_TOKEN`.
+
 **Precisa do Worker configurado** na aba Mais (mesma config do push). Sem isso o card explica e o backup automático fica desligado.
 
 24 asserts com Worker falso.
