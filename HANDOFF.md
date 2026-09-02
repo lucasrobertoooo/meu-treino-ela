@@ -2,7 +2,9 @@
 
 PWA single-file de treino pra ela. Android/Chrome. Fork do MeuTreino (do Lucas) que **já divergiu bastante** — não assuma que o que vale lá vale aqui.
 
-**Última atualização:** 2026-08-19.19 (**config do Worker ficou alcançável** — antes era impossível ligar o backup. SHELL v64)
+**Última atualização:** 2026-09-02.01 (auditoria de código/estrutura: Atalhos iOS removidos, push do descanso ligado, cardio semanal em minutos. SHELL v65)
+
+**Antes: 2026-08-19.19 (**config do Worker ficou alcançável** — antes era impossível ligar o backup. SHELL v64)
 
 **Antes: 2026-08-19.18 (medida com campo desconhecido não fica mais invisível. SHELL v63)
 
@@ -404,3 +406,37 @@ Removidas 4 funções definidas e nunca referenciadas: `toggleSessionPauseResume
 - **Sequência A→B:** cadeira extensora aparece nos dois dias, que são consecutivos na rotação.
 - **`HOME_SESSIONS`** do fork: remover ou substituir pelos templates dela.
 - **`index.html.bak-*`** (9 arquivos, 2,2MB): gitignorados, não vão pro Pages, mas poluem qualquer `grep` na pasta.
+
+---
+
+## Auditoria de código e estrutura (2026-09-02.01)
+
+Escopo: só código/estrutura. O programa de treino **não foi tocado** (os achados de conteúdo do .11-.13 seguem não aplicados, por decisão do Lucas).
+
+### Removido: subsistema de Atalhos do iOS (~4,7KB)
+`maybeInvokeShortcutTimer`, `updateShortcutLink`, `markShortcutInvoked`, `invokeExternalScheme`, `isStandalone`, `toggleShortcutTimer`, `setShortcutName`, `testShortcutTimer`, o `<a id="shortcutLink">` e o CSS `.shortcut-link`. O esquema `shortcuts://` é **iOS-only** e ela usa Android — não fazia nada. Pior: a UI que ligava a feature já tinha sido removida antes (as 3 funções de config estavam mortas), mas o disparo continuou no `toggleDone`, **impondo restrição de ordem** ("dispara ANTES de openTimer/audio/wakeLock senão o iOS queima o gesto") em código vivo, por nada.
+
+### Corrigido: push do descanso era inalcançável (mesmo padrão do .19)
+`scheduleRemotePush()` é chamado a cada início de timer e `cancelRemotePushes()` em 3 lugares — mas `subscribeForPush()` (a única coisa que grava `ST.meta.pushHash`) **não tinha ponto de entrada nenhum**. Sem `pushHash`, tudo saía por `return` silencioso: infra 100% escrita, 0% alcançável. Adicionados os botões **"Ativar push do descanso"** e **"Testar push"** na seção Worker. É o mesmo tipo de furo que o .19 corrigiu pro backup — vale procurar por mais desses.
+
+### Corrigido: a tela prometia o que não entrega
+A copy dizia que o aviso chega "mesmo com a tela apagada ou o app minimizado, porque o alarme é agendado no horário exato" — isso depende de **Notification Triggers**, que o Chrome dela **não tem** (confirmado por diagnóstico no app Meu Cuidado). Agora `notifAlcanceTexto()` diz a verdade conforme a capacidade real: push ligado > Triggers > só com o app aberto (com wake lock, a tela fica acesa no descanso, então o caso comum funciona).
+
+### Corrigido: volume que era somado e sumia da tela
+`peito_sup` e `ombro_post` (em `HOME_SESSIONS`, restos do fork) não existem em `MG_LABELS`/`MG_ORDER`. Entravam no total de "Séries esta semana" mas não apareciam em nenhuma barra — o total não fechava com a soma das barras. Remapeados pros baldes que existem (`peito_med`, `ombro_lat`).
+
+### Novo: cardio da semana em MINUTOS (dado que ela já registrava e o app ignorava)
+`ST.sleep` e `ST.cardio` eram **write-only**: lidos só pra repopular o próprio input. Sendo perda de gordura o objetivo #1 dela, era o dado mais relevante do app indo pro lixo. `cardioMinutosSemana()` soma as **duas** fontes (input diário `z2min` + série de cardio do treino, onde `reps` = minutos, só as marcadas como feitas) nos últimos 7 dias, contra a faixa 150-300 min/sem (Jayedi 2024). `mediaSonoSemana()` mostra a média das noites registradas. Card novo na aba Corpo.
+> Nota: `MG_TARGETS.cardio = 2` conta **série**, unidade que não diz nada sobre dose de cardio. O card novo é a métrica honesta; a barra de série continua porque `MG_ORDER` é estrutura compartilhada.
+
+### Faxina
+- 9 arquivos `index.html.bak-*` (2MB) apagados — gitignorados, histórico está no git, poluíam todo `grep` na pasta (pendência antiga do handoff).
+- CSS `.star` duplicado consolidado.
+- **Zero funções órfãs** no arquivo depois da limpeza (checado por script).
+
+### Verificação
+`node --check` do `<script>` inteiro + testes em node das funções extraídas do próprio arquivo: janela de 7 dias, soma das 2 fontes de cardio, set não marcado não conta, exercício não-cardio ignorado, média de sono só das noites registradas. Mais checagem automática de que toda função citada em `onclick/oninput/onchange` existe.
+
+### Não mexi (de propósito)
+- **`HOME_SESSIONS`** continua no app (pendência antiga: "remover ou substituir"). É conteúdo de treino, não estrutura — fora do escopo. Só corrigi as chaves `mg` inválidas.
+- **Metas nutricionais** default do Lucas — decisão dele, já registrada.

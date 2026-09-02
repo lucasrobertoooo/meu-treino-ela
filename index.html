@@ -721,7 +721,6 @@
   .stat.streak{background:linear-gradient(135deg, rgba(255,107,92,.18), rgba(229,72,56,.06)); border-color:rgba(255,107,92,.30);}
   .stat.streak .v{color:#ffbab2;}
 
-  /* ============ HOJE: workout shortcut ============ */
   .todayworkout{
     display:flex; align-items:center; gap:14px;
     background:linear-gradient(135deg, rgba(91,158,255,.15), rgba(58,127,224,.05));
@@ -875,7 +874,6 @@
   .vbar2{display:flex; align-items:center; gap:10px; margin-bottom:9px; padding:2px 0;}
   .vbar2 .vn{width:96px; font-size:12.5px; color:var(--ink2); font-weight:600;}
   .vbar2 .vn.prio{color:var(--push);}
-  .vbar2 .vn .star{color:var(--core); font-size:9px; margin-left:3px;}
   .vbar2 .track{
     flex:1; height:8px; background:rgba(255,255,255,.05);
     border-radius:4px; overflow:hidden; position:relative;
@@ -1412,23 +1410,6 @@
   .overlay[data-state="done"] .tval{color:var(--ok); transition:color .3s var(--ease);}
   .overlay[data-state="done"] #ringfill{stroke:#5fe195; transition:stroke .3s var(--ease);}
 
-  .shortcut-link{
-    display:flex; align-items:center; justify-content:center; gap:8px;
-    margin:0 0 18px; padding:14px 22px;
-    background:linear-gradient(135deg,#5aa6ff,#3f7fe0);
-    border:none; border-radius:28px;
-    color:#fff; text-decoration:none;
-    font-size:15px; font-weight:700; letter-spacing:.01em;
-    box-shadow:0 4px 14px -4px rgba(90,140,255,.6);
-    transition:transform .12s var(--ease), box-shadow .18s var(--ease);
-    -webkit-tap-highlight-color:transparent;
-  }
-  .shortcut-link:active{ transform:scale(.97); box-shadow:0 2px 8px -2px rgba(90,140,255,.5); }
-  .shortcut-link.hidden{ display:none !important; }
-  .shortcut-link::before{
-    content:""; width:18px; height:18px;
-    background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><polyline points='12,6 12,12 16,14'/></svg>") no-repeat center/contain;
-  }
 
   /* ============ FAB Speed Dial (item 6) ============ */
   .fab.fab-main{ z-index:60; }
@@ -1824,9 +1805,6 @@
     <span>minimizar</span>
   </button>
   <div class="timer">
-    <a id="shortcutLink" href="#" target="_blank" rel="noopener" class="shortcut-link hidden" onclick="markShortcutInvoked()">
-      Abrir timer nativo
-    </a>
     <div class="ring">
       <svg width="220" height="220">
         <defs>
@@ -1884,7 +1862,7 @@
 
 <script>
 /* ============ VERSÃO (visível na aba Mais pra confirmar deploy) ============ */
-const APP_VERSION = '2026-08-19.19';
+const APP_VERSION = '2026-09-02.01';
 
 /* ============ ÍCONES (Lucide, inline) ============ */
 const I = {
@@ -2609,9 +2587,6 @@ function saveK(k){
 
 /* ============ A2HS BANNER ============ */
 const A2HS_DISMISS_KEY='treinoela_a2hs_dismissed_v1';
-function isStandalone(){
-  try{ return navigator.standalone===true || window.matchMedia('(display-mode: standalone)').matches; }catch(e){ return false; }
-}
 function dismissA2HSBanner(){
   try{ localStorage.setItem(A2HS_DISMISS_KEY,'1'); }catch(e){}
   const el=document.getElementById('a2hs-banner');
@@ -3859,6 +3834,42 @@ const HOME_SESSIONS = {
 };
 
 /* ============ VOLUME SEMANAL (últimos 7 dias) ============ */
+/* ============ Cardio e sono: dados que ela já registra e o app ignorava ============
+   Duas fontes de minuto de cardio: o input diário (ST.cardio[data].z2min) e a série de
+   cardio dentro do treino (sets[].reps = minutos). Soma as duas nos últimos 7 dias.
+   Alvo em MINUTOS (150-300/sem, Jayedi 2024) — MG_TARGETS.cardio conta SÉRIE, que não
+   diz nada sobre dose de cardio. */
+function cardioMinutosSemana(){
+  const t=today();
+  let min=0;
+  for(const d of Object.keys(ST.cardio||{})){
+    const dd=daysBetween(d,t);
+    if(dd<0 || dd>=7) continue;
+    min += num((ST.cardio[d]||{}).z2min);
+  }
+  for(const id of Object.keys(ST.logs||{})){
+    const base=exById(id); if(!base) continue;
+    const ex=exEff(base); if(!ex || ex.t!=='cardio') continue;
+    for(const sess of (ST.logs[id]||[])){
+      const dd=daysBetween(sess.date,t);
+      if(dd<0 || dd>=7) continue;
+      for(const st of (sess.sets||[])){ if(st && st.done) min += num(st.reps); }
+    }
+  }
+  return Math.round(min);
+}
+function mediaSonoSemana(){
+  const t=today();
+  const vals=[];
+  for(const d of Object.keys(ST.sleep||{})){
+    const dd=daysBetween(d,t);
+    if(dd<0 || dd>=7) continue;
+    const v=num(ST.sleep[d]);
+    if(v>0) vals.push(v);
+  }
+  if(!vals.length) return null;
+  return {media: Math.round((vals.reduce((a,b)=>a+b,0)/vals.length)*10)/10, n: vals.length};
+}
 function weeklyVolume(){
   const out={};
   for(const mg of Object.keys(MG_LABELS)) out[mg]=0;
@@ -4611,7 +4622,7 @@ function addSet(id){
 }
 function onLog(inp){ const id=inp.dataset.id; upsertToday(id, collect(id)); flashSaved(id); }
 
-/* ============ Helpers: última posição planejada + Shortcut deep-link ============ */
+/* ============ Helper: última posição planejada do treino ============ */
 function isLastPlannedPosition(day, exIdx, setIdx){
   const W = WK[day]; if(!W) return false;
   if(exIdx !== dayEx(day).length - 1) return false;
@@ -4624,33 +4635,6 @@ function isLastHomePosition(templateId, exIdx, setIdx){
   const nset = parseInt(tmpl.ex[exIdx].s) || 3;
   return setIdx === nset - 1;
 }
-function invokeExternalScheme(url){
-  // iOS PWA standalone: location.href com custom scheme (shortcuts://) é
-  // silenciosamente bloqueado. Um <a target="_blank"> sintético clicado
-  // dentro do mesmo gesto de usuário passa pelo filtro do WebKit.
-  try{
-    const a = document.createElement('a');
-    a.href = url;
-    a.rel = 'noopener';
-    a.target = '_blank';
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(()=>{ try{ a.remove(); }catch(_){} }, 200);
-    return true;
-  }catch(e){}
-  try{ location.href = url; return true; }catch(e){}
-  return false;
-}
-function maybeInvokeShortcutTimer(seconds){
-  if(!ST.meta || !ST.meta.shortcutTimerEnabled) return;
-  const name = String(ST.meta.shortcutName||'').trim();
-  if(!name) return;
-  const s = Math.max(1, Math.round(seconds));
-  const url = `shortcuts://run-shortcut?name=${encodeURIComponent(name)}&input=text&text=${s}`;
-  invokeExternalScheme(url);
-}
-
 function toggleDone(day,exIdx,setIdx,el){
   const id=exId(day,exIdx); const k=setIdx;
   el.classList.toggle('on');
@@ -4680,9 +4664,6 @@ function toggleDone(day,exIdx,setIdx,el){
     const autoFinish = !(ST.meta && ST.meta.autoCompleteOnLastCheck===false); // default true
     // Descanso: pula se for última posição planejada (final do treino)
     if(!isLast){
-      // IMPORTANTE: dispara Shortcut ANTES de abrir overlay/audio/etc — iOS PWA
-      // exige deep-link como primeira ação do gesto de usuário. Qualquer coisa
-      // no meio (openTimer, unlockAudio, requestWakeLock) queima o gesto.
       openTimer(REST[dayEx(day)[i].t]); startTimer();
     }
     // Detecta workout 100% completo → celebra direto (sem perguntar)
@@ -4839,8 +4820,6 @@ function toggleHomeDone(id,k,el){
   if(!ex) return;
   // Pula descanso na última posição planejada (final da sessão em casa)
   if(isLastHomePosition(templateId, exIdx, k)) return;
-  // Shortcut ANTES do openTimer (ver comentário em toggleDone)
-  maybeInvokeShortcutTimer(REST[ex.t] ?? 75);
   openTimer(REST[ex.t] ?? 75); startTimer();
 }
 
@@ -5246,6 +5225,25 @@ function renderCorpo(){
     <div class="stat"><div class="l">Semanas treinando</div><div class="v">${wksT}</div><div class="s">desde ${ST.bw[0]?.date?.slice(5)||workoutDates()[0]?.slice(5)||'agora'}</div></div>
     <div class="stat"><div class="l">Séries esta semana</div><div class="v">${Math.round(totalWkSets)}</div><div class="s">total · todos grupos</div></div>
   </div>`;
+
+  // CARDIO DA SEMANA — minutos reais (input diário + série de cardio do treino) contra a
+  // faixa com efeito medido em gordura (150-300 min/sem, Jayedi 2024). Objetivo #1 dela.
+  {
+    const cmin=cardioMinutosSemana();
+    const pctC=Math.min(100,(cmin/150)*100);
+    const corC = cmin>=150 ? 'var(--ok)' : (cmin>=75 ? 'var(--core)' : 'var(--muted)');
+    const sono=mediaSonoSemana();
+    h+=`<div class="spark-card">
+      <div class="hdr">
+        <div><div class="l">Cardio esta semana</div><div class="v" style="color:${corC}">${cmin}<small>min</small></div></div>
+        <div class="delta" style="color:var(--muted);background:rgba(255,255,255,.05)">${cmin>=150?'na faixa de 150-300':'faixa alvo: 150-300'}</div>
+      </div>
+      <div class="track" style="height:8px;background:rgba(255,255,255,.05);border-radius:4px;overflow:hidden;margin-top:6px">
+        <div style="height:100%;width:${pctC}%;background:${corC};border-radius:4px"></div>
+      </div>
+      <p style="font-size:11px;color:var(--faint);margin:8px 0 0;line-height:1.45">Soma a bike do treino + o que você anota em Hoje.${sono?` Sono: média de <b style="color:var(--ink2)">${sono.media}h</b> em ${sono.n} noite${sono.n>1?'s':''}.`:''}</p>
+    </div>`;
+  }
 
   // HISTÓRICO DE TREINOS — sessões ABCD concluídas, mais recentes primeiro (data · duração · sets · volume)
   const recentSessions = ST.session.history.slice().sort((a,b)=>(b.endAt||0)-(a.endAt||0)).slice(0,12);
@@ -6034,12 +6032,13 @@ function renderMais(){
   <div class="check-card">
     <h3><span class="ic">${I.bolt}</span>Aviso na tela bloqueada</h3>
     <p style="font-size:12px;color:var(--muted);line-height:1.45;margin-bottom:10px">
-      Quando o descanso acaba, o Samsung te avisa com <b style="color:var(--ink2)">notificação + vibração</b> — mesmo com a tela apagada ou o app minimizado, porque o alarme é agendado no horário exato.
+      Quando o descanso acaba, você recebe <b style="color:var(--ink2)">notificação + vibração</b>.
+      <span style="color:var(--faint)">${notifAlcanceTexto()}</span>
     </p>
     <div class="tools" style="gap:8px;flex-wrap:wrap">
       <button onclick="enableNotifications()">Ativar notificações</button>
     </div>
-    <p style="font-size:11.5px;margin-top:10px;line-height:1.4;${(window.Notification&&Notification.permission==='granted')?'color:var(--ok)':'color:var(--faint)'}">${(window.Notification&&Notification.permission==='granted')?'Notificações ativas. O descanso avisa na tela de bloqueio.':((window.Notification&&Notification.permission==='denied')?'Bloqueadas — ative em Config. do Android → Apps → Meu Treino → Notificações.':'Ainda não ativadas — toque no botão acima.')}</p>
+    <p style="font-size:11.5px;margin-top:10px;line-height:1.4;${(window.Notification&&Notification.permission==='granted')?'color:var(--ok)':'color:var(--faint)'}">${(window.Notification&&Notification.permission==='granted')?('Notificações ativas. '+notifAlcanceTexto()):((window.Notification&&Notification.permission==='denied')?'Bloqueadas — ative em Config. do Android → Apps → Meu Treino → Notificações.':'Ainda não ativadas — toque no botão acima.')}</p>
   </div>
 
   <h2 class="sec">Sincronizar com o Meu Cuidado</h2>
@@ -6088,7 +6087,14 @@ function renderMais(){
       <span class="lb">Shared token</span>
       <input type="password" placeholder="hex de 64 chars" value="${esc((ST.meta&&ST.meta.workerToken)||'')}" oninput="setWorkerToken(this.value)">
     </div>
-    <p style="font-size:11px;color:${nuvemPronta()?'var(--ok)':'var(--faint)'};margin-top:10px">${nuvemPronta()?'✓ Configurado — backup automático ligado':'Falta preencher os dois campos'}</p>
+    <p style="font-size:11px;color:${nuvemPronta()?'var(--ok)':'var(--faint)'};margin-top:10px">${nuvemPronta()?'Configurado — backup automático ligado':'Falta preencher os dois campos'}</p>
+    <div class="tools" style="margin-top:12px;gap:8px;flex-wrap:wrap">
+      <button onclick="subscribeForPush()">${(ST.meta&&ST.meta.pushHash)?'Reativar push do descanso':'Ativar push do descanso'}</button>
+      ${(ST.meta&&ST.meta.pushHash)?'<button onclick="testRemotePush()">Testar push</button>':''}
+    </div>
+    <p style="font-size:11px;color:${(ST.meta&&ST.meta.pushHash)?'var(--ok)':'var(--faint)'};margin-top:8px;line-height:1.45">${(ST.meta&&ST.meta.pushHash)
+      ? 'Push ativo — o aviso de descanso chega mesmo com a tela apagada ou o app fechado.'
+      : 'Sem push ativo: o aviso de descanso só toca com o app aberto na tela. Toque acima pra ligar (precisa do Worker configurado).'}</p>
   </div>
 
   <h2 class="sec">Backup na nuvem</h2>
@@ -6433,23 +6439,7 @@ function setTimer(s){
 function openTimer(s){
   if(typeof s==='number') setTimer(s); else setTimer(tTotal);
   document.getElementById('overlay').classList.remove('hidden');
-  updateShortcutLink(typeof s==='number' ? s : tTotal);
   paint();
-}
-function updateShortcutLink(seconds){
-  const link = document.getElementById('shortcutLink');
-  if(!link) return;
-  // Basta ter o nome do Atalho configurado — toggle controla só o disparo automático.
-  // O botão manual funciona sempre que o nome estiver setado.
-  const name = ST.meta && String(ST.meta.shortcutName||'').trim();
-  if(!name){ link.classList.add('hidden'); return; }
-  const s = Math.max(1, Math.round(seconds||0));
-  link.href = `shortcuts://run-shortcut?name=${encodeURIComponent(name)}&input=text&text=${s}`;
-  link.classList.remove('hidden');
-}
-function markShortcutInvoked(){
-  // Chamado quando user toca no link manual — só pra feedback visual
-  showToast('Chamando Atalhos…','ok',1500);
 }
 function closeTimer(){
   // Se timer estava rodando, cancela push agendado (evita disparar depois do user fechar)
@@ -6523,10 +6513,6 @@ function startTimer(){
   requestWakeLock();
   tEndAt=Date.now()+tLeft*1000;
   try{ localStorage.setItem('treinoela_timer_v1', JSON.stringify({endAt:tEndAt,total:tTotal})); }catch(e){}
-  // Nota: maybeInvokeShortcutTimer é disparado ANTES de openTimer/startTimer,
-  // direto de toggleDone/toggleHomeDone, pra preservar o user gesture no iOS.
-  // Chamar aqui não funciona em PWA standalone — o gesto já foi queimado.
-  // Agenda push remoto (via Worker) — funciona com app fechado/tela bloqueada
   scheduleRemotePush(tEndAt);
   scheduleTimerNotification(tEndAt);
   tInt=setInterval(()=>{
@@ -6688,31 +6674,6 @@ function setWorkerToken(v){
   ST.meta.workerToken=String(v||'').trim();
   saveK('meta');
 }
-function toggleShortcutTimer(){
-  if(!ST.meta) ST.meta={};
-  ST.meta.shortcutTimerEnabled = !ST.meta.shortcutTimerEnabled;
-  if(ST.meta.shortcutTimerEnabled && !ST.meta.shortcutName){
-    ST.meta.shortcutName = 'MeuTreinoTimer';
-  }
-  saveK('meta');
-  renderMais();
-  showToast(ST.meta.shortcutTimerEnabled ? 'Timer via Atalhos ligado' : 'Timer via Atalhos desligado', 'ok', 1800);
-}
-function setShortcutName(v){
-  if(!ST.meta) ST.meta={};
-  ST.meta.shortcutName = String(v||'').trim();
-  saveK('meta');
-}
-function testShortcutTimer(){
-  if(!ST.meta || !ST.meta.shortcutName){
-    showToast('Configure o nome do Atalho primeiro', 'warn', 2500); return;
-  }
-  const name = ST.meta.shortcutName;
-  const url = `shortcuts://run-shortcut?name=${encodeURIComponent(name)}&input=text&text=30`;
-  const ok = invokeExternalScheme(url);
-  if(ok) showToast('Chamando Atalhos: '+name+' (30s)…','ok',2200);
-  else showToast('Falha ao chamar Atalhos','warn',3000);
-}
 function toggleAutoComplete(){
   if(!ST.meta) ST.meta={};
   // undefined = ligado (default); false = desligado
@@ -6794,6 +6755,18 @@ async function cancelScheduledTimerNotification(){
     const notes = await reg.getNotifications({tag:'meutreino-timer', includeTriggered:true});
     notes.forEach(n=>{ try{ n.close(); }catch(e){} });
   }catch(e){}
+}
+/* Alcance real do aviso de descanso NESTE aparelho — sem prometer o que não entrega.
+   Ordem de capacidade: push remoto (worker) > Notification Triggers > só com o app aberto.
+   O Chrome dela NÃO tem Notification Triggers, então sem push o aviso só toca na tela. */
+function notifSuportaTrigger(){
+  try{ return ('showTrigger' in Notification.prototype) && typeof TimestampTrigger!=='undefined'; }
+  catch(e){ return false; }
+}
+function notifAlcanceTexto(){
+  if(ST.meta && ST.meta.pushHash) return 'O aviso chega mesmo com a tela apagada ou o app fechado (push ligado).';
+  if(notifSuportaTrigger()) return 'O aviso chega mesmo com a tela apagada (alarme agendado).';
+  return 'Neste aparelho o aviso só toca com o app aberto — a tela fica acesa durante o descanso. Pra receber com a tela apagada, ative o push do descanso na seção Worker.';
 }
 function enableNotifications(){
   if(!('Notification' in window)){ showToast('Este navegador não suporta notificações','warn',3000); return; }
