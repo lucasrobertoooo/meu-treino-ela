@@ -2,7 +2,9 @@
 
 PWA single-file de treino pra ela. Android/Chrome. Fork do MeuTreino (do Lucas) que **já divergiu bastante** — não assuma que o que vale lá vale aqui.
 
-**Última atualização:** 2026-08-19.06 (**Séries extras visíveis e removíveis** + **botão de abrir no navegador**. SHELL v51)
+**Última atualização:** 2026-08-19.10 (**Auditoria completa**: 3 furos na fronteira de troca corrigidos, card do exercício reordenado, autorregulação por recuperação subjetiva. SHELL v55)
+
+**Antes: 2026-08-19.06 (**Séries extras visíveis e removíveis** + **botão de abrir no navegador**. SHELL v51)
 
 **Antes: 2026-08-19.05 (**Mesociclo com rampa de volume** — 4 semanas: base, base, acúmulo, semana leve. O deload agora corta as séries sozinho. SHELL v50)
 
@@ -269,6 +271,29 @@ Mesma dupla aplicada no MeuTreino, adaptada aqui.
 
 ### Verificação
 28 asserts nos dois apps, incluindo `renderHomeDay` sem erro.
+
+---
+
+## Auditoria completa (2026-08-19.07 a .10)
+
+### 3 furos na fronteira de troca — erro meu do porte anterior
+Portei `progressSessions` com a fronteira, mas `detectPlateau`, `weeksOnExercise` e `inferLoadStep` continuaram lendo `ST.logs` direto. Depois de "Troquei", o app seguia vendo o histórico do exercício ANTIGO: podia acusar platô na hora, contava semanas desde outro exercício e inferia o passo de carga com pesos que não valiam mais. As três agora passam por `progressSessions`.
+
+### Deload órfão — a sugestão de trocar nunca disparava aqui
+`markDeloadDone` ficou sem chamador quando o botão virou "Semana leve". `lastDeloadWeek` só era gravado pelo `autoDetectDeload`, que exige queda a ≤60% da média — e o corte do mesociclo aqui dá **61%**, então nunca gravava. Como `shouldSwapExercise` exige deload feito, **a troca de exercício jamais era sugerida neste app**. Corrigido com `registrarDeloadEmCurso()`.
+
+Também saiu a rede de calendário de 7 semanas do `needsDeload`: era de quando este app não tinha mesociclo. Agora a semana 4 já é leve por construção.
+
+### Card do exercício reordenado
+Nome → séries/reps/descanso → **Meta** → aquecimento → campos → descanso proeminente → "Como fazer" recolhido (foto, técnica, vídeo, editar). O botão de descanso não aparece em cardio. Estado do "Como fazer" em variável, não `<details>` (o `render()` ao marcar série perderia o aberto).
+
+**Rolagem por sessão: 7,9 → 5,3 telas**, medido no app publicado.
+
+### Autorregulação por recuperação
+Uma pergunta ao concluir o treino (**Ainda pesado · Normal · Leve**), em `ST.meta.rec` por data. **Assimétrico**: só segura volume, nunca adiciona além do planejado. 2+ "ainda pesado" em 9 dias suprime o +1 do acúmulo (88→82). `fadigaGlobal` fica mais sensível (limiar de travados 50%→35%). **Vale mais aqui: em déficit a recuperação é pior.**
+
+### Verificação
+48 asserts nos dois apps + verificação visual no app publicado.
 
 ---
 
