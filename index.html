@@ -1047,6 +1047,35 @@
   }
   .openweb:active{opacity:.82;}
   .openweb small{font-size:10.5px; color:var(--faint); font-weight:500;}
+  /* ==== CARD DO EXERCÍCIO REORDENADO ==== */
+  .exhead{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:9px;}
+  .exname{font-size:18px; font-weight:800; color:var(--ink); letter-spacing:-.015em; line-height:1.2; flex:1 1 auto; min-width:0;}
+  .pr-inline{
+    display:inline-flex; align-items:center; gap:3px; font-size:10px; font-weight:800;
+    color:#fff; background:var(--push); border-radius:6px; padding:2px 6px; flex:none;
+  }
+  .photo.semtarja{border-radius:var(--r-md); overflow:hidden;}
+  .photo.semtarja .ovr{display:none;}
+  .restbig{
+    width:100%; margin:10px 0 0; padding:13px; border-radius:13px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:8px; font-family:inherit;
+    font-size:14px; font-weight:700; color:var(--core);
+    background:rgba(224,149,44,.10); border:1px solid rgba(224,149,44,.30);
+  }
+  .restbig:active{opacity:.8;}
+  .restbig svg{width:17px; height:17px;}
+  .exmore{
+    width:100%; margin-top:8px; padding:10px; border-radius:12px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:7px; font-family:inherit;
+    font-size:12.5px; font-weight:600; color:var(--muted);
+    background:none; border:1px solid var(--line);
+  }
+  .exmore svg{width:13px; height:13px;}
+  .exmore i{font-style:normal; font-size:9px; opacity:.7;}
+  .exmore.aberto{color:var(--ink2); border-color:var(--line-2);}
+  .exdet{margin-top:10px; display:flex; flex-direction:column; gap:9px;}
+  .exbtns2{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+  .fab.rolando{opacity:.16; transform:scale(.82);}
   .addset{
     width:100%; margin-top:8px; padding:9px; border-radius:11px; cursor:pointer;
     display:flex; align-items:center; justify-content:center; gap:6px;
@@ -1790,7 +1819,7 @@
 
 <script>
 /* ============ VERSÃO (visível na aba Mais pra confirmar deploy) ============ */
-const APP_VERSION = '2026-08-19.07';
+const APP_VERSION = '2026-08-19.08';
 
 /* ============ ÍCONES (Lucide, inline) ============ */
 const I = {
@@ -4315,7 +4344,7 @@ function renderDay(d){
       return `<div class="cue" style="margin-top:8px;font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:6px"><span style="display:inline-flex;color:#ffd178">${I.bolt}</span><span><b style="color:var(--ink)">Aquecimento:</b> ${w1}kg × 8 · ${w2}kg × 5 (antes de começar)</span></div>`;
     })() : '';
     const photoBlock = url
-      ? `<div class="photo">
+      ? `<div class="photo semtarja">
            ${prBadge}
            <img src="${url}" alt="${esc(nm)}" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="this.parentElement.classList.add('noimg'); this.remove();">
            <div class="ovr">
@@ -4334,8 +4363,13 @@ function renderDay(d){
 
     h+=`<div class="ex${cdSkip?' cd-off':''}">
       ${cdSkip?`<div class="cd-tag">pode pular hoje · abre ${Math.round(exMinutes(e))} min de bike</div>`:''}
-      ${photoBlock}
+
       <div class="body">
+        <div class="exhead">
+          <div class="exname">${esc(nm)}</div>
+          <div class="pill ${pillC}">${pillT}</div>
+          ${todayPR?`<span class="pr-inline">${I.trophy.replace('width="18" height="18"','width="11" height="11"')} PR</span>`:''}
+        </div>
         <div class="target">${e.t==='cardio'
           ? `<span class="met"><b>${cdPlan && cdPlan.cardioMin ? cdPlan.cardioMin+' min' : e.r}</b></span><span class="dot"></span><span class="met">bike · Zona 2</span>${cdPlan?`<span class="dot"></span><span class="met cd-up">${cdPlan.dobrou?'dobrado hoje':'+'+(cdPlan.cardioMin-cdPlan.baseMin)+' min hoje'}</span>`:''}`
           : `<span class="met"><b>${planned}</b> séries${nset>planned?` <span class="xtra">+${nset-planned} extra</span>`:''}</span>
@@ -4344,17 +4378,17 @@ function renderDay(d){
           <span class="dot"></span>
           <span class="met"><b>${Math.floor(restS/60)}:${String(restS%60).padStart(2,'0')}</b> descanso</span>`}
         </div>
-        ${cue&&cue!=="—"?`<div class="cue">${exOverride(e).cue?esc(cue):cue}</div>`:""}
-        ${note&&note.trim()?`<div class="exnote">${I.pencil}<span>${esc(note)}</span></div>`:""}
-        ${warmup}
+
+
         ${skipBanner}
         ${sugBlock}
         ${platBlock2}
-        <div class="exbtns">
-          <a class="xb" href="${yt}" target="_blank" rel="noopener">${I.play}<span>Vídeo</span></a>
-          ${e.t==='cardio' ? '' : `<button class="xb rest" onclick="openTimer(${restS})">${I.timer}<span>Descanso ${Math.floor(restS/60)}:${String(restS%60).padStart(2,'0')}</span></button>`}
-          <button class="xb" onclick="openExEdit('${e.id}','${d}',${i})">${I.pencil}<span>Editar</span></button>
-        </div>
+        ${warmup}
+
+
+
+
+
       </div>
       <div class="log">
         <div class="last">${lastTxt}</div>
@@ -4368,6 +4402,19 @@ function renderDay(d){
         <div class="loghint"><span>RIR = reps em reserva (0-2 = ideal)</span><span class="saved" id="sv_${id}">${I.check2} salvo</span></div>
         ${dayCommentBlock('logs', id)}
       </div>
+      ${e.t==='cardio' ? '' : `<button class="restbig" onclick="openTimer(${restS})">${I.timer}<span>Descanso ${Math.floor(restS/60)}:${String(restS%60).padStart(2,'0')}</span></button>`}
+      <button class="exmore${exDetalhes.has(id)?' aberto':''}" onclick="toggleDetalhes('${id}')">
+        ${I.play}<span>Como fazer</span><i>${exDetalhes.has(id)?'▲':'▼'}</i>
+      </button>
+      ${exDetalhes.has(id)?`<div class="exdet">
+        ${photoBlock}
+        ${cue&&cue!=="—"?`<div class="cue">${exOverride(e).cue?esc(cue):cue}</div>`:""}
+        ${note&&note.trim()?`<div class="exnote">${I.pencil}<span>${esc(note)}</span></div>`:""}
+        <div class="exbtns2">
+          <a class="xb" href="${yt}" target="_blank" rel="noopener">${I.play}<span>Vídeo</span></a>
+          <button class="xb" onclick="openExEdit('${e.id}','${d}',${i})">${I.pencil}<span>Editar</span></button>
+        </div>
+      </div>`:''}
     </div>`;
   });
   h+=`<button class="tr-addex" onclick="openBankPicker('add','${d}')">+ Adicionar exercício</button>`;
@@ -4421,6 +4468,23 @@ function abrirNoNavegador(a){
   try{ a.href = a.dataset.url + '?r=' + Date.now(); }catch(e){}
   return true;
 }
+/* Estado do "Como fazer": em variável, não em <details>. O app chama render() ao marcar
+   série, e um <details> nativo perderia o aberto a cada toque. */
+let exDetalhes = new Set();
+function toggleDetalhes(id){
+  exDetalhes.has(id) ? exDetalhes.delete(id) : exDetalhes.add(id);
+  render();
+}
+/* O FAB é fixed e passava por cima do conteúdo. Não dá pra escondê-lo durante o treino
+   (o menu tem "Iniciar treino" e "Timer avulso"), então sai da frente ao rolar e volta. */
+let _fabT=null;
+function fabAoRolar(){
+  const f=document.querySelector('.fab-main'); if(!f) return;
+  f.classList.add('rolando');
+  clearTimeout(_fabT);
+  _fabT=setTimeout(()=>f.classList.remove('rolando'), 600);
+}
+try{ window.addEventListener('scroll', fabAoRolar, {passive:true}); }catch(e){}
 function addSet(id){
   const tod=todaySession(id);
   const stored=(tod&&Array.isArray(tod.sets))?tod.sets:[];
