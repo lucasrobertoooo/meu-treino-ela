@@ -2,7 +2,9 @@
 
 PWA single-file de treino pra ela. Android/Chrome. Fork do MeuTreino (do Lucas) que **já divergiu bastante** — não assuma que o que vale lá vale aqui.
 
-**Última atualização:** 2026-08-19.10 (**Auditoria completa**: 3 furos na fronteira de troca corrigidos, card do exercício reordenado, autorregulação por recuperação subjetiva. SHELL v55)
+**Última atualização:** 2026-08-19.13 (**Foco configurável** e faixas 12-16. SHELL v58)
+
+**Antes: 2026-08-19.10 (**Auditoria completa**: 3 furos na fronteira de troca corrigidos, card do exercício reordenado, autorregulação por recuperação subjetiva. SHELL v55)
 
 **Antes: 2026-08-19.06 (**Séries extras visíveis e removíveis** + **botão de abrir no navegador**. SHELL v51)
 
@@ -294,6 +296,31 @@ Uma pergunta ao concluir o treino (**Ainda pesado · Normal · Leve**), em `ST.m
 
 ### Verificação
 48 asserts nos dois apps + verificação visual no app publicado.
+
+---
+
+## Foco configurável e auditoria de treino (2026-08-19.11 a .13)
+
+### Foco configurável
+`MG_PRIORITY` era um literal: `{gluteo:true, gluteo_med:true}`. Não havia como ela mudar de objetivo sem editar o HTML. Agora é derivado de `ST.meta.foco`, com tela na aba Mais: cada grupo gira entre FOCO → apoio → manutenção → nada. Padrão do programa: glúteo e glúteo médio em foco, quadríceps e posterior de apoio.
+
+**Bug grave pego pelo teste:** eu chamava `recalcPrioridades()` no topo do arquivo, antes da declaração de `ST` (TDZ) — **o app não daria boot**. A chamada foi pro boot, antes do 1º render.
+
+### Faixas 12-20 → 12-16
+Largura da faixa = semanas até o app mandar subir carga (+1 rep/sessão, 1×/semana). Das 12 faixas em 12-20, **quatro eram a cadeira abdutora** — glúteo médio, o foco nº 1 dela. O objetivo principal era o mais lento do programa. As outras: 5 panturrilhas e 3 elevações laterais. Média: 4,6 → 3,9 semanas.
+
+Evidência: hipertrofia equivalente numa faixa ampla de reps desde que perto da falha (Schoenfeld 2017; Lasevicius 2018).
+
+### Auditoria do programa — achados NÃO aplicados (decisão do Lucas)
+O Lucas pediu pra não mexer no treino dela; ficam registrados:
+
+1. **Tríceps tem 0 séries diretas** (meta interna do app: 4). Só 3 fracionadas de compostos. O programa contradiz a própria meta.
+2. **Costas: 6 séries em 1×/semana.** Todo o superior cabe no dia C. A evidência favorece dividir a mesma dose em 2 sessões (Schoenfeld 2016). É o achado de maior peso, e o que mexe mais na estrutura.
+3. **Panturrilha: 9 séries contra meta de 6**, em 3 dias, sem ser foco. Mais volume que costas.
+4. **Isolador antes de composto em 3 dos 4 dias** (extensora antes do sumô; flexora antes do coice e do búlgaro). Pode ser pré-exaustão deliberada — não tratar como erro sem confirmar a intenção.
+5. **Quadríceps 13 × glúteo 11**, com glúteo sendo o foco. Só observação: já houve um erro de leitura meu nessa direção antes (ver a retratação de 2026-08-19.01).
+
+Ordem sugerida se ele liberar: tríceps → panturrilha → costas 2×/semana. A ordem dos exercícios só depois de confirmar a pré-exaustão.
 
 ---
 
