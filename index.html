@@ -1109,20 +1109,7 @@
   /* ==== CARD DO EXERCÍCIO REORDENADO ==== */
   .lastd{white-space:nowrap;}   /* a data quebrava no meio: "(08-" / "26):" */
   .exhead{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:9px;}
-  /* A foto tinha ido inteira pro "Como fazer" e o Lucas sentiu que as imagens sumiram.
-     Miniatura devolve o reconhecimento imediato (é essa máquina?) por ~56px em vez de 370px. */
-  .exthumb{
-    width:56px; height:56px; flex:none; border-radius:12px; object-fit:cover; cursor:pointer;
-    border:1px solid var(--line-2); background:var(--glass-2);
-  }
-  .exthumb:active{opacity:.75;}
-  .exname{font-size:17px; font-weight:800; color:var(--ink); letter-spacing:-.015em; line-height:1.25; flex:1 1 auto; min-width:0;}
-  .pr-inline{
-    display:inline-flex; align-items:center; gap:3px; font-size:10px; font-weight:800;
-    color:#fff; background:var(--push); border-radius:6px; padding:2px 6px; flex:none;
-  }
-  .photo.semtarja{border-radius:var(--r-md); overflow:hidden;}
-  .photo.semtarja .ovr{display:none;}
+  .exname{font-size:18px; font-weight:800; color:var(--ink); letter-spacing:-.015em; line-height:1.25; flex:1 1 auto; min-width:0;}
   .restbig{
     width:100%; margin:10px 0 0; padding:13px; border-radius:13px; cursor:pointer;
     display:flex; align-items:center; justify-content:center; gap:8px; font-family:inherit;
@@ -1869,7 +1856,7 @@
 
 <script>
 /* ============ VERSÃO (visível na aba Mais pra confirmar deploy) ============ */
-const APP_VERSION = '2026-09-02.03';
+const APP_VERSION = '2026-09-02.04';
 
 /* ============ ÍCONES (Lucide, inline) ============ */
 const I = {
@@ -4475,7 +4462,7 @@ function renderDay(d){
       return `<div class="cue" style="margin-top:8px;font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:6px"><span style="display:inline-flex;color:#ffd178">${I.bolt}</span><span><b style="color:var(--ink)">Aquecimento:</b> ${w1}kg × 8 · ${w2}kg × 5 (antes de começar)</span></div>`;
     })() : '';
     const photoBlock = url
-      ? `<div class="photo semtarja">
+      ? `<div class="photo">
            ${prBadge}
            <img src="${url}" alt="${esc(nm)}" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="this.parentElement.classList.add('noimg'); this.remove();">
            <div class="ovr">
@@ -4495,13 +4482,8 @@ function renderDay(d){
     h+=`<div class="ex${cdSkip?' cd-off':''}">
       ${cdSkip?`<div class="cd-tag">pode pular hoje · abre ${Math.round(exMinutes(e))} min de bike</div>`:''}
 
+      ${photoBlock}
       <div class="body">
-        <div class="exhead">
-          ${url?`<img class="exthumb" src="${url}" alt="" loading="lazy" decoding="async" onclick="toggleDetalhes('${id}')" onerror="this.style.display='none'">`:''}
-          <div class="exname">${esc(nm)}</div>
-          <div class="pill ${pillC}">${pillT}</div>
-          ${todayPR?`<span class="pr-inline">${I.trophy.replace('width="18" height="18"','width="11" height="11"')} PR</span>`:''}
-        </div>
         <div class="target">${e.t==='cardio'
           ? `<span class="met"><b>${cdPlan && cdPlan.cardioMin ? cdPlan.cardioMin+' min' : e.r}</b></span><span class="dot"></span><span class="met">bike · Zona 2</span>${cdPlan?`<span class="dot"></span><span class="met cd-up">${cdPlan.dobrou?'dobrado hoje':'+'+(cdPlan.cardioMin-cdPlan.baseMin)+' min hoje'}</span>`:''}`
           : `<span class="met"><b>${planned}</b> séries${nset>planned?` <span class="xtra">+${nset-planned} extra</span>`:''}</span>
@@ -4539,7 +4521,6 @@ function renderDay(d){
         ${I.play}<span>Como fazer</span><i>${exDetalhes.has(id)?'▲':'▼'}</i>
       </button>
       ${exDetalhes.has(id)?`<div class="exdet">
-        ${photoBlock}
         ${cue&&cue!=="—"?`<div class="cue">${exOverride(e).cue?esc(cue):cue}</div>`:""}
         ${note&&note.trim()?`<div class="exnote">${I.pencil}<span>${esc(note)}</span></div>`:""}
         <div class="exbtns2">
