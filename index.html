@@ -1856,7 +1856,7 @@
 
 <script>
 /* ============ VERSÃO (visível na aba Mais pra confirmar deploy) ============ */
-const APP_VERSION = '2026-09-09.04';
+const APP_VERSION = '2026-09-09.05';
 
 /* ============ ÍCONES (Lucide, inline) ============ */
 const I = {
@@ -3049,7 +3049,6 @@ const EX_BANK = {
     {n:"Cadeira extensora", s:3, r:"10-15", t:"iso", mg:{quadriceps:1}, cue:"Amplitude média, não trava no final (poupa a patela). Segura 1s em cima."},
   ],
   "Posterior de coxa": [
-    {n:"Graviton pegada neutra", s:3, r:"8-12", t:"comp", mg:{costas:1, biceps:0.5}, cue:"Puxada vertical assistida. Número anotado = peso da AJUDA (menor = mais forte)."},
     {n:"Mesa flexora sentada", s:3, r:"10-15", t:"iso", mg:{posterior:1}, cue:"Sentada (quadril fletido = alongado) cresce mais — Maeo 2021."},
     {n:"Mesa flexora deitada", s:3, r:"10-15", t:"iso", mg:{posterior:1}, cue:"Controla a volta."},
     {n:"Stiff com barra ou halteres", s:3, r:"10-12", t:"comp", mg:{posterior:1, gluteo:0.5}, cue:"Quadril pra trás, posterior alongando, costas retas."},
@@ -3142,6 +3141,7 @@ function exById(id){
 let exEditId=null;
 function cuePlain(c){ return String(c||'').replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim(); }
 function openExEdit(id, day, idx){
+  abrirCamada(closeExEdit);
   const orig=exById(id);
   if(!orig){ showToast('Exercício não encontrado', 'warn'); return; }
   exEditId=id;
@@ -3161,7 +3161,7 @@ function openExEdit(id, day, idx){
   document.getElementById('exEdit').classList.remove('hidden');
   setTimeout(()=>{ try{ document.getElementById('exEditName').focus(); }catch(e){} }, 60);
 }
-function closeExEdit(){ document.getElementById('exEdit').classList.add('hidden'); exEditId=null; }
+function closeExEdit(){ if(_camadas.length) _camadas.pop(); document.getElementById('exEdit').classList.add('hidden'); exEditId=null; }
 function saveExEdit(){
   if(!exEditId) return;
   const orig=exById(exEditId)||{};
@@ -3727,12 +3727,11 @@ function progressState(id, e){
   // RIR das sessões travadas: é o sinal de fadiga que o app coletava e ignorava
   const rirs=h.slice(-Math.min(travadas,3)).map(s=>sessionRIR(s.sets)).filter(v=>v!=null);
   const rirMed=rirs.length ? rirs.reduce((a,b)=>a+b,0)/rirs.length : null;
-  if(travadas>=3 && rirMed!=null && rirMed<=1)
-    return {k:'fadiga', sug, acao:'deload',
-      msg:`${nSess()} sem subir, todas perto da falha (RIR ${fmtStep(rirMed)}). Isso é fadiga acumulada, não falta de esforço.`,
-      nota:'Faça uma semana leve: metade das séries, ou 20% menos carga. Depois volta.'};
-
-  // No topo da faixa e sem conseguir subir: o problema costuma ser o TAMANHO do salto.
+  /* PRECEDÊNCIA: isto vem ANTES de `fadiga`. Quem está no TOPO da faixa não está travado
+     por cansaço — a prescrição da dupla progressão é justamente subir a carga. Com `fadiga`
+     na frente, a tela mostrava "faça uma semana leve" logo abaixo de uma Meta dizendo
+     "bateu o topo · sobe carga": duas ordens opostas ao mesmo tempo. */
+  // O problema costuma ser o TAMANHO do salto.
   // É a armadilha que o app criava sozinho, sugerindo +1kg numa máquina de placas de 5.
   if(cur.reps>=rng.max && travadas>=2){
     const step=loadStepFor(id, e) || (sug && sug.inc) || 0;
@@ -3743,6 +3742,12 @@ function progressState(id, e){
         ? `O menor salto que esse equipamento tem é ${fmtStep(step)}kg (${pct}% a mais). Duas saídas boas: sobe pra ${fmtKg(cur.kg+step)}kg e aceita cair pra ${rng.min} reps, ou mantém ${fmtKg(cur.kg)}kg e acrescenta 1 série.`
         : `Sobe pro próximo peso disponível e aceita cair pra ${rng.min} reps, ou mantém a carga e acrescenta 1 série.`};
   }
+  /* Fadiga só depois de descartar o caso do topo (acima): aqui ela está travada ABAIXO do
+     topo e perto da falha, que é o quadro real de fadiga acumulada. */
+  if(travadas>=3 && rirMed!=null && rirMed<=1)
+    return {k:'fadiga', sug, acao:'deload',
+      msg:`${nSess()} sem subir, todas perto da falha (RIR ${fmtStep(rirMed)}). Isso é fadiga acumulada, não falta de esforço.`,
+      nota:'Faça uma semana leve: metade das séries, ou 20% menos carga. Depois volta.'};
 
   // Carga parada COM peso corporal caindo não é fracasso: é massa magra preservada em déficit
   // (Helms, Aragon & Fitschen 2014). O app chamava isso de plateau e mandava agir.
@@ -3891,9 +3896,9 @@ const HOME_SESSIONS = {
     canSkipNextDay:{},      // não substitui — é EXTRA pra prioridade #1
     ex:[
       {id:"ombro_postura_1", n:"Elevação lateral isométrica (mochila/livros)", s:3, r:"30s", t:"iso", mg:{ombro_lat:1}, cue:"Segura peso (mochila com livros, garrafas). Braços a 90° na lateral, mantém 30s. Fadiga lateral real. Volume extra pra <em>prioridade #1</em>."},
-      {id:"ombro_postura_2", n:"Face pull com elástico (ou toalha)", s:3, r:"15", t:"iso", mg:{ombro_lat:1}, cue:"Elástico preso numa maçaneta, puxa pra perto da testa, cotovelos altos. Deltoide posterior + postura. Sem elástico: toalha esticada entre as mãos."},
-      {id:"ombro_postura_3", n:"YTW prone (deitado de bruços)", s:3, r:"8 cada letra", t:"iso", mg:{ombro_lat:0.7}, cue:"Deitado bruços, braços formam Y (cima), T (lateral), W (cotovelos dobrados). Levanta do chão e segura 1s cada rep."},
-      {id:"ombro_postura_4", n:"Wall slide", s:3, r:"10", t:"iso", mg:{ombro_lat:0.3}, cue:"Costas, lombar e braços encostados na parede. Desliza braços pra cima sem tirar contato. Mobilidade de ombro + postura."},
+      {id:"ombro_postura_2", n:"Face pull com elástico (ou toalha)", s:3, r:"15", t:"iso", mg:{costas:0.6}, cue:"Elástico preso numa maçaneta, puxa pra perto da testa, cotovelos altos. Deltoide posterior + postura. Sem elástico: toalha esticada entre as mãos."},
+      {id:"ombro_postura_3", n:"YTW prone (deitado de bruços)", s:3, r:"8 cada letra", t:"iso", mg:{costas:0.5}, cue:"Deitado bruços, braços formam Y (cima), T (lateral), W (cotovelos dobrados). Levanta do chão e segura 1s cada rep."},
+      {id:"ombro_postura_4", n:"Wall slide", s:3, r:"10", t:"iso", mg:{costas:0.3}, cue:"Costas, lombar e braços encostados na parede. Desliza braços pra cima sem tirar contato. Mobilidade de ombro + postura."},
       {id:"ombro_postura_5", n:"Elevação frontal com mochila", s:2, r:"12", t:"iso", mg:{ombro_ant:0.7}, cue:"Opcional. Pega a mochila com as duas mãos, sobe na frente até a altura do ombro. Controla a descida."},
     ],
   },
@@ -5936,6 +5941,7 @@ function renderPhotoThumbs(){
 /* ---- Comparar fotos: abas de ângulo + 2 datas + 3 modos ---- */
 let photoCmpMode='side', photoCmpAngle=null, photoCmpA=null, photoCmpB=null;
 function openPhotoCompare(){
+  abrirCamada(closePhotoCompare);
   const angles=allPhotoAngles().map(a=>a[0]).filter(k=>allPhotoRecords().some(p=>p.angle===k));
   if(!angles.length){ showToast('Sem fotos suficientes', 'warn'); return; }
   photoCmpAngle=angles.includes(photoCmpAngle)?photoCmpAngle:angles[0];
@@ -6007,7 +6013,7 @@ function openPhotoCompareAngle(){
   photoCmpA=items[0]&&items[0].date; photoCmpB=items[items.length-1]&&items[items.length-1].date;
   renderPhotoCompareBody();
 }
-function closePhotoCompare(){ const ov=document.getElementById('photoCompare'); if(ov) ov.classList.add('hidden'); }
+function closePhotoCompare(){ if(_camadas.length) _camadas.pop(); const ov=document.getElementById('photoCompare'); if(ov) ov.classList.add('hidden'); }
 
 /* ---- Backup de fotos (separado — pode ficar grande, prefere share/download a clipboard) ---- */
 async function exportPhotosBackup(){
@@ -6582,12 +6588,35 @@ function setTimer(s){
   document.querySelectorAll('.preset').forEach(b=>b.classList.toggle('active', +b.dataset.s===s));
   paint();
 }
+/* ============ BOTÃO VOLTAR DO ANDROID ============
+   Em PWA standalone no Chrome, sem tratamento o voltar FECHA O APP inteiro — mesmo com um
+   modal aberto no meio do treino. Aqui cada camada aberta empilha um estado de histórico e
+   o voltar fecha só a camada de cima. Com a pilha vazia o voltar segue seu curso normal
+   (sai do app), pra não prender ninguém dentro. */
+const _camadas=[];
+function abrirCamada(fechar){
+  if(typeof fechar!=='function') return;
+  _camadas.push(fechar);
+  try{ history.pushState({camada:_camadas.length}, ''); }catch(e){}
+}
+function fecharCamada(){
+  const f=_camadas.pop();
+  if(f){ try{ f(); }catch(e){} return true; }
+  return false;
+}
+try{
+  window.addEventListener('popstate', function(){
+    // o browser já voltou um estado; só desfazemos a camada correspondente
+    if(_camadas.length){ const f=_camadas.pop(); try{ f(); }catch(e){} }
+  });
+}catch(e){}
 function openTimer(s){
+  abrirCamada(closeTimer);
   if(typeof s==='number') setTimer(s); else setTimer(tTotal);
   document.getElementById('overlay').classList.remove('hidden');
   paint();
 }
-function closeTimer(){
+function closeTimer(){ if(_camadas.length) _camadas.pop();
   // Se timer estava rodando, cancela push agendado (evita disparar depois do user fechar)
   if(tState==='running') cancelRemotePushes();
   cancelScheduledTimerNotification();
