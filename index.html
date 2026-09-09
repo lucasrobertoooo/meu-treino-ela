@@ -1856,7 +1856,7 @@
 
 <script>
 /* ============ VERSÃO (visível na aba Mais pra confirmar deploy) ============ */
-const APP_VERSION = '2026-09-09.03';
+const APP_VERSION = '2026-09-09.04';
 
 /* ============ ÍCONES (Lucide, inline) ============ */
 const I = {
@@ -2881,7 +2881,17 @@ function cleanupPhantomSessions(){
     if(!Array.isArray(ST.logs[id])) continue;
     const before=ST.logs[id].length;
     // Mantém: sessões com pelo menos 1 set válido OU sessão de hoje (em progresso)
-    ST.logs[id]=ST.logs[id].filter(sess => sess && sess.date===t || hasValidDoneSafe(sess && sess.sets));
+    /* Sessão PASSADA com números digitados e nenhum ✓ era apagada sem aviso: 3 séries de
+       62,5kg registradas ontem e não marcadas sumiam no boot de hoje, com um console.log
+       como único sinal. Agora só some sessão REALMENTE vazia (sem nenhum kg/rep digitado). */
+    ST.logs[id]=ST.logs[id].filter(sess => {
+      if(!sess) return false;
+      if(sess.date===t) return true;
+      if(hasValidDoneSafe(sess.sets)) return true;
+      if(sess.cmt && String(sess.cmt).trim()) return true;
+      return (sess.sets||[]).some(x=>x && (String(x.kg||'').trim()!=='' || String(x.reps||'').trim()!==''));
+    });
+
     cleaned += before - ST.logs[id].length;
     if(!ST.logs[id].length) delete ST.logs[id];
   }
@@ -4548,7 +4558,7 @@ function renderDay(d){
       <div class="body">
         <div class="target">${e.t==='cardio'
           ? `<span class="met"><b>${cdPlan && cdPlan.cardioMin ? cdPlan.cardioMin+' min' : e.r}</b></span><span class="dot"></span><span class="met">bike · Zona 2</span>${cdPlan?`<span class="dot"></span><span class="met cd-up">${cdPlan.dobrou?'dobrado hoje':'+'+(cdPlan.cardioMin-cdPlan.baseMin)+' min hoje'}</span>`:''}`
-          : `<span class="met"><b>${planned}</b> séries${nset>planned?` <span class="xtra">+${nset-planned} extra</span>`:''}</span>
+          : `<span class="met"><b>${planned}</b> ${planned===1?'série':'séries'}${nset>planned?` <span class="xtra">+${nset-planned} extra</span>`:''}</span>
           <span class="dot"></span>
           <span class="met"><b>${e.r}</b> reps</span>
           <span class="dot"></span>
@@ -5830,7 +5840,10 @@ function removePhotoAngle(key){
 }
 // Une IDB (pixels async, via photometa) + fallback legado (dataUrl já em mão) numa lista só.
 function allPhotoRecords(){
-  const idb=ST.photometa.map(p=>({id:p.id, date:p.date, angle:p.angle||'frente', legacy:false}));
+  /* Defende contra registro sem `id` ou sem `date`: addPhotoFile e importPhotos preenchem,
+     mas importData atribui ST.photometa cru — e um registro incompleto derrubava a aba Corpo
+     em `.date.slice()` ou imprimia "undefined" na tela. */
+  const idb=(ST.photometa||[]).filter(p=>p&&p.id).map(p=>({id:p.id, date:p.date||today(), angle:p.angle||'frente', legacy:false}));
   const leg=ST.photos.map((p,i)=>({id:'legacy_'+i, date:p.date, angle:p.angle||'frente', legacy:true, dataUrl:p.dataUrl}));
   return [...idb, ...leg].sort((a,b)=>a.date<b.date?1:-1);
 }
@@ -6326,6 +6339,20 @@ function fundirBackup(o){
   if(o.prog && typeof o.prog==='object' && (!ST.prog || !Object.keys(ST.prog).length)){
     ST.prog=o.prog; rel.campos++;
   }
+  /* measureCfg (campos de medida customizados) NUNCA era fundido aqui. Restaurar uma medida
+     com campo próprio trazia o número e deixava o campo mudo — só reaparecia no boot
+     seguinte, e com o rótulo remontado da chave ("Pescoco" sem cedilha), porque o label
+     original do backup era jogado fora. */
+  if(o.measureCfg && Array.isArray(o.measureCfg.custom)){
+    if(!ST.measureCfg || typeof ST.measureCfg!=='object') ST.measureCfg={custom:[]};
+    if(!Array.isArray(ST.measureCfg.custom)) ST.measureCfg.custom=[];
+    const tem=new Set(ST.measureCfg.custom.map(c=>c&&c.key));
+    for(const c of o.measureCfg.custom){
+      if(c && c.key && !tem.has(c.key)){ ST.measureCfg.custom.push(c); tem.add(c.key); rel.campos++; }
+    }
+    saveK('measureCfg');
+  }
+  rel.campos += registrarCamposDesconhecidos(ST.measures);   // nada restaurado fica invisível
   /* C2: session.history (duração de cada treino) nunca era fundido. Numa instalação limpa,
      restaurar devolvia logs e medidas mas o histórico de duração continuava vazio — e os
      próximos envios subiam esse vazio, até a rotação de 5 comer todos os snapshots que
