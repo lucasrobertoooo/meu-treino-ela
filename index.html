@@ -1856,7 +1856,7 @@
 
 <script>
 /* ============ VERSÃO (visível na aba Mais pra confirmar deploy) ============ */
-const APP_VERSION = '2026-09-09.05';
+const APP_VERSION = '2026-09-09.06';
 
 /* ============ ÍCONES (Lucide, inline) ============ */
 const I = {
@@ -1910,28 +1910,28 @@ let WK = {
     {id:"b_3", n:"Cadeira flexora (sentada)", s:3, r:"10-15", t:"iso", mg:{posterior:1}, cue:"Posterior de coxa. <em>Sentada</em> — quadril dobrado deixa o posterior alongado e cresce mais (Maeo 2021: +14% vs deitada). É por isso que ela sozinha já substitui a mesa deitada: mesma função, versão melhor."},
     {id:"b_4k", n:"Coice na polia (extensão de quadril)", s:3, r:"12-15 por perna", t:"comp", mg:{gluteo:1}, cue:"<em>Glúteo máximo puro — joelho quase reto, o exercício mais amigo do joelho do treino.</em> Tronco firme, chuta pra trás e aperta o glúteo 1s em cima. Não arqueia a lombar. <em>Log: 3 sets = 1 por perna.</em>"},
     {id:"c_2", n:"Cadeira abdutora", s:4, r:"12-16", t:"iso", mg:{gluteo_med:1}, cue:"<em>Glúteo médio — 2º dos 2 dias de abdução.</em> Progride a CARGA. Rotação interna do pé em parte das séries. Segura 1s no topo."},
-    {id:"c_4", n:"Cadeira extensora", s:3, r:"12-15", t:"iso", mg:{quadriceps:1}, cue:"Finaliza o quadríceps. Segura em cima."},
-    {id:"b_8", n:"Abdominal na polia ou máquina", s:3, r:"12-15", t:"core", mg:{core:1}, cue:"Enrola o tronco, expira apertando. Progride carga."},
-    {id:"b_9", n:"Panturrilha sentada", s:3, r:"12-16", t:"iso", mg:{panturrilha:1}, cue:"Foca no sóleo (joelho dobrado). Amplitude total."},
+    {id:"c_4", n:"Cadeira extensora", s:3, r:"12-15", t:"iso", mg:{quadriceps:1}, cue:"Finaliza o quadríceps. <em>Segura 1s em cima com a perna travada</em> — é a pausa que faz a diferença. Encosto ajustado pro joelho alinhar com o eixo da máquina, e trabalha na faixa que não incomoda."},
+    {id:"b_8", n:"Abdominal na polia ou máquina", s:3, r:"12-15", t:"core", mg:{core:1}, cue:"Core com carga. <em>Enrola o tronco vértebra por vértebra e expira apertando</em> no fim — não é puxar com o braço. Progride a carga quando fechar a faixa com controle."},
+    {id:"b_9", n:"Panturrilha sentada", s:3, r:"12-16", t:"iso", mg:{panturrilha:1}, cue:"Sóleo, que só entra com o <em>joelho dobrado</em> — por isso esta versão sentada não substitui a em pé, e vice-versa. Amplitude total com pausa embaixo."},
     {id:"b_10", n:"Cardio Z2 na bike", s:1, r:"15 min", t:"cardio", mg:{cardio:1}, cue:"Sempre <em>depois</em> dos pesos — assim o cardio não rouba força do treino. 15 min de bike Z2 (dá pra conversar), todo dia de treino. <em>Quem emagrece é o déficit na dieta, não o cardio</em> (Thorogood 2011): 15 min é a dose que cabe todo dia sem esvaziar a energia pro treino de peso. Sobrou tempo/vontade num dia de descanso? Pedalar mais é só bônus. Sem corrida: pedalar não atrapalha o ganho de glúteo, correr atrapalha (Wilson 2012)."},
   ]},
   C:{name:"Superior", focus:"Peito, Costas, Ombro e Braço + Cardio", type:"push", ex:[
     {id:"a_6", n:"Supino máquina ou halter (acessório superior)", s:3, r:"10-12", t:"comp", mg:{peito_med:1, triceps:0.5}, cue:"Dose de superior pra equilíbrio. Sente o peito puxar."},
-    {id:"c_5", n:"Desenvolvimento de ombro (acessório superior)", s:3, r:"10-12", t:"comp", mg:{ombro_ant:1, ombro_lat:0.5, triceps:0.5}, cue:"Ombro pra equilíbrio da parte de cima."},
+    {id:"c_5", n:"Desenvolvimento de ombro (acessório superior)", s:3, r:"10-12", t:"comp", mg:{ombro_ant:1, ombro_lat:0.5, triceps:0.5}, cue:"Ombro, pro equilíbrio da parte de cima. <em>Costas coladas no encosto e sem travar o cotovelo em cima</em>. Desce até o cotovelo passar da linha do ombro — amplitude curta aqui não constrói nada."},
     {id:"b_6g", n:"Graviton pegada NEUTRA", s:3, r:"8-12", t:"comp", mg:{costas:1, biceps:0.5}, cue:"<em>Puxada vertical — costas, braço e ombro numa tacada só.</em> Pegada neutra (palmas se olhando) = ombro e cotovelo mais confortáveis. Puxa com o cotovelo, peito pra cima. <em>Atenção ao anotar: aqui o número é o peso da AJUDA — número menor = você mais forte.</em>"},
     {id:"d_6", n:"Remada na polia/máquina (acessório costas)", s:3, r:"8-12", t:"comp", mg:{costas:1, biceps:0.5}, cue:"Espessura das costas — complementa o Graviton (puxada vertical) com o padrão horizontal, aqui do lado. Aperta as escápulas."},
     {id:"c_6", n:"Elevação lateral", s:2, r:"12-16", t:"iso", mg:{ombro_lat:1}, cue:"Sobe pelo cotovelo até a altura do ombro. Postura + formato do ombro."},
-    {id:"d_7", n:"Rosca martelo (acessório)", s:2, r:"10-12", t:"iso", mg:{biceps:1}, cue:"Braquial + antebraço."},
+    {id:"d_7", n:"Rosca martelo (acessório)", s:2, r:"10-12", t:"iso", mg:{biceps:1}, cue:"Braquial e antebraço. O braquial fica embaixo do bíceps e <em>empurra ele pra cima — é o que dá volume ao braço visto de lado</em>. Punho neutro e firme, cotovelo parado ao lado do corpo."},
     {id:"c_8", n:"Cardio Z2 na bike", s:1, r:"25 min", t:"cardio", mg:{cardio:1}, cue:"<em>O maior cardio da semana</em> — hoje é dia de superiores, as pernas chegam frescas pro cardio. Sempre <em>depois</em> dos pesos. 25 min de bike Z2 (dá pra conversar). Sem corrida. É a chance de somar mais minutos de cardio na semana sem tirar energia do treino de perna."},
   ]},
   D:{name:"Inferior 3", focus:"Glúteo/Posterior + Cardio", type:"push", ex:[
     {id:"d_1s", n:"Agachamento no Smith (pés à frente, foco glúteo)", s:4, r:"10-15", t:"comp", mg:{gluteo:1, quadriceps:0.5}, cue:"<em>Pés um pouco à FRENTE do corpo</em> = joelho dobra menos e o glúteo puxa mais — feito sob medida pro joelho dela. A barra guiada dá segurança pra descer controlado sem medo de desequilibrar. Amplitude sem dor, empurra pelo calcanhar. <em>Exercício novo: começa leve.</em>"},
-    {id:"d_2", n:"Stiff / RDL com barra ou halteres", s:3, r:"10-12", t:"comp", mg:{posterior:1, gluteo:0.5}, cue:"Quadril pra trás, posterior alongando. Costas retas."},
+    {id:"d_2", n:"Stiff / RDL com barra ou halteres", s:3, r:"10-12", t:"comp", mg:{posterior:1, gluteo:0.5}, cue:"Posterior e glúteo. <em>Quadril vai pra trás, não é agachar</em>: joelho quase parado, barra rente à perna, costas retas o tempo todo. Desce só até sentir o posterior alongar — passar disso vira lombar."},
     {id:"d_5s", n:"Cadeira flexora (sentada)", s:3, r:"12-15", t:"iso", mg:{posterior:1}, cue:"Posterior. <em>Sentada</em> (posterior alongado) cresce mais que a mesa deitada — Maeo 2021. Controla a descida."},
     {id:"c_3", n:"Agachamento búlgaro (apoio atrás)", s:3, r:"10-12 por perna", t:"comp", mg:{quadriceps:1, gluteo:0.5}, cue:"Pé de trás no banco. Tronco à frente pega mais glúteo. Desce controlado. <em>Descansa o quanto precisar entre uma perna e outra — é assim que você faz, e tá certo.</em> <em>Log: 3 sets = 1 por perna.</em>"},
     {id:"d_abd", n:"Cadeira abdutora", s:3, r:"12-16", t:"iso", mg:{gluteo_med:1}, cue:"<em>Zero joelho</em> — o movimento é só de quadril, a articulação do joelho nem participa. Glúteo médio é o que arredonda o quadril visto de frente e o que segura o joelho na linha, por isso entra no tratamento de dor patelofemoral junto com o quadríceps (JOSPT 2019). Tronco levemente à frente pega mais fibra. Abre até travar, volta devagar. <em>Terceira dose da semana</em> — já estava em A e B, faltava aqui."},
-    {id:"d_8", n:"Abdominal declinado ou infra", s:3, r:"12-15", t:"core", mg:{core:1}, cue:"Retroversão de pelve, controla a descida."},
-    {id:"d_9", n:"Panturrilha em pé", s:3, r:"12-16", t:"iso", mg:{panturrilha:1}, cue:"Amplitude total, pausa embaixo."},
+    {id:"d_8", n:"Abdominal declinado ou infra", s:3, r:"12-15", t:"core", mg:{core:1}, cue:"Core. <em>Retroversão de pelve antes de começar</em>: lombar colada, sem arco. Enrola o tronco (não levanta reto) e controla a descida — a descida é onde o abdômen trabalha de verdade."},
+    {id:"d_9", n:"Panturrilha em pé", s:3, r:"12-16", t:"iso", mg:{panturrilha:1}, cue:"Panturrilha em pé (gastrocnêmio, com o joelho esticado). <em>Amplitude total: desce até esticar embaixo, sobe até o topo, 1s de pausa nas duas pontas</em>. Meia amplitude rápida não faz nada aqui."},
     {id:"d_10", n:"Cardio Z2 na bike", s:1, r:"15 min", t:"cardio", mg:{cardio:1}, cue:"Sempre <em>depois</em> dos pesos — assim o cardio não rouba força do treino. 15 min de bike Z2 (dá pra conversar), todo dia de treino. <em>Quem emagrece é o déficit na dieta, não o cardio</em> (Thorogood 2011): 15 min é a dose que cabe todo dia sem esvaziar a energia pro treino de peso. Sobrou tempo/vontade num dia de descanso? Pedalar mais é só bônus. Sem corrida — joelho."},
   ]},
 };
@@ -4529,7 +4529,10 @@ function renderDay(d){
         ${isExtra?`<button class="rmset" onclick="removeSet('${id}',${k})" title="Remover série extra" aria-label="Remover série extra">×</button>`:''}
       </div>`;
     }
-    const yt=`https://www.youtube.com/results?search_query=`+encodeURIComponent(nm+" execução técnica academia");
+    /* Duas buscas, não uma. "Como fazer" resolve quem nunca fez; "erro comum" é o que
+       melhora quem já faz — e costuma ser a diferença entre repetir por meses e evoluir. */
+    const yt=`https://www.youtube.com/results?search_query=`+encodeURIComponent(nm+" execução técnica");
+    const ytErro=`https://www.youtube.com/results?search_query=`+encodeURIComponent(nm+" erros comuns como corrigir");
     const restS=(REST[e.t] ?? 90);
     // warmup pro composto
     const warmup = e.t==='comp' && last && bestE1RM(last.sets)>0 ? (() => {
@@ -4571,6 +4574,7 @@ function renderDay(d){
         </div>
 
 
+        ${cue&&cue!=="—"?`<div class="cue">${exOverride(e).cue?esc(cue):cue}</div>`:""}
         ${skipBanner}
         ${sugBlock}
         ${platBlock2}
@@ -4598,10 +4602,10 @@ function renderDay(d){
         ${I.play}<span>Como fazer</span><i>${exDetalhes.has(id)?'▲':'▼'}</i>
       </button>
       ${exDetalhes.has(id)?`<div class="exdet">
-        ${cue&&cue!=="—"?`<div class="cue">${exOverride(e).cue?esc(cue):cue}</div>`:""}
         ${note&&note.trim()?`<div class="exnote">${I.pencil}<span>${esc(note)}</span></div>`:""}
         <div class="exbtns2">
-          <a class="xb" href="${yt}" target="_blank" rel="noopener">${I.play}<span>Vídeo</span></a>
+          <a class="xb" href="${yt}" target="_blank" rel="noopener">${I.play}<span>Como fazer</span></a>
+          <a class="xb" href="${ytErro}" target="_blank" rel="noopener">${I.play}<span>Erros comuns</span></a>
           <button class="xb" onclick="openExEdit('${e.id}','${d}',${i})">${I.pencil}<span>Editar</span></button>
         </div>
       </div>`:''}
