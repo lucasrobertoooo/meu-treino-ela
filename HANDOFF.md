@@ -371,7 +371,7 @@ Mesmo módulo do MeuTreino, portado junto — **a descrição completa está no 
 3. Mais → Worker: colar a **mesma URL e o mesmo token** do app dele. Ao salvar o token o app puxa sozinho e mostra "Sincronizado: N registros do outro aparelho". Conferir Treinos (histórico), Corpo (pesagens, medidas, fotos).
 4. Mais → Notificações → ativar push (nova assinatura deste aparelho). Mais → Timer nativo → criar o Atalho `TreinoElaTimer` e testar.
 5. O Android pode continuar em uso: tudo que ela gravar num aparelho aparece no outro ao abrir. Sem rede o app trabalha normal e sincroniza na próxima abertura.
-6. Fotos: o Worker no ar ainda limita a 4MB por snapshot (≈25-30 fotos de 800px). Se ela tiver mais que isso, as mais antigas ficam só no Android até o Lucas redeployar o Worker (`npx wrangler login` + `npx wrangler deploy` em `MeuTreino/push-worker`) e tocar "Enviar agora" de novo — ou usar Exportar fotos → Importar no iPhone.
+6. Fotos: o Worker aceita 20MB por snapshot desde 19/09 (≈150 fotos de 800px). Acima disso as mais antigas ficam só no aparelho de origem — Exportar fotos → Importar cobre.
 
 ### Verificação
 Suíte reconstruída (a do scratchpad anterior se perdeu) e versionada em `MeuTreino/tools/tests/` (cobre os dois apps): 46 regressão + 52 cenário de dois aparelhos + 34 conflito/lápide + 8 teto adaptativo, nos dois apps, todos passando. Sintaxe OK. Não testado em iPhone físico nesta sessão — o Atalho e o push exigem o aparelho dela.
