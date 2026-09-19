@@ -1,8 +1,12 @@
 # Treino-Ela · HANDOFF v1
 
-PWA single-file de treino pra ela. Android/Chrome. Fork do MeuTreino (do Lucas) que **já divergiu bastante** — não assuma que o que vale lá vale aqui.
+PWA single-file de treino pra ela. **iPhone (desde 19/09/2026) — e o Android antigo enquanto durar; os dois sincronizam pelo mesmo Worker.** Fork do MeuTreino (do Lucas) que **já divergiu bastante** — não assuma que o que vale lá vale aqui.
 
-**Última atualização:** 2026-09-02.02 (push do descanso funcionando de verdade: worker dispara no segundo certo. SHELL v65)
+**Última atualização:** 2026-09-19.01 (**Adaptação ao iPhone + sincronização entre aparelhos** — timer nativo via Atalhos de volta, push de aparelho novo, sync com carimbo/lápide, fotos na nuvem. SHELL v76)
+
+**Antes: 2026-09-09.01 a .07 (auditoria com 5 agentes, 4 levas + textos de execução. SHELL v69-v75 — ver seção "Auditoria 2026-09-09")
+
+**Antes: 2026-09-02.02 (push do descanso funcionando de verdade: worker dispara no segundo certo. SHELL v65)
 
 **Antes: 2026-09-02.01 (auditoria de código/estrutura: Atalhos iOS removidos, push do descanso ligado, cardio semanal em minutos. SHELL v65)
 
@@ -111,7 +115,7 @@ Volume semanal (séries diretas / equivalentes, se fizer os 4 dias): glúteo 11/
 
 ---
 
-## Storage (localStorage, 16 chaves `treinoela_*`)
+## Storage (localStorage, 16 chaves `treinoela_*` + 1 fora do backup)
 
 ```
 logs, bw, sleep, protein, suppl, photos(legado), measures, cardio, meta,
@@ -119,6 +123,8 @@ session, freelog, exmeta, prog, measureCfg, photometa, photoCfg
 ```
 - **Pixels de foto no IndexedDB** (`treinoela_photos_db`, store `pixels`); metadados leves em `photometa`.
 - `prog` / `measureCfg` / `photoCfg` **não existem no MeuTreino**.
+- **`treinoela_syncfp_v1`** (fora de `LS`, fora do backup): impressão digital de cada registro na última sincronização — só deste aparelho. Ver "Sincronização entre aparelhos".
+- `ST.meta.tomb` = lápides de apagados (viaja no backup, fundida por data maior). `ST.meta.progM` = carimbo do programa editável.
 - **`ST.meta.syncPat`** = token do GitHub do publisher `treino-status` (ver abaixo). **Excluído do backup de propósito** — o JSON do backup passa pelo share sheet.
 - Backup: `exportData` cobre as 16 chaves; fotos têm export/import próprio (`exportPhotosBackup`). Import tem guarda `looksLikeAncientRawLogs` (formato pré-versionamento) — não remova, foi criada depois de uma corrupção real.
 
@@ -336,9 +342,55 @@ Ordem sugerida se ele liberar: tríceps → panturrilha → costas 2×/semana. A
 
 ---
 
+## Adaptação ao iPhone + sincronização entre aparelhos (2026-09-19.01)
+
+A Priscila passou a usar iPhone. Pedido: funcionar 100% no iPhone, sincronizar nos dois aparelhos, replicar as funções do app dele (em especial o timer) e migrar todos os dados.
+
+### Timer nativo via Atalhos — de volta
+Removido em 2026-09-02.01 (`b507dac`) porque ela era Android. Portado de novo do MeuTreino, idêntico: `isStandalone`, `invokeExternalScheme` (âncora `target=_blank` sintética no mesmo gesto — `location.href` com `shortcuts://` é bloqueado em PWA standalone), `maybeInvokeShortcutTimer` (**tem que ser a PRIMEIRA ação do gesto** no `toggleDone`, antes do `openTimer`), `updateShortcutLink`, `markShortcutInvoked`, `toggleShortcutTimer`, `setShortcutName`, `testShortcutTimer`. Link `#shortcutLink` no overlay do timer, CSS `.shortcut-link`, seção "Timer nativo do iPhone (via Atalhos)" na aba Mais antes de "Worker". Nome padrão do Atalho: **`TreinoElaTimer`** (dele é outro nome; não colidem no mesmo iPhone). Convive com o caminho Android (`scheduleTimerNotification`/`TimestampTrigger`): cada um só dispara onde há suporte.
+
+O Atalho no iPhone dela: app Atalhos → novo → ação **"Iniciar timer"** com duração = **Entrada do atalho** (segundos) → nome `TreinoElaTimer`. Depois em Mais → Timer nativo → ligar e "Testar".
+
+### Push em aparelho novo (portado do `cf6424e` dele, 14/09)
+`subscribeForPush` cancelava só se não houvesse assinatura; existindo, reenviava a MESMA — num aparelho novo/restaurado republicava o endereço morto. Agora cancela a antiga e cria nova sempre. `sw.js` ganhou `pushsubscriptionchange` (reassina e deixa em cache `push-pendente`; `subirAssinaturaPendente` na página empurra pro Worker no boot e por postMessage). `activate` do SW poupa o cache `push-pendente`. Dica de "bloqueadas" passa a citar Ajustes → Notificações no iPhone.
+
+### Ícone
+`apple-touch-icon.png` era byte a byte o do app dele (fork). Regerado do maskable dela (fundo rosa `F6EBEB`, 180px) — na tela de início do iPhone fica igual ao ícone que ela já via no Android. Os meta tags iOS (`apple-mobile-web-app-capable`, status bar, `viewport-fit=cover`, safe areas) já existiam. O banner A2HS continua desligado por decisão antiga (`maybeShowA2HSBanner` retorna) — a instrução de instalar vive no rodapé da aba Mais, agora com iPhone primeiro.
+
+### Sincronização entre aparelhos
+Mesmo módulo do MeuTreino, portado junto — **a descrição completa está no HANDOFF dele, seção "Sincronização entre aparelhos (2026-09-19.01)"**. Resumo do que é específico daqui:
+- namespaces: `?app=treinoela` (dados) e `?app=treinoela_fotos` (pixels).
+- `prog` (programa editável, objeto iterado por chave — não dá pra pôr `_m` dentro): carimbo em `ST.meta.progM`; na fusão o mais novo vence, sem carimbo local vence. **`{}` vazio não conta como "entrou"** — contava, e os dois aparelhos ficaram se re-enviando em loop (pego no teste de repouso).
+- `photoCfg` está no conjunto que marca sujo.
+- Foto: `photoDBGet/Put/Delete`, ângulo padrão `'frente'`. Ids já eram `uid()` com sufixo aleatório — sem colisão.
+- **Regra de conflito**: mesma sessão editada nos dois → vence quem sincronizou por último. Apagado num aparelho some do outro (lápide). Nada mais é apagado na fusão.
+
+### Migração Android → iPhone (procedimento)
+1. **No Android** (app atualizado pra 2026-09-19.01 — abrir, esperar, se precisar Mais → Atualizar agora): Mais → Backup na nuvem → **Enviar agora**. O toast diz "dados + N fotos".
+2. **No iPhone**: Safari → `https://lucasrobertoooo.github.io/meu-treino-ela/` → Compartilhar → **Adicionar à Tela de Início**. Abrir pelo ícone (não pelo Safari — push e Atalho só funcionam instalado).
+3. Mais → Worker: colar a **mesma URL e o mesmo token** do app dele. Ao salvar o token o app puxa sozinho e mostra "Sincronizado: N registros do outro aparelho". Conferir Treinos (histórico), Corpo (pesagens, medidas, fotos).
+4. Mais → Notificações → ativar push (nova assinatura deste aparelho). Mais → Timer nativo → criar o Atalho `TreinoElaTimer` e testar.
+5. O Android pode continuar em uso: tudo que ela gravar num aparelho aparece no outro ao abrir. Sem rede o app trabalha normal e sincroniza na próxima abertura.
+6. Fotos: o Worker no ar ainda limita a 4MB por snapshot (≈25-30 fotos de 800px). Se ela tiver mais que isso, as mais antigas ficam só no Android até o Lucas redeployar o Worker (`npx wrangler login` + `npx wrangler deploy` em `MeuTreino/push-worker`) e tocar "Enviar agora" de novo — ou usar Exportar fotos → Importar no iPhone.
+
+### Verificação
+Suíte reconstruída (a do scratchpad anterior se perdeu) e versionada em `MeuTreino/tools/tests/` (cobre os dois apps): 46 regressão + 52 cenário de dois aparelhos + 34 conflito/lápide + 8 teto adaptativo, nos dois apps, todos passando. Sintaxe OK. Não testado em iPhone físico nesta sessão — o Atalho e o push exigem o aparelho dela.
+
+---
+
+## Auditoria 2026-09-09 (5 agentes, 4 levas — .01 a .05) + textos (.06, .07)
+
+Resumo do que está detalhado nos commits `528df81`, `95ae931`, `65641f7`, `326c454`, `38df245`, `e21cdf0`, `cc3bdc2`:
+- **Motor**: semana leve virava "travado" (grave aqui: deload automático a cada 4 semanas). Corte da volta de pausa anulado pelo arredondamento (floor + ≥1 degrau). Sessão abandonada contava como treino (`sessionTop` exige check). `fadiga` antes de `travado-passo` — invertido. `parseRange` marca tempo ("30-45s" do agachamento na parede) e livre ("máx" da flexão) — eram lidos como reps. `carga-alta` sem saída no degrau mínimo.
+- **Dados**: UMA sessão malformada apagava o exercício inteiro (guarda de shape do boot + `fundirBackup` aceitando `{date, cmt}`) — agora só a sessão cai. Restaurar backup antigo deixava histórico invisível (chave posicional; remapeia na entrada derivado de WK_GYM/WK_CASA). `session.history` e `measureCfg` nunca eram fundidos (campo restaurado ficava mudo, rótulo remontado sem cedilha). Sessão de ontem sem check era apagada. Guarda numérica morta (`isFinite(num(v))`) → qualquer texto virava medida. Foto sem date/id derrubava Corpo.
+- **UI/Android**: botão voltar fechava o app com modal aberto → pilha `_camadas` (timer, editar exercício, comparar fotos). Notificação de descanso em TRÊS caminhos com tags diferentes → unificadas. "Atualizar agora" prova rede antes de limpar. Escaping (kg, reps, RIR, placeholders, chave de medida). Graviton na categoria "posterior de coxa" do EX_BANK; face pull/YTW/wall slide contavam como deltoide lateral (→ costas). Mini-band em casa mostrava a cadeira abdutora (4 chaves → sem foto). Ícone maskable de verdade com fundo rosa.
+- **Textos** (.06/.07): `cue` volta pro card; os 30 reescritos com mediana 61 caracteres e um ponto-chave em `<em>`, referências comprimidas (JOSPT 2019, Maeo 2021).
+
+---
+
 ## Backup na nuvem (2026-08-19.14)
 
-Mesmo módulo do MeuTreino. Envia sozinho no máximo 1× a cada 6h quando há treino do dia; o Worker guarda os 5 últimos snapshots.
+Mesmo módulo do MeuTreino. ~~Envia sozinho no máximo 1× a cada 6h quando há treino do dia~~ (**substituído em 2026-09-19 pela sincronização entre aparelhos — ver acima**); o Worker guarda os 5 últimos snapshots.
 
 **A restauração funde, não substitui**: `fundirBackup()` só acrescenta o que falta, então uma cópia da nuvem mais velha não apaga sessão nova. `meta` fica de fora (preferências do aparelho).
 
