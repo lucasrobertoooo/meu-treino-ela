@@ -298,6 +298,70 @@
   .xb svg{flex:none;}
 
   /* ============ MODAL EDITAR EXERCÍCIO ============ */
+
+  /* ---- Ordem do dia e troca de exercício (2026-09-26) ---- */
+  .exact{
+    position:absolute; top:12px; left:12px; z-index:3;
+    width:34px; height:34px; border-radius:11px; border:none; cursor:pointer;
+    background:rgba(12,14,20,.62); color:#fff; backdrop-filter:blur(8px);
+    display:inline-flex; align-items:center; justify-content:center;
+    box-shadow:0 2px 10px -2px rgba(0,0,0,.5);
+  }
+  .exact:active{transform:scale(.94);}
+  .exact svg{width:16px; height:16px;}
+  .plantag{
+    display:flex; align-items:center; gap:6px; flex-wrap:wrap;
+    font-size:11.5px; font-weight:700; letter-spacing:.02em;
+    background:var(--glass, rgba(127,127,127,.10)); border:1px solid var(--line, rgba(127,127,127,.22));
+    border-radius:9px; padding:6px 9px; margin-bottom:9px;
+  }
+  .plantag small{font-weight:600; opacity:.75; letter-spacing:0;}
+  .planobar{
+    display:flex; flex-wrap:wrap; align-items:center; gap:8px;
+    margin:0 14px 12px; padding:10px 12px; border-radius:12px;
+    background:var(--glass, rgba(127,127,127,.10)); border:1px solid var(--line, rgba(127,127,127,.22));
+    font-size:12px; line-height:1.4;
+  }
+  .planobar .pb-l{flex:1 1 150px;}
+  .planobar .pb-b{
+    flex:none; border:none; cursor:pointer; font-size:12px; font-weight:700;
+    background:var(--glass-2, rgba(127,127,127,.16)); color:inherit;
+    border-radius:9px; padding:7px 11px;
+  }
+  .planobar .pb-b:active{opacity:.75;}
+  .plano-card{max-height:86vh; overflow-y:auto; -webkit-overflow-scrolling:touch;}
+  .plano-esc{display:flex; gap:6px; margin:2px 0 14px;}
+  .plano-esc .pe-opt{
+    flex:1; border:1px solid var(--line, rgba(127,127,127,.22)); cursor:pointer;
+    background:transparent; color:inherit; opacity:.65;
+    border-radius:10px; padding:9px 8px; font-size:13px; font-weight:700;
+  }
+  .plano-esc .pe-opt.on{opacity:1; background:var(--glass-2, rgba(127,127,127,.18)); border-color:var(--core, #5b9eff);}
+  .plano-sec{font-size:11px; letter-spacing:.08em; text-transform:uppercase; opacity:.6; font-weight:700; margin:12px 2px 7px;}
+  .plano-row{display:flex; gap:7px;}
+  .plano-b{
+    flex:1; display:flex; flex-direction:column; align-items:flex-start; gap:2px;
+    border:1px solid var(--line, rgba(127,127,127,.22)); cursor:pointer;
+    background:var(--glass, rgba(127,127,127,.10)); color:inherit;
+    border-radius:11px; padding:11px 13px; font-size:13.5px; font-weight:600; margin-bottom:6px;
+    text-align:left;
+  }
+  .plano-b small{font-size:11.5px; font-weight:500; opacity:.7;}
+  .plano-b.forte{background:var(--glass-2, rgba(127,127,127,.18)); border-color:var(--core, #5b9eff);}
+  .plano-b[disabled]{opacity:.35; cursor:default;}
+  .plano-b:active:not([disabled]){transform:scale(.99);}
+  .plano-alt{
+    display:flex; justify-content:space-between; align-items:center; gap:10px; width:100%;
+    border:1px solid var(--line, rgba(127,127,127,.22)); cursor:pointer; text-align:left;
+    background:var(--glass, rgba(127,127,127,.10)); color:inherit;
+    border-radius:11px; padding:11px 13px; margin-bottom:6px;
+  }
+  .plano-alt.on{border-color:var(--core, #5b9eff);}
+  .plano-alt .pa-n{font-size:13.5px; font-weight:600; line-height:1.25;}
+  .plano-alt .pa-m{font-size:12px; opacity:.65; font-variant-numeric:tabular-nums; flex:none;}
+  .plano-alt:active{transform:scale(.99);}
+  .plano-nota{font-size:12px; line-height:1.45; opacity:.8; margin:2px 2px 8px;}
+  .plano-hint{font-size:11.5px; line-height:1.45; opacity:.6; margin-top:12px;}
   .exedit-back{
     position:fixed; inset:0; z-index:120;
     background:rgba(4,6,10,.68); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
@@ -1877,7 +1941,7 @@
 
 <script>
 /* ============ VERSÃO (visível na aba Mais pra confirmar deploy) ============ */
-const APP_VERSION = '2026-09-19.01';
+const APP_VERSION = '2026-09-26.01';
 
 /* ============ ÍCONES (Lucide, inline) ============ */
 const I = {
@@ -2007,6 +2071,364 @@ const MG_LABELS = {
   biceps:"Bíceps", triceps:"Tríceps",
 };
 const MG_ORDER = ["gluteo","gluteo_med","quadriceps","posterior","core","panturrilha","costas","ombro_ant","ombro_lat","peito_med","biceps","triceps","cardio"];
+
+/* ============ ORDEM DO DIA E TROCA DE EXERCÍCIO (2026-09-26) ============
+   Dois problemas reais da academia que o app ignorava: o aparelho está ocupado (quero
+   adiantar outro exercício e voltar depois) e o aparelho está quebrado/lotado (preciso de um
+   equivalente). Dava pra resolver na marra, mas o app não ficava sabendo — e isso estraga a
+   leitura de progressão: exercício feito em 5º, depois de 8 séries do mesmo músculo, NÃO é
+   comparável com o mesmo exercício feito em 1º. A revisão de ordem de exercícios (Simão et al
+   2012, Sports Medicine) é consistente: o que vem depois rende menos, e a queda é maior
+   quando o que veio antes usa os mesmos músculos. Sem tratar isso, adiantar um exercício faz
+   o app subestimar a carga, e atrasar produz "travado" falso — que é o gatilho da sugestão de
+   TROCAR de exercício.
+
+   Duas camadas, ambas reversíveis, sem tocar no programa:
+     ST.meta.plan.ord[escopo][dia] = [id,...]                       ordem PERMANENTE
+     ST.meta.plan.tr[escopo][id]   = {n,s,r,t,mg,cue,key}           troca PERMANENTE
+     ST.meta.plan.hoje = {data, ord:{dia:[id,...]}, tr:{id:{...}}}  SÓ HOJE
+   A camada de hoje expira sozinha (data !== today() é ignorada), sem varredura nem limpeza.
+
+   O substituto registra em CHAVE PRÓPRIA de log ("a_2~leg_press_45"): carga de leg press não
+   entra no histórico do hack squat, e desfazer a troca devolve o histórico original intacto.
+   O id BASE nunca muda — é ele que ancora nota, foto, volume e ordem. */
+const FAD_SIST=0.15;   // parcela de fadiga que qualquer série cobra, mesmo de outro músculo
+/* peito_sup e peito_med são chaves diferentes e o MESMO peitoral. Sem agrupar por família,
+   supino inclinado contaria fadiga ZERO pro supino reto — que é o caso mais comum de todos. */
+const MG_FAM={peito_sup:'peito', peito_med:'peito', ombro_ant:'ombro', ombro_lat:'ombro', ombro_post:'ombro', gluteo_med:'gluteo'};
+function mgFam(k){ return MG_FAM[k]||k; }
+function mgVetor(e){ const v={}; const m=(e&&e.mg)||{}; for(const k of Object.keys(m)){ const f=mgFam(k); v[f]=(v[f]||0)+(+m[k]||0); } return v; }
+// quanto A cansa pra B: soma dos músculos em comum, teto 1 = "cansa tudo o que B precisa"
+function mgSobrepoe(a,b){ const va=mgVetor(a), vb=mgVetor(b); let s=0; for(const f of Object.keys(va)) if(vb[f]) s+=Math.min(va[f],vb[f]); return Math.min(1,s); }
+// slug determinístico pra chave de log do substituto (slugify da app dela cai em uid(), que não é estável)
+function slugAlt(n){ return String(n||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'').slice(0,28) || 'alt'; }
+/* Comparação de nome pra "é o mesmo exercício?": a lista dela tem "Leg press HORIZONTAL
+   (sentada)" no programa e "Leg press horizontal (sentada)" no banco — sem normalizar, o app
+   oferecia o próprio exercício como substituto dele mesmo. Tira acento, caixa e o sufixo
+   entre parênteses ("(acessório)", "(alternativa)"), que é rótulo de contexto, não de
+   movimento. */
+function nomeNorm(n){
+  return String(n||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()
+    .replace(/\([^)]*\)/g,' ').replace(/[^a-z0-9]+/g,' ').trim();
+}
+/* "É o mesmo exercício?" — só igualdade depois de normalizar, que já resolve o caso real
+   ("Rosca martelo (acessório)" oferecendo "Rosca martelo"). Tentei também tratar prefixo como
+   o mesmo movimento e foi PIOR: matava "Elevação lateral na polia" como alternativa da
+   "Elevação lateral" e as três panturrilhas do app dele — e trocar o EQUIPAMENTO é justamente
+   o ponto quando a máquina está ocupada. */
+function mesmoMovimento(a,b){
+  const x=nomeNorm(a), y=nomeNorm(b);
+  return !!x && x===y;
+}
+function idBase(id){ const s=String(id==null?'':id); const i=s.indexOf('~'); return i<0 ? s : s.slice(0,i); }
+
+function planRoot(){ ST.meta=ST.meta||{}; if(!ST.meta.plan || typeof ST.meta.plan!=='object' || Array.isArray(ST.meta.plan)) ST.meta.plan={}; return ST.meta.plan; }
+function planEscopo(){ return _progMode(); }
+function planHoje(){ const h=planRoot().hoje; return (h && h.data===today()) ? h : null; }
+function planHojeRW(){ const p=planRoot(); if(!p.hoje || p.hoje.data!==today()) p.hoje={data:today(), ord:{}, tr:{}}; p.hoje.ord=p.hoje.ord||{}; p.hoje.tr=p.hoje.tr||{}; return p.hoje; }
+function planPerm(){ const p=planRoot(), s=planEscopo(); return {ord:(p.ord&&p.ord[s])||{}, tr:(p.tr&&p.tr[s])||{}}; }
+function planPermRW(){ const p=planRoot(), s=planEscopo(); p.ord=p.ord||{}; p.tr=p.tr||{}; p.ord[s]=p.ord[s]||{}; p.tr[s]=p.tr[s]||{}; return {ord:p.ord[s], tr:p.tr[s]}; }
+
+function ordemDe(d){ const h=planHoje(); if(h && h.ord && Array.isArray(h.ord[d])) return {ids:h.ord[d], hoje:true}; const P=planPerm(); if(Array.isArray(P.ord[d])) return {ids:P.ord[d], hoje:false}; return null; }
+function trocaDe(id){ const b=idBase(id); const h=planHoje(); if(h && h.tr && h.tr[b]) return {alt:h.tr[b], hoje:true}; const P=planPerm(); if(P.tr[b]) return {alt:P.tr[b], hoje:false}; return null; }
+// exercício efetivo = base + troca. O id (âncora de identidade) nunca muda.
+function exTrocado(e){
+  if(!e || !e.id) return e;
+  const t=trocaDe(e.id); if(!t || !t.alt || !t.alt.n) return e;
+  const a=t.alt;
+  return {...e, n:a.n, s:a.s||e.s, r:a.r||e.r, t:a.t||e.t, mg:a.mg||e.mg, cue:(a.cue!=null&&a.cue!=='')?a.cue:'', _alt:a.key||slugAlt(a.n), _altHoje:!!t.hoje, _origN:e.n};
+}
+function exLogId(e){ return e ? (e._alt ? e.id+'~'+e._alt : e.id) : ''; }
+
+/* Lista efetiva do dia: base (programa) reordenada e com as trocas aplicadas.
+   É o ÚNICO ponto que a tela e o motor leem — exId(d,i) casa com este índice. */
+function dayEx(d){
+  let base=dayExBase(d)||[];
+  const o=ordemDe(d);
+  if(o && o.ids.length){
+    const pos=new Map(); o.ids.forEach((x,k)=>{ if(!pos.has(x)) pos.set(x,k); });
+    /* Id desconhecido (exercício acrescentado numa atualização, ou que ela adicionou depois)
+       não some nem vai parar no fim: ancora logo depois do vizinho conhecido anterior. */
+    let ult=-1;
+    const chave=base.map(e=>{ if(e && pos.has(e.id)){ ult=pos.get(e.id); return ult; } ult+=0.001; return ult; });
+    base=base.map((e,i)=>({e,k:chave[i],i})).sort((a,b)=> (a.k-b.k) || (a.i-b.i)).map(x=>x.e);
+  }
+  return base.map(exTrocado);
+}
+function ordemMudada(d){ const o=ordemDe(d); if(!o) return null; const atual=dayEx(d).map(e=>e.id).join('|'); const padrao=(dayExBase(d)||[]).map(e=>e&&e.id).join('|'); return atual===padrao ? null : o; }
+function trocasDoDia(d){ return dayEx(d).filter(e=>e && e._alt); }
+
+/* ---- Fadiga acumulada até a posição i (índice de comparação, não caloria) ---- */
+function fadigaAte(lista, i){
+  const e=lista&&lista[i]; if(!e) return 0;
+  let f=0;
+  for(let j=0;j<i;j++){ const x=lista[j]; if(!x) continue; f += (exSets(x)||0) * (mgSobrepoe(x,e)+FAD_SIST); }
+  return Math.round(f*100)/100;
+}
+function fadigaHoje(logid){ const p=posOfExId(logid); if(!p) return null; return fadigaAte(dayEx(p.day), p.i); }
+/* Ordem PADRÃO do programa: é onde TODA sessão anterior a esta feature foi feita, porque
+   antes não havia como reordenar. Por isso serve de palpite honesto pro histórico sem carimbo. */
+function fadigaPadrao(logid){
+  const p=posOfExId(logid); if(!p) return null;
+  const base=(dayExBase(p.day)||[]).map(exTrocado);
+  const k=base.findIndex(x=>x && x.id===idBase(logid));
+  return k<0 ? null : fadigaAte(base, k);
+}
+function fadigaDaSessao(s, logid){ return (s && typeof s.f==='number') ? s.f : fadigaPadrao(logid); }
+// mediana das últimas 6: a posição "de costume" deste exercício
+function fTipico(h, logid){
+  const v=(h||[]).map(s=>fadigaDaSessao(s,logid)).filter(x=>typeof x==='number');
+  if(!v.length) return null;
+  const o=v.slice(-6).sort((a,b)=>a-b);
+  return o[Math.floor(o.length/2)];
+}
+// sessão feita fora da posição habitual não é comparável: não conta como travada nem como plateau
+function foraDePosicao(s, logid, tip){
+  if(tip==null) return false;
+  const f=fadigaDaSessao(s, logid);
+  return typeof f==='number' && Math.abs(f-tip)>=1.5;
+}
+/* Recalcula a meta quando hoje a posição é outra. Não inventa porcentagem: mexe na faixa de
+   reps (que é o que a dupla progressão mede) e, só na diferença grande, num degrau de carga. */
+function ajustePosicao(base, e, id, ref){
+  if(!base || !e) return null;
+  const rng=parseRange(e.r); if(rng.tempo||rng.livre) return null;
+  const fH=fadigaHoje(id), fR=fadigaDaSessao(ref, id);
+  if(fH==null || fR==null) return null;
+  const dif=fR-fH;                                  // >0 = hoje mais descansado que na referência
+  if(Math.abs(dif)<1) return null;                  // menos de uma série de trabalho equivalente: ruído
+  const p=posOfExId(id); const tot=p?dayEx(p.day).length:0;
+  const onde=p?`${p.i+1}º de ${tot} hoje`:'posição diferente hoje';
+  const passo=loadStepFor(id,e)||0;
+  if(dif>0){
+    if(base.reps>=rng.max) return null;             // já é subida de carga: a regra normal basta
+    return {...base, reps:rng.max, why:`${onde} · mais cedo que de costume, mira o topo da faixa`, pos:{dif, dir:'cedo'}};
+  }
+  if(base.kg>base.de) return {...base, kg:base.de, reps:rng.max, why:`${onde} · mais tarde que de costume, segura a carga`, pos:{dif, dir:'tarde'}};
+  if(dif<=-3 && passo && base.kg-passo>=passo) return {...base, kg:base.kg-passo, reps:rng.min, why:`${onde} · bem mais tarde que de costume, um degrau abaixo`, pos:{dif, dir:'tarde'}};
+  return {...base, reps:rng.min, why:`${onde} · mais tarde que de costume, não se cobra o topo`, pos:{dif, dir:'tarde'}};
+}
+
+/* ---- Escrita das duas camadas ---- */
+function planGravarOrdem(d, ids, escopo){
+  if(escopo==='sempre'){
+    planPermRW().ord[d]=ids.slice();
+    const h=planHoje(); if(h && h.ord) delete h.ord[d];      // o permanente passa a valer já
+  } else {
+    planHojeRW().ord[d]=ids.slice();
+  }
+  saveK('meta');
+}
+function planGravarTroca(id, alt, escopo){
+  const b=idBase(id);
+  if(escopo==='sempre'){
+    planPermRW().tr[b]=alt;
+    const h=planHoje(); if(h && h.tr) delete h.tr[b];
+  } else {
+    planHojeRW().tr[b]=alt;
+  }
+  saveK('meta');
+}
+function planLimparTroca(id){
+  const b=idBase(id);
+  const h=planHoje(); if(h && h.tr) delete h.tr[b];
+  const P=planPerm(); if(P.tr[b]) delete P.tr[b];
+  saveK('meta');
+}
+function planDesfazerHoje(d){
+  const h=planHoje(); if(!h) return;
+  if(h.ord) delete h.ord[d];
+  // trocas de hoje: só as dos exercícios deste dia
+  if(h.tr) for(const e of (dayExBase(d)||[])) if(e && h.tr[e.id]) delete h.tr[e.id];
+  saveK('meta'); render();
+  showToast('Voltou ao normal', 'ok', 2000);
+}
+function planRestaurarPadrao(d){
+  const P=planPerm();
+  if(P.ord[d]) delete P.ord[d];
+  for(const e of (dayExBase(d)||[])) if(e && P.tr[e.id]) delete P.tr[e.id];
+  const h=planHoje();
+  if(h){ if(h.ord) delete h.ord[d]; if(h.tr) for(const e of (dayExBase(d)||[])) if(e && h.tr[e.id]) delete h.tr[e.id]; }
+  saveK('meta'); render();
+  showToast('Ordem e trocas do padrão de volta', 'ok', 2400);
+}
+
+/* ---- Painel "Ordem e troca" ---- */
+let planDia=null, planIdx=null, planEsc='hoje';
+function planFechar(){
+  if(true){ try{ if(typeof _camadas!=='undefined' && _camadas.length) _camadas.pop(); }catch(e){} }
+  const ov=document.getElementById('exPlano'); if(ov) ov.classList.add('hidden');
+  planDia=null; planIdx=null;
+}
+function planAbrir(d, i){
+  planDia=d; planIdx=i; planEsc='hoje';
+  if(true){ try{ if(typeof abrirCamada==='function') abrirCamada(planFechar); }catch(e){} }
+  planRender();
+}
+function planSetEsc(v){ planEsc=v; planRender(); }
+// posição "agora": logo depois do último exercício com série marcada hoje
+function planProximaPos(d){
+  const lista=dayEx(d); let ult=-1;
+  lista.forEach((e,i)=>{ const s=todaySession(exLogId(e)); if(s && (s.sets||[]).some(x=>x&&x.done)) ult=i; });
+  return ult+1;
+}
+function planMover(delta){
+  if(planDia==null || planIdx==null) return;
+  const ids=dayEx(planDia).map(e=>e.id);
+  const j=planIdx+delta;
+  if(j<0 || j>=ids.length) return;
+  const [x]=ids.splice(planIdx,1); ids.splice(j,0,x);
+  planGravarOrdem(planDia, ids, planEsc);
+  planIdx=j; render(); planRender();
+}
+function planFazerAgora(){
+  if(planDia==null || planIdx==null) return;
+  const ids=dayEx(planDia).map(e=>e.id);
+  let alvo=planProximaPos(planDia);
+  if(alvo>planIdx) alvo--;                       // tirar o item antes desloca o alvo
+  if(alvo===planIdx){ planFechar(); return; }
+  const [x]=ids.splice(planIdx,1); ids.splice(alvo,0,x);
+  planGravarOrdem(planDia, ids, planEsc);
+  render(); planFechar();
+  showToast(planEsc==='sempre'?'Movido pro começo — sempre':'Movido pra agora — só hoje', 'ok', 2400);
+}
+function planTrocar(k){
+  if(planDia==null || planIdx==null) return;
+  const e=dayEx(planDia)[planIdx]; if(!e) return;
+  const alt=(altsDe(e)||[]).find(a=>a.key===k); if(!alt) return;
+  planGravarTroca(e.id, {n:alt.n, s:alt.s, r:alt.r, t:alt.t, mg:alt.mg, cue:alt.cue||'', key:alt.key}, planEsc);
+  render(); planFechar();
+  showToast(planEsc==='sempre'?'Trocado — sempre':'Trocado — só hoje', 'ok', 2400);
+}
+function planVoltarExercicio(){
+  if(planDia==null || planIdx==null) return;
+  const e=dayEx(planDia)[planIdx]; if(!e) return;
+  planLimparTroca(e.id);
+  render(); planFechar();
+  showToast('Exercício padrão de volta', 'ok', 2200);
+}
+function planRender(){
+  if(planDia==null || planIdx==null) return;
+  const d=planDia, lista=dayEx(d), e=lista[planIdx];
+  if(!e){ planFechar(); return; }
+  let ov=document.getElementById('exPlano');
+  if(!ov){
+    ov=document.createElement('div'); ov.id='exPlano'; ov.className='exedit-back';
+    ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true');
+    ov.onclick=(ev)=>{ if(ev.target===ov) planFechar(); };
+    document.body.appendChild(ov);
+  }
+  const trocado=!!e._alt;
+  const alts=altsDe(e)||[];
+  const prox=planProximaPos(d);
+  const podeAgora=prox<planIdx;
+  const fH=fadigaHoje(exLogId(e)), fP=fadigaPadrao(exLogId(e));
+  let nota='';
+  if(fH!=null && fP!=null && Math.abs(fP-fH)>=1){
+    nota = fP>fH
+      ? 'Mais cedo do que de costume: você chega menos cansado, então a meta de hoje mira o topo da faixa de reps.'
+      : 'Mais tarde do que de costume: rende menos por causa do que veio antes. A meta de hoje afrouxa e esta sessão não conta como travada.';
+  }
+  const esc2=(s)=>esc(String(s==null?'':s));
+  ov.innerHTML=`<div class="exedit-card plano-card">
+    <div class="exedit-hd"><span>${esc2(exName(e))}</span><button class="exedit-x" onclick="planFechar()" aria-label="Fechar">×</button></div>
+    <div class="plano-esc">
+      <button class="pe-opt ${planEsc==='hoje'?'on':''}" onclick="planSetEsc('hoje')">Só hoje</button>
+      <button class="pe-opt ${planEsc==='sempre'?'on':''}" onclick="planSetEsc('sempre')">Sempre</button>
+    </div>
+    <div class="plano-sec">Ordem · agora em ${planIdx+1}º de ${lista.length}</div>
+    ${podeAgora?`<button class="plano-b forte" onclick="planFazerAgora()">Fazer agora <small>vai pra ${prox+1}º, antes do que ainda falta</small></button>`:''}
+    <div class="plano-row">
+      <button class="plano-b" onclick="planMover(-1)" ${planIdx===0?'disabled':''}>↑ Subir</button>
+      <button class="plano-b" onclick="planMover(1)" ${planIdx===lista.length-1?'disabled':''}>↓ Descer</button>
+    </div>
+    ${nota?`<div class="plano-nota">${esc2(nota)}</div>`:''}
+    <div class="plano-sec">Trocar por um equivalente</div>
+    ${alts.length?alts.map(a=>`<button class="plano-alt${trocado&&e._alt===a.key?' on':''}" onclick="planTrocar('${esc2(a.key)}')"><span class="pa-n">${esc2(a.n)}</span><span class="pa-m">${esc2(a.s)}×${esc2(a.r)}</span></button>`).join(''):`<div class="plano-nota">Sem equivalente mapeado pra este exercício.</div>`}
+    ${trocado?`<button class="plano-b" onclick="planVoltarExercicio()">Voltar pra ${esc2(e._origN)}</button>`:''}
+    <div class="plano-hint">Troca registra em histórico próprio: a carga do substituto não entra na progressão do exercício original, e desfazer devolve tudo como estava.</div>
+  </div>`;
+  ov.classList.remove('hidden');
+}
+/* Faixa no topo do treino quando algo está fora do padrão — sem isso a pessoa esquece que
+   mudou "só hoje" e estranha a ordem na semana seguinte. */
+/* Exercício por trás de uma CHAVE DE LOG (que pode ser a do substituto, "a_2~hack_machine").
+   Necessário no volume semanal: as séries do substituto contam nos músculos DELE, não nos do
+   exercício original — trocar leg press por hack squat muda pouco, trocar por stiff muda tudo. */
+function exDoLog(id){
+  const base=exById(id);
+  if(!base){ const pos=posOfExId(id); return (pos && dayEx(pos.day)[pos.i]) || null; }
+  const s=String(id), k=s.indexOf('~');
+  if(k>0){
+    const chave=s.slice(k+1);
+    const a=(altsDe(base)||[]).find(x=>x && x.key===chave);
+    if(a) return {...base, n:a.n, s:a.s||base.s, r:a.r||base.r, t:a.t||base.t, mg:a.mg||base.mg, id:base.id, _alt:chave, _origN:base.n};
+  }
+  return exTrocado(typeof exEff==='function' ? exEff(base) : base);
+}
+/* Marca no card quando o exercício está fora do padrão — sem isso a pessoa muda "só hoje",
+   esquece, e estranha a ordem na semana seguinte. */
+function exMovido(d, i){
+  const e=dayEx(d)[i]; if(!e) return null;
+  const k=(dayExBase(d)||[]).findIndex(x=>x&&x.id===e.id);
+  return (k>=0 && k!==i) ? {de:k+1, para:i+1} : null;
+}
+function planTag(d, i){
+  const e=dayEx(d)[i]; if(!e) return '';
+  const mv=exMovido(d,i);
+  const o=ordemDe(d);
+  const partes=[];
+  if(mv) partes.push(`<span>${mv.para}º hoje <small>· de costume ${mv.de}º${(o&&!o.hoje)?' · sempre':''}</small></span>`);
+  if(e._alt) partes.push(`<span>No lugar de ${esc(e._origN||'')} <small>· ${e._altHoje?'só hoje':'sempre'}</small></span>`);
+  if(!partes.length) return '';
+  return `<div class="plantag">${partes.join('')}</div>`;
+}
+function planBanner(d){
+  const oHoje=planHoje() && planHoje().ord && planHoje().ord[d];
+  const trHoje=(planHoje()&&planHoje().tr)?(dayExBase(d)||[]).some(e=>e&&planHoje().tr[e.id]):false;
+  const P=planPerm();
+  const oPerm=!!P.ord[d], trPerm=(dayExBase(d)||[]).some(e=>e&&P.tr[e.id]);
+  if(!oHoje && !trHoje && !oPerm && !trPerm) return '';
+  const partes=[];
+  if(oHoje||trHoje) partes.push(`<div class="pb-l"><b>Hoje:</b> ${[oHoje?'ordem trocada':'',trHoje?'exercício substituído':''].filter(Boolean).join(' · ')}</div><button class="pb-b" onclick="planDesfazerHoje('${d}')">Desfazer hoje</button>`);
+  if(oPerm||trPerm) partes.push(`<div class="pb-l"><b>Sempre:</b> ${[oPerm?'ordem personalizada':'',trPerm?'exercício substituído':''].filter(Boolean).join(' · ')}</div><button class="pb-b" onclick="planRestaurarPadrao('${d}')">Restaurar padrão</button>`);
+  return `<div class="planobar">${partes.join('')}</div>`;
+}
+function diasProg(){ return Object.keys(_progBase()||{}); }
+function dayExBase(d){ const m=_progMode(); const arr=(ST.prog && ST.prog[m] && ST.prog[m][d]) ? ST.prog[m][d] : _progBase()[d].ex;
+  /* exEff = camada de swap ANTIGA (ST.exmeta[id].swap, do editor de exercício). Continua
+     valendo e vem primeiro; a troca nova (ST.meta.plan) entra por cima, em dayEx(). */
+  return (arr||[]).map(e=> (typeof exEff==='function' ? exEff(e) : e)); }
+/* Alternativas: tiradas do EX_BANK pelo músculo principal do exercício, ordenadas pela
+   sobreposição muscular (mais parecido primeiro). O substituto traz a prescrição do banco. */
+function altsDe(e){
+  const base=exById(idBase(e && e.id))||e; if(!base) return [];
+  /* Chave EXATA do músculo, não a família: a família (gluteo_med -> gluteo) existe pro
+     cálculo de fadiga, onde agachamento realmente cansa o glúteo médio. Pra substituir um
+     exercício ela é errada — com ela, a cadeira abdutora oferecia agachamento sumô como
+     "equivalente". Substituto de glúteo médio tem que ser glúteo médio. */
+  const m=base.mg||{};
+  const alvo=Object.keys(m).sort((a,b)=>(m[b]||0)-(m[a]||0))[0];
+  if(!alvo) return [];
+  /* O candidato tem que treinar o MESMO músculo como principal. Com "tem esse músculo em
+     qualquer peso", a elevação lateral recebia desenvolvimento de ombro (ombro_lat 0.5) como
+     equivalente — não é. Sem equivalente honesto, melhor não oferecer nenhum. */
+  const exigido = (m[alvo]||0) >= 1 ? 1 : 0.0001;
+  const vistos=new Set([nomeNorm(base.n)]);
+  const out=[];
+  for(const grupo of Object.keys(EX_BANK||{})){
+    for(const it of (EX_BANK[grupo]||[])){
+      if(!it) continue;
+      const k=nomeNorm(it.n);
+      if(!k || vistos.has(k) || mesmoMovimento(base.n, it.n)) continue;
+      if(((it.mg||{})[alvo]||0) < exigido) continue;
+      vistos.add(k);
+      out.push({n:it.n, s:it.s, r:it.r, t:it.t, mg:it.mg, cue:it.cue||'', key:slugAlt(it.n), _sim:(it.mg[alvo]||0)+mgSobrepoe(it, base)});
+    }
+  }
+  out.sort((a,b)=> b._sim-a._sim);
+  return out.slice(0,6);
+}
 const MG_TARGETS = {
   gluteo:16, gluteo_med:10, quadriceps:10, posterior:8,
   panturrilha:6, core:8, cardio:2,
@@ -2985,7 +3407,6 @@ function dateAdd(iso, days){ const d=new Date(iso+'T12:00:00'); d.setDate(d.getD
 function daysBetween(a,b){ const da=new Date(a+'T12:00:00'), db=new Date(b+'T12:00:00'); return Math.round((db-da)/86400000); }
 function _progMode(){ return (ST.meta && ST.meta.local==='casa') ? 'casa' : 'academia'; }
 function _progBase(){ return _progMode()==='casa' ? WK_CASA : WK_GYM; }
-function dayEx(d){ const m=_progMode(); if(ST.prog && ST.prog[m] && ST.prog[m][d]) return ST.prog[m][d]; return _progBase()[d].ex; }
 function ensureProgDay(d){ const m=_progMode(); ST.prog=ST.prog||{}; ST.prog[m]=ST.prog[m]||{}; if(!ST.prog[m][d]) ST.prog[m][d]=JSON.parse(JSON.stringify(_progBase()[d].ex)); return ST.prog[m][d]; }
 function uid(){ ST.meta=ST.meta||{}; ST.meta._uidc=(ST.meta._uidc||0)+1; return 'u'+ST.meta._uidc+'_'+String(Math.random()).slice(2,7); }
 // slug ascii-safe pra key de campo/categoria customizada (medida extra, ângulo de foto extra). Reaproveitado nos módulos 2 e 3.
@@ -2994,7 +3415,9 @@ function slugify(str){
     .replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'').slice(0,24);
   return base || uid();
 }
-function exId(day,i){ const ex=dayEx(day)[i]; return (ex&&ex.id) ? ex.id : (day+'_'+i); }
+/* Chave de LOG: se o exercício está substituído, é "a_2~leg_press_45" — o substituto tem
+   histórico próprio e não contamina a progressão do original. Ver bloco ORDEM DO DIA. */
+function exId(day,i){ const ex=dayEx(day)[i]; return ex ? exLogId(ex) : (day+'_'+i); }
 /* Resolve uma chave POSICIONAL antiga ("A_0", "c_B_2") pro id estável do exercício que
    ocupava aquela casa. Existe porque dois pontos precisam disso: a migração de boot e o
    fundirBackup — backup anterior à migração traz essas chaves, e sem remapear elas entram
@@ -3100,6 +3523,16 @@ const EX_BANK = {
     {n:"Supino máquina ou halter", s:3, r:"10-12", t:"comp", mg:{peito_med:1, triceps:0.5}, cue:"Sente o peito puxar."},
     {n:"Rosca direta", s:3, r:"10-12", t:"iso", mg:{biceps:1}, cue:"Sem embalo, sente o bíceps."},
     {n:"Rosca martelo", s:2, r:"10-12", t:"iso", mg:{biceps:1}, cue:"Braquial + antebraço."},
+    /* 2026-09-26 · variantes de EQUIPAMENTO pro superior. Não entram no programa dela (o
+       treino não mudou): existem só como substituto quando o aparelho está ocupado, porque
+       antes peito, ombro e lateral tinham uma opção só e ficavam sem equivalente nenhum. */
+    {n:"Crucifixo na máquina (peck deck)", s:3, r:"10-15", t:"iso", mg:{peito_med:1}, cue:"Cotovelo na altura do ombro, aperta no meio."},
+    {n:"Supino inclinado na máquina", s:3, r:"10-12", t:"comp", mg:{peito_med:1, ombro_ant:0.5, triceps:0.5}, cue:"Desce até o peito abrir, escápula presa."},
+    {n:"Desenvolvimento na máquina", s:3, r:"10-12", t:"comp", mg:{ombro_ant:1, ombro_lat:0.5, triceps:0.5}, cue:"Costas apoiadas, sem travar o cotovelo em cima."},
+    {n:"Elevação lateral na polia", s:3, r:"12-16", t:"iso", mg:{ombro_lat:1}, cue:"Cabo por trás = tensão já desde embaixo."},
+    {n:"Elevação lateral na máquina", s:3, r:"12-16", t:"iso", mg:{ombro_lat:1}, cue:"Carga constante do começo ao fim."},
+    {n:"Remada curvada com halteres", s:3, r:"10-12", t:"comp", mg:{costas:1, biceps:0.5}, cue:"Tronco firme, cotovelo rente ao corpo."},
+    {n:"Rosca scott ou concentrada", s:3, r:"10-12", t:"iso", mg:{biceps:1}, cue:"Braço apoiado, sem embalo."},
   ],
   "Cardio": [
     {n:"Cardio Z2 na bike", s:1, r:"25-35 min", t:"cardio", mg:{cardio:1}, cue:"Zona 2 (consegue conversar). Sem corrida — protege o joelho."},
@@ -3161,6 +3594,7 @@ function removeCurrentEx(){
 // Acha o exercício ORIGINAL (padrão do código) pelo id estável, varrendo WK + HOME_SESSIONS.
 function exById(id){
   if(!id) return null;
+  id=idBase(id);   // aceita a chave de log do substituto
   if(ST.prog){ for(const m of Object.keys(ST.prog)){ for(const d of Object.keys(ST.prog[m])){ const f=(ST.prog[m][d]||[]).find(x=>x&&x.id===id); if(f) return f; } } }
   for(const prog of [WK_GYM, WK_CASA]){ for(const d of Object.keys(prog)){ const f=prog[d].ex.find(x=>x.id===id); if(f) return f; } }
   for(const t of Object.keys(HOME_SESSIONS)){ const f=HOME_SESSIONS[t].ex.find(x=>x.id===id); if(f) return f; }
@@ -3249,8 +3683,14 @@ function todaySession(id){
 function upsertToday(id, sets){
   if(!ST.logs[id]) ST.logs[id]=[];
   const t=today();
+  /* Carimba a POSIÇÃO e a fadiga acumulada em que a sessão foi feita. É o que permite, mais
+     tarde, saber que 8 reps em 5º lugar não é pior que 9 reps em 1º. Sessão antiga sem
+     carimbo cai no palpite da ordem padrão (fadigaPadrao), que é onde ela foi feita mesmo. */
+  let f=null, pos=null;
+  try{ f=fadigaHoje(id); pos=posOfExId(id); }catch(e){}
   const ex=ST.logs[id].find(s=>s.date===t);
-  if(ex) ex.sets=sets; else ST.logs[id].push({date:t, sets});
+  if(ex){ ex.sets=sets; if(f!=null){ ex.f=f; if(pos) ex.p=pos.i; } }
+  else { const novo={date:t, sets}; if(f!=null){ novo.f=f; if(pos) novo.p=pos.i; } ST.logs[id].push(novo); }
   saveK('logs');
 }
 
@@ -3575,7 +4015,9 @@ function suggestNext(id, e){
   const base=suggestFrom(ref.sets, e, id);
   if(!base) return null;
   const v=fatorVolta(id);
-  if(!v) return base;
+  /* Volta de pausa manda mais que posição: comparar com uma sessão de meses atrás é problema
+     maior que ter adiantado o exercício. Fora isso, a posição de hoje recalcula a meta. */
+  if(!v) return ajustePosicao(base, e, id, ref) || base;
   // reentrada: nunca sobe. Corta a carga e volta pro piso da faixa.
   const rng=parseRange(e.r);
   const passo=loadStepFor(id, e) || 2.5;
@@ -3611,10 +4053,50 @@ function cmpTop(a,b){
   return 0;
 }
 // Plateau: 3 últimas sessões VÁLIDAS sem progredir (nem carga, nem reps na mesma carga)
+/* ============ MUDANÇA DELIBERADA DE CARGA ============
+   Baixar o peso de propósito — pra fazer com execução correta, pra poupar uma dor, porque a
+   máquina é outra — NÃO é regressão. O app lia como regressão: `travadas` contava, `abaixo`
+   contava e `detectPlateau` virava verdade, então corrigir a execução podia terminar com o
+   app mandando TROCAR o exercício. Exatamente o contrário do certo.
+
+   O sinal de que foi escolha, e não fraqueza: a carga caiu um degrau ou mais (e ao menos 8%)
+   E as repetições ficaram DENTRO da faixa. Quem regrediu de verdade cai nas reps junto.
+   Subir muito de uma vez já era tratado: cai no estado `tentando` ("carga nova, agora é
+   chegar no mínimo da faixa"). */
+function quedaDeliberada(a, b, e, id){
+  if(!a || !b || !e) return false;
+  const rng=parseRange(e.r);
+  if(rng.tempo || rng.livre) return false;
+  const queda=b.kg-a.kg;
+  if(queda<=0) return false;
+  const passo=loadStepFor(id,e)||0;
+  if(passo && queda<passo) return false;            // menos de um degrau: oscilação de equipamento
+  if(b.kg && (queda/b.kg)<0.08) return false;       // menos de 8%: oscilação
+  return a.reps>=rng.min;                           // fez as reps com a carga menor -> foi escolha
+}
+/* Recomeça a progressão a partir de hoje: o histórico fica guardado, mas as cargas antigas
+   param de mandar no conselho. Mesmo mecanismo do "Troquei" (ST.meta.swapAt). */
+function recomecarProgressao(id){
+  if(!confirm('Recomeçar a progressão deste exercício a partir de hoje?\n\nO histórico continua guardado, mas as cargas antigas param de valer como referência — é o certo depois de corrigir a execução ou mudar de máquina.')) return;
+  if(!ST.meta || typeof ST.meta!=='object') ST.meta={};
+  if(!ST.meta.swapAt) ST.meta.swapAt={};
+  ST.meta.swapAt[id]=today();
+  if(ST.meta.swapSnooze) delete ST.meta.swapSnooze[id];
+  saveK('meta'); render();
+  showToast('Progressão recomeçada a partir de hoje','ok',2800);
+}
 function detectPlateau(id){
-  const h=progressSessions(id).filter(s=>sessionTop(s.sets));
+  const todas=progressSessions(id).filter(s=>sessionTop(s.sets));
+  /* Sessão feita fora da posição habitual não é comparável — e plateau é o gatilho da
+     sugestão de TROCAR de exercício. Sem isto, adiantar/atrasar duas vezes fazia o app
+     mandar trocar um exercício em que a pessoa está progredindo. */
+  const _tip=fTipico(todas, id);
+  const h=todas.filter(s=>!foraDePosicao(s, id, _tip));
   if(h.length<3) return false;
   const t=h.slice(-3).map(s=>sessionTop(s.sets));
+  // baixou a carga de propósito no meio da janela: as três não são comparáveis entre si
+  const _e=exDoLog(id);
+  if(_e && (quedaDeliberada(t[2],t[1],_e,id) || quedaDeliberada(t[1],t[0],_e,id))) return false;
   return cmpTop(t[2],t[0])<=0 && cmpTop(t[2],t[1])<=0;
 }
 // Quantas semanas o usuário tem treinado esse exercício específico
@@ -3710,6 +4192,12 @@ function progressState(id, e){
   // Vem antes de tudo porque não é nem progresso pra comemorar nem travamento pra alertar.
   if(cur.kg>prev.kg && cur.reps<rng.min)
     return {k:'tentando', sug, msg:'', nota:`Carga nova. O trabalho agora é chegar em ${rng.min} reps antes de subir de novo.`};
+  /* Espelho do de cima: carga nova pra BAIXO, com as reps em dia. Execução melhor com menos
+     peso vale mais que número maior torto — e o app não pode chamar isso de retrocesso. */
+  if(quedaDeliberada(cur, prev, e, id))
+    return {k:'recomecando', sug, acao:'recomecar',
+      msg:`Carga menor que na sessão anterior (${fmtKg(prev.kg)} → ${fmtKg(cur.kg)}kg), com as reps dentro da faixa.`,
+      nota:'Tratei como escolha sua, não como retrocesso: as sessões mais pesadas de antes pararam de contar como "você travou". Se a mudança veio pra ficar — corrigiu a execução, trocou de máquina —, toque abaixo e a progressão recomeça limpa a partir daqui.'};
 
   /* PRESO ABAIXO DO PISO DA FAIXA = a carga está alta demais pro que o exercício pede.
      Sem isto o app caía no ramo genérico do suggestFrom ("foca em chegar no mínimo") e repetia
@@ -3719,9 +4207,13 @@ function progressState(id, e){
      NÃO dá pra usar o contador `travadas`: com as reps oscilando 12→13→12→14 o topo sobe de vez
      em quando, `travadas` zera e o app diz "progredindo" enquanto ela está parada abaixo do piso
      há semanas. O sinal certo é ficar abaixo do piso na mesma carga, apesar do vaivém de 1 rep. */
+  const _tipPos=fTipico(h, id);
+  const _foraPos = i => foraDePosicao(h[i], id, _tipPos);
   let abaixo=0;
   for(let i=tops.length-1;i>=0;i--){
+    if(_foraPos(i)) continue;                              // feita em outra posição: não é o mesmo teste
     if(tops[i].reps < rng.min && tops[i].kg >= cur.kg) abaixo++; else break;
+    if(i>0 && quedaDeliberada(tops[i], tops[i-1], e, id)) break;   // daqui pra trás é outra base de carga
   }
   if(abaixo>=3){
     const step=loadStepFor(id, e) || 0;
@@ -3748,6 +4240,8 @@ function progressState(id, e){
   let travadas=0;
   for(let i=tops.length-1;i>0;i--){
     if(leve(h.length-tops.length+i)) continue;              // pula a sessão leve, não quebra a série
+    if(_foraPos(i) || _foraPos(i-1)) continue;              // idem pra sessão feita fora da posição habitual
+    if(quedaDeliberada(tops[i], tops[i-1], e, id)) break;   // baixou de propósito: não é travar
     if(cmpTop(tops[i],tops[i-1])<=0) travadas++; else break;
   }
   // 1 sessão parada é ruído normal (dormiu mal, dia ruim). Alerta só a partir de 2.
@@ -3977,8 +4471,7 @@ function weeklyVolume(){
   const t=today();
   // 1) Programa ABCD (logs)
   for(const id of Object.keys(ST.logs)){
-    const base=exById(id); if(!base) continue;
-    const ex=exEff(base); if(!ex.mg) continue;
+    const ex=exDoLog(id); if(!ex||!ex.mg) continue;   // efetivo: ordem e troca já aplicadas
     for(const sess of ST.logs[id]){
       const dd = daysBetween(sess.date, t);
       if(dd<0 || dd>=7) continue;
@@ -4249,6 +4742,18 @@ function registrarDeloadEmCurso(){
    minúsculo, dá indexOf(-1) e fazia suggestedNextDay responder SEMPRE "A". Além disso o id não
    é rótulo de dia: "c_7" mora no dia A. A ordem importa: o programa editado (ST.prog) é o que
    está de fato na tela, então ele tem prioridade sobre o programa base. */
+/* Posição do exercício no dia, JÁ na ordem efetiva de hoje (é o índice que a tela usa e que
+   exId(d,i) devolve). Aceita chave de log do substituto ("a_2~leg_press_45") — o id base é o
+   que ancora a identidade. */
+function posOfExId(id){
+  if(!id) return null;
+  const b=idBase(id);
+  for(const d of diasProg()){
+    const ex=dayEx(d);
+    for(let i=0;i<ex.length;i++) if(ex[i] && ex[i].id===b) return {day:d, i};
+  }
+  return null;
+}
 function dayOfExId(id){
   if(!id) return null;
   if(ST.prog){
@@ -4408,7 +4913,7 @@ function renderDays(){
     const ring = isDoneToday
       ? 'box-shadow:0 0 0 2px rgba(81,216,138,.40), var(--shadow-1)'
       : (isNext && !doneToday ? 'box-shadow:0 0 0 2px rgba(91,158,255,.35), var(--shadow-1)' : '');
-    const heroUrl = photoURL(exEff(dayEx(d)[0]).n);
+    const heroUrl = photoURL((dayEx(d)[0]||{}).n);
     const bg = heroUrl ? `<img class="day-bg" src="${heroUrl}" alt="" loading="lazy" decoding="async" onerror="this.remove()">` : '';
     h+=`<div class="day ${w.type}" onclick="openWorkout('${d}')" style="${ring}">
       ${bg}
@@ -4465,8 +4970,10 @@ function renderDay(d){
     }
   }
 
+  h+=planBanner(d);
+
   dayEx(d).forEach((e0,i)=>{
-    const e=exEff(e0);
+    const e=e0;   // dayEx() já entrega o efetivo (exEff + troca do usuário)
     const id=exId(d,i);
     const last=lastSession(id);
     const tod=todaySession(id);
@@ -4503,7 +5010,10 @@ function renderDay(d){
     let platBlock2 = '';
     if(st && (st.msg || st.nota)){
       const corpo = `${st.msg ? esc(st.msg) : ''}${st.nota ? `<span class="stnote">${esc(st.nota)}</span>` : ''}`;
-      if(st.k==='mantendo'){
+      if(st.k==='recomecando'){
+        platBlock2 = `<div class="plateau volta">${I.hist} ${corpo}
+          <div class="swap-acts"><button class="swap-btn" onclick="recomecarProgressao('${id}')">Foi de propósito — recomeçar daqui</button></div></div>`;
+      } else if(st.k==='mantendo'){
         platBlock2 = `<div class="holding">${I.check2} ${corpo}</div>`;
       } else if(st.k==='trocar'){
         const alts = EXERCISE_ALTERNATIVES[e.n] || [];
@@ -4571,9 +5081,10 @@ function renderDay(d){
       const w2=Math.round((maxKg*0.75)/2.5)*2.5;
       return `<div class="cue" style="margin-top:8px;font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:6px"><span style="display:inline-flex;color:#ffd178">${I.bolt}</span><span><b style="color:var(--ink)">Aquecimento:</b> ${w1}kg × 8 · ${w2}kg × 5 (antes de começar)</span></div>`;
     })() : '';
+    const acaoBtn = `<button class="exact" onclick="event.stopPropagation();planAbrir('${d}',${i})" title="Ordem e troca" aria-label="Mudar ordem ou trocar exercício">${I.swap}</button>`;
     const photoBlock = url
       ? `<div class="photo">
-           ${prBadge}
+           ${prBadge}${acaoBtn}
            <img src="${url}" alt="${esc(nm)}" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="this.parentElement.classList.add('noimg'); this.remove();">
            <div class="ovr">
              <div class="name">${esc(nm)}</div>
@@ -4581,7 +5092,7 @@ function renderDay(d){
            </div>
          </div>`
       : `<div class="photo noimg">
-           ${prBadge}
+           ${prBadge}${acaoBtn}
            <div class="ph-glow"></div>
            <div class="ovr">
              <div class="name">${esc(nm)}</div>
@@ -4594,6 +5105,7 @@ function renderDay(d){
 
       ${photoBlock}
       <div class="body">
+        ${planTag(d,i)}
         <div class="target">${e.t==='cardio'
           ? `<span class="met"><b>${cdPlan && cdPlan.cardioMin ? cdPlan.cardioMin+' min' : e.r}</b></span><span class="dot"></span><span class="met">bike · Zona 2</span>${cdPlan?`<span class="dot"></span><span class="met cd-up">${cdPlan.dobrou?'dobrado hoje':'+'+(cdPlan.cardioMin-cdPlan.baseMin)+' min hoje'}</span>`:''}`
           : `<span class="met"><b>${planned}</b> ${planned===1?'série':'séries'}${nset>planned?` <span class="xtra">+${nset-planned} extra</span>`:''}</span>
@@ -6677,6 +7189,24 @@ function fundirBackup(o){
     // campos custom de medida do app dele (o dela vive em measureCfg, tratado acima)
     if(Array.isArray(R.customMeasures)){ M.customMeasures=M.customMeasures||[]; const tem=new Set(M.customMeasures.map(c=>c&&c.key));
       for(const c of R.customMeasures) if(c&&c.key&&!tem.has(c.key)){ M.customMeasures.push(c); tem.add(c.key); rel.campos++; } }
+    /* plan: ordem e trocas. As PERMANENTES viajam (é preferência de programa, e os dois
+       aparelhos têm que mostrar o mesmo treino). A camada `hoje` só entra se for de hoje e
+       aqui não houver nenhuma — um treino começado no outro aparelho continua igual. */
+    if(R.plan && typeof R.plan==='object'){
+      M.plan=M.plan||{};
+      for(const campo of ['ord','tr']){
+        if(!R.plan[campo] || typeof R.plan[campo]!=='object') continue;
+        M.plan[campo]=M.plan[campo]||{};
+        for(const esc of Object.keys(R.plan[campo])){
+          M.plan[campo][esc]=M.plan[campo][esc]||{};
+          for(const k of Object.keys(R.plan[campo][esc]||{})){
+            if(M.plan[campo][esc][k]===undefined){ M.plan[campo][esc][k]=R.plan[campo][esc][k]; rel.campos++; }
+          }
+        }
+      }
+      const rh=R.plan.hoje;
+      if(rh && rh.data===today() && !(M.plan.hoje && M.plan.hoje.data===today())){ M.plan.hoje=rh; rel.campos++; }
+    }
     // NUNCA: workerUrl, workerToken, pushHash, shortcutName, shortcutTimerEnabled, syncPat, nuvemAt, lastBackupAt, _logsV2,
     //        nuvemVistoId, nuvemFotosVistoId, nuvemFotosIds, nuvemFotosAt (estado por aparelho). tomb é fundido no topo do fundirBackup.
     saveK('meta');
