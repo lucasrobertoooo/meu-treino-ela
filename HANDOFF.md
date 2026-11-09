@@ -2,7 +2,9 @@
 
 PWA single-file de treino pra ela. **iPhone (desde 19/09/2026) — e o Android antigo enquanto durar; os dois sincronizam pelo mesmo Worker.** Fork do MeuTreino (do Lucas) que **já divergiu bastante** — não assuma que o que vale lá vale aqui.
 
-**Última atualização:** 2026-09-29.01 (**Auditoria geral** — 5 achados corrigidos, incluindo um de tela branca; modelo de duração unificado. SHELL v80)
+**Última atualização:** 2026-11-09.01 (**Plano "Recomposição e glúteo"** — programa novo do documento dela, semana leve com 1 série a menos, descanso 105/55 s, e tempo do treino Normal · 45 min · Essencial. SHELL v81)
+
+**Antes: 2026-09-29.01 (**Auditoria geral** — 5 achados corrigidos, incluindo um de tela branca; modelo de duração unificado. SHELL v80)
 
 **Antes: 2026-09-28.01 (**Peso e reps não sobem mais juntos** — dois bugs meus na feature de ordem, com trava de invariante e varredura de todas as metas. SHELL v79)
 
@@ -39,6 +41,45 @@ PWA single-file de treino pra ela. **iPhone (desde 19/09/2026) — e o Android a
 **Antes: 2026-08-19.03 (**Estado `carga-alta`** — o app nunca mandava BAIXAR carga; portado do MeuTreino. SHELL v48)
 
 **Antes: 2026-08-15.04 (dia de mais cardio; camada de inteligência reescrita; auditoria de 8 bugs. SHELL v45)
+
+## Plano "Recomposição e glúteo" (2026-11-09.01)
+
+Fonte: `~/Downloads/Plano de treino recomposição e glúteo.docx` (09/11/2026). 4 dias (seg/ter/qui/sex), ~55 min de musculação + 20 de bike.
+
+### Programa (`WK_GYM`)
+| Dia | Treino | Exercícios |
+|---|---|---|
+| A | 1 · Glúteo + quadríceps | búlgaro 4×8-10/perna · sumô 3×10-12 · extensora 3×12-15 · abdutora 4×15-20 · abdominal polia 3×12-15 · bike 20 |
+| B | 2 · Superior + core | puxada 3×8-12 · supino halteres 3×8-12 · remada baixa 3×10-12 · desenvolvimento 3×10-12 · tríceps corda 2×12-15 · rosca direta 2×12-15 · abdominal polia 3×12-15 · prancha 3×30-45 s · bike 20 |
+| C | 3 · Posterior + glúteo (RDL pesado) | RDL 4×6-10 · flexora 4×10-12 · coice máquina 3×12-15/perna · hiperextensão 45° 3×12-15 · abdutora 3×15-20 · bike 20 |
+| D | 4 · Glúteo volume (RDL leve) | leg press pés altos 3×10-12 · sumô 3×10-12 · RDL leve halteres 3×10-12 · flexora 2×12-15 · abdutora 3×15-20 · abdominal polia 3×12-15 · bike 20 |
+
+- **Ids reaproveitados** onde o exercício é o mesmo (`c_3` búlgaro, `a_3` sumô, `a_2` extensora, `a_4`/`c_2`/`d_abd` abdutora, `b_8` abdominal, `b_1` RDL, `b_3`/`d_5s` flexora, `a_6` supino, `d_6` remada, `c_5` desenvolvimento, `d_2` RDL leve, bikes) — o histórico de carga continua valendo. Novos: `b2_*`, `c3_coi`, `c3_hip`, `d4_lp`, `d4_sum` (sumô do treino 4 tem carga menor, histórico separado), `d4_abd`.
+- Panturrilha saiu (o plano não tem). A barra de volume some pra grupo que o programa não treina e ela não fez.
+- Opções do plano viraram alternativas mapeadas: graviton (barra assistida / paralelas assistidas), afundo reverso e step-up no lugar do búlgaro se o joelho doer.
+- **Descanso** do plano: `REST={comp:105, iso:55, core:55}` (era 150/90/75, herdado do app dele). Coice e hiperextensão são `iso` (sem aquecimento no modelo de duração).
+
+### Mesociclo do plano
+Semanas 1-3: mesmas séries, progride carga/reps. Semana 4: **1 série a menos em cada exercício** (piso 1), carga igual. Acabou a semana de acúmulo (+1) e o corte pela metade. A semana leve antecipada por fadiga segue a mesma regra.
+
+### Migração (`migrarPlanoRecomposicao`, `ST.meta.progVer='2026-11-09'`)
+Uma vez por aparelho, no boot. Arquiva em `ST.meta.progArquivo['2026-11-09']` o `ST.prog.academia`, a ordem/troca "sempre" da academia e os `swap` dos ids reaproveitados (notas ficam). Recomeça o mesociclo, grava `progDesde` (o `paceFactor` só usa sessões a partir daí). Casa e logs não são tocados. Aparelho sem dados só marca a versão.
+- **Pegadinha 1:** `ST.prog` vazio faz a sync puxar o do outro aparelho (o antigo). Fica um marcador `ST.prog._plano20261109 = {}` — objeto vazio, não string (o `dayOfExId` itera `ST.prog[modo][dia]`).
+- **Pegadinha 2:** `progM = progM+1`, não `Date.now()`: igual nos dois aparelhos que migrarem (senão trocavam o mesmo programa entre si — o teste de repouso pegou) e ainda vence o snapshot antigo.
+
+### Tempo do treino: Normal · 45 min · Essencial
+Porte do `shortPlan` dele (`shortDayMin`/`setShortDay`, `ST.meta.shortDays` por data). Diferença: **a bike encolhe primeiro, até 10 min**; depois saem exercícios protegendo o 1º do dia, um por músculo em foco e o piso de 3. Treino 2 tem `essencial:[...]` no programa = a lista "com pouco tempo" do plano. Um modo por dia: escolher tempo desliga o "mais cardio" e vice-versa. A tela diz o número real quando o piso impede o alvo (ex.: 45 min no treino 1 dá ~48).
+
+### Duração (modelo do app, sem histórico)
+| | 1/A | 2/B | 3/C | 4/D | média |
+|---|---|---|---|---|---|
+| dela, plano novo (peso + bike 20) | 67 | 75 | 56 | 62 | **65** |
+| dele (só peso) | 68 | 73 | 68 | 75 | **71** |
+
+**Pendente (decisão dela):** fechar a diferença nos treinos 3 e 4. Proposta mais leve: bike 20→30 no 3 e 20→30 no 4 (≈66 e 72), sem série a mais de perna em déficit.
+
+### Verificação
+`MeuTreino/tools/tests/t_plano.js` (45 checagens: programa, semana leve, migração com programa editado, idempotência, sync com aparelho antigo, modos de tempo, exclusão com mais cardio). Harness: seed não vazio do app dela já entra marcado com `progVer` (a migração reescreveria o estado do teste); `opts.migrar=true` desliga isso. `t_ordem` e `t_audit` ajustados ao programa/descanso novos. Suíte inteira passando.
 
 ## Antes de codar: ler primeiro
 - **§ Diferenças pro MeuTreino** — o que diverge, e por quê. É onde mora quase todo bug de porte.

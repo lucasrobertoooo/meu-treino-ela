@@ -752,6 +752,18 @@
     letter-spacing:.02em;
   }
   .met.cd-up{ color:#7ad0c0; font-weight:700; }
+  .met.cd-down{ color:var(--core); font-weight:700; }
+  /* tempo do treino: Normal · 45 min · Essencial (porte do app dele, tema claro) */
+  .timecap{ background:var(--glass); border:1px solid var(--line-2); border-radius:16px; padding:13px 14px; margin-bottom:12px; }
+  .tc-hd{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:10px;}
+  .tc-l{font-size:11px; letter-spacing:.07em; text-transform:uppercase; color:var(--faint); font-weight:700;}
+  .tc-v{font-size:17px; font-weight:800; color:var(--ink); font-variant-numeric:tabular-nums;}
+  .tc-v small{font-size:11px; color:var(--muted); font-weight:600;}
+  .tc-opts{display:flex; gap:7px;}
+  .tc-opt{ flex:1; padding:9px 6px; border-radius:11px; cursor:pointer; font-family:inherit; font-size:12.5px; font-weight:600; color:var(--ink2); background:var(--glass-2); border:1px solid var(--line-2); }
+  .tc-opt.on{background:var(--pull-grad); color:#fff; border-color:transparent;}
+  .tc-opt:active{opacity:.82;}
+  .tc-note{font-size:11.5px; color:var(--muted); line-height:1.5; margin-top:10px;}
 
   /* estado bom que parece ruim: carga parada com peso caindo = massa magra preservada */
   .holding{
@@ -1911,9 +1923,9 @@
       Abrir Timer nativo do iPhone
     </a>
     <div class="presets">
-      <button class="preset" data-s="90" onclick="setTimer(90)">1:30 iso</button>
-      <button class="preset" data-s="150" onclick="setTimer(150)">2:30 comp.</button>
-      <button class="preset core" data-s="45" onclick="setTimer(45)">0:45</button>
+      <button class="preset" data-s="55" onclick="setTimer(55)">0:55 iso</button>
+      <button class="preset" data-s="105" onclick="setTimer(105)">1:45 comp.</button>
+      <button class="preset core" data-s="120" onclick="setTimer(120)">2:00</button>
     </div>
     <div class="tctrl">
       <button class="cl" onclick="closeTimer()">Fechar</button>
@@ -1953,7 +1965,7 @@
 
 <script>
 /* ============ VERSÃO (visível na aba Mais pra confirmar deploy) ============ */
-const APP_VERSION = '2026-09-29.01';
+const APP_VERSION = '2026-11-09.01';
 
 /* ============ ÍCONES (Lucide, inline) ============ */
 const I = {
@@ -1993,43 +2005,48 @@ I.swap='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="curr
 
 /* ============ DADOS ============ */
 let WK = {
-  A:{name:"Inferior 1", focus:"Quadríceps + Glúteo", type:"pull", ex:[
-    {id:"a_1h", n:"Leg press HORIZONTAL (sentada)", s:4, r:"6-10", t:"comp", mg:{quadriceps:1, gluteo:0.5}, cue:"Costas apoiadas. <em>Desce só até onde não incomoda</em> — a carga entra depois."},
-    {id:"a_2", n:"Cadeira extensora", s:3, r:"10-15", t:"iso", mg:{quadriceps:1}, cue:"<em>1s travado em cima.</em> Quadríceps forte protege o joelho (JOSPT 2019)."},
-    {id:"a_3", n:"Agachamento sumô com halter", s:4, r:"10-15", t:"comp", mg:{gluteo:1, quadriceps:0.5}, cue:"Pé aberto, ponta pra fora. <em>Desce entre as pernas</em>, peito erguido."},
-    {id:"a_4", n:"Cadeira abdutora", s:4, r:"12-16", t:"iso", mg:{gluteo_med:1}, cue:"<em>Tronco levemente à frente</em> pega mais glúteo médio. Sem balanço."},
-    {id:"a_5", n:"Panturrilha em pé", s:3, r:"12-16", t:"iso", mg:{panturrilha:1}, cue:"<em>Estica embaixo, sobe no talo.</em> Pausa nas duas pontas."},
-    {id:"c_7", n:"Abdominal no banco inclinado", s:3, r:"12-15", t:"core", mg:{core:1}, cue:"<em>Enrola</em> o tronco, não puxa o pescoço. Descida é onde trabalha."},
-    {id:"a_7", n:"Cardio Z2 na bike", s:1, r:"15 min", t:"cardio", mg:{cardio:1}, cue:"<em>Sempre depois dos pesos</em> — antes, rouba força do treino."},
+  /* PLANO "Recomposição e glúteo" (09/11/2026, documento da Priscila). 4 dias, ~55 min de
+     musculação + 20 de bike. Ids REAPROVEITADOS onde o exercício é o mesmo (abdutora, extensora,
+     sumô, búlgaro, RDL, flexora, supino, remada, desenvolvimento, bike) pra o histórico de carga
+     continuar valendo; ids novos onde o exercício mudou. O programa anterior foi arquivado em
+     ST.meta.progArquivo na migração (migrarPlanoRecomposicao). */
+  A:{name:"Glúteo + quadríceps", focus:"Treino 1 · segunda", type:"pull", ex:[
+    {id:"c_3", n:"Agachamento búlgaro (apoio atrás)", s:4, r:"8-10 por perna", t:"comp", mg:{quadriceps:1, gluteo:0.5}, cue:"Exercício principal do dia: <em>aumente a carga aos poucos</em>. Amplitude sem dor no joelho; se doer acima de 3 em 10, desce menos ou troca por afundo reverso."},
+    {id:"a_3", n:"Agachamento sumô com halter", s:3, r:"10-12", t:"comp", mg:{gluteo:1, quadriceps:0.5}, cue:"<em>Descida controlada</em>, até onde o joelho ficar confortável."},
+    {id:"a_2", n:"Cadeira extensora", s:3, r:"12-15", t:"iso", mg:{quadriceps:1}, cue:"<em>Pausa 1 segundo no topo.</em>"},
+    {id:"a_4", n:"Cadeira abdutora", s:4, r:"15-20", t:"iso", mg:{gluteo_med:1}, cue:"<em>Tronco levemente inclinado à frente</em> pra focar o glúteo."},
+    {id:"b_8", n:"Abdominal na polia ou máquina", s:3, r:"12-15", t:"core", mg:{core:1}, cue:"<em>Sem puxar com os braços:</em> enrola o tronco e expira apertando."},
+    {id:"a_7", n:"Cardio Z2 na bike", s:1, r:"20 min", t:"cardio", mg:{cardio:1}, cue:"Ritmo moderado: <em>esforço 5-6 de 10</em>, dá pra falar frases curtas. 70-90 rpm, resistência moderada. Sempre depois dos pesos."},
   ]},
-  B:{name:"Inferior 2", focus:"Glúteo/Posterior + Cardio", type:"push", ex:[
-    {id:"b_1", n:"Levantamento terra romeno (RDL) com barra", s:4, r:"8-12", t:"comp", mg:{posterior:1, gluteo:0.5}, cue:"<em>Quadril pra trás, não agacha.</em> Barra rente à perna, costas retas."},
-    {id:"b_3", n:"Cadeira flexora (sentada)", s:3, r:"10-15", t:"iso", mg:{posterior:1}, cue:"Sentada = <em>posterior alongado</em>, cresce mais que deitada (Maeo 2021)."},
-    {id:"b_4k", n:"Coice na polia (extensão de quadril)", s:3, r:"12-15 por perna", t:"comp", mg:{gluteo:1}, cue:"<em>Joelho quase reto</em> — glúteo puro, zero carga no joelho. Tronco firme."},
-    {id:"c_2", n:"Cadeira abdutora", s:4, r:"12-16", t:"iso", mg:{gluteo_med:1}, cue:"2ª dose de abdução. <em>Progride a carga</em>, não só as reps."},
-    {id:"c_4", n:"Cadeira extensora", s:3, r:"12-15", t:"iso", mg:{quadriceps:1}, cue:"<em>1s travado em cima.</em> Trabalha na faixa que não incomoda."},
-    {id:"b_8", n:"Abdominal na polia ou máquina", s:3, r:"12-15", t:"core", mg:{core:1}, cue:"<em>Enrola vértebra por vértebra</em> e expira apertando. Não é puxar com o braço."},
-    {id:"b_9", n:"Panturrilha sentada", s:3, r:"12-16", t:"iso", mg:{panturrilha:1}, cue:"<em>Joelho dobrado = sóleo.</em> Não substitui a em pé, e vice-versa."},
-    {id:"b_10", n:"Cardio Z2 na bike", s:1, r:"15 min", t:"cardio", mg:{cardio:1}, cue:"<em>Sempre depois dos pesos.</em> Z2 = dá pra conversar puxado."},
+  B:{name:"Superior + core", focus:"Treino 2 · terça", type:"push",
+    // "Com pouco tempo" do próprio plano: graviton (ou puxada) + remada baixa + desenvolvimento
+    essencial:["b2_pux","d_6","c_5"], ex:[
+    {id:"b2_pux", n:"Puxada frontal na polia", s:3, r:"8-12", t:"comp", mg:{costas:1, biceps:0.5}, cue:"<em>Puxe com as costas</em>, ombros longe das orelhas. Academia cheia: barra assistida no graviton, 3×6-10."},
+    {id:"a_6", n:"Supino com halteres", s:3, r:"8-12", t:"comp", mg:{peito_med:1, triceps:0.5}, cue:"<em>Controle a descida.</em> Alternativa: paralelas assistidas no graviton."},
+    {id:"d_6", n:"Remada baixa", s:3, r:"10-12", t:"comp", mg:{costas:1, biceps:0.5}, cue:"<em>Segure 1 segundo</em> com as escápulas juntas."},
+    {id:"c_5", n:"Desenvolvimento com halteres", s:3, r:"10-12", t:"comp", mg:{ombro_ant:1, ombro_lat:0.5, triceps:0.5}, cue:"Sentada, <em>com apoio nas costas</em>."},
+    {id:"b2_tri", n:"Tríceps na corda", s:2, r:"12-15", t:"iso", mg:{triceps:1}, cue:"<em>Cotovelo parado</em> ao lado do corpo; abre a corda embaixo."},
+    {id:"b2_ros", n:"Rosca direta", s:2, r:"12-15", t:"iso", mg:{biceps:1}, cue:"<em>Sem embalo</em>, cotovelo colado no corpo."},
+    {id:"b2_abd", n:"Abdominal na polia ou máquina", s:3, r:"12-15", t:"core", mg:{core:1}, cue:"<em>Sem puxar com os braços.</em>"},
+    {id:"b2_pra", n:"Prancha", s:3, r:"30-45 s", t:"core", mg:{core:1}, cue:"Corpo reto, glúteo e abdômen firmes. <em>Anote os segundos</em> no campo de repetições."},
+    {id:"c_8", n:"Cardio Z2 na bike", s:1, r:"20 min", t:"cardio", mg:{cardio:1}, cue:"Moderado, <em>ou a variação</em>: 6 a 7 rodadas de 1 min forte e 2 min leve."},
   ]},
-  C:{name:"Superior", focus:"Peito, Costas, Ombro e Braço + Cardio", type:"push", ex:[
-    {id:"a_6", n:"Supino máquina ou halter (acessório superior)", s:3, r:"10-12", t:"comp", mg:{peito_med:1, triceps:0.5}, cue:"<em>Escápula presa</em> antes de descer. Desce até o peito abrir."},
-    {id:"c_5", n:"Desenvolvimento de ombro (acessório superior)", s:3, r:"10-12", t:"comp", mg:{ombro_ant:1, ombro_lat:0.5, triceps:0.5}, cue:"<em>Desce até o cotovelo passar do ombro.</em> Costas coladas no encosto."},
-    {id:"b_6g", n:"Graviton pegada NEUTRA", s:3, r:"8-12", t:"comp", mg:{costas:1, biceps:0.5}, cue:"Pegada neutra = <em>ombro mais confortável</em>. Puxa com o cotovelo."},
-    {id:"d_6", n:"Remada na polia/máquina (acessório costas)", s:3, r:"8-12", t:"comp", mg:{costas:1, biceps:0.5}, cue:"<em>Junta as escápulas</em> no fim. Cotovelo rente ao corpo."},
-    {id:"c_6", n:"Elevação lateral", s:2, r:"12-16", t:"iso", mg:{ombro_lat:1}, cue:"<em>Sobe pelo cotovelo</em> até a altura do ombro. Ombro subindo = peso alto."},
-    {id:"d_7", n:"Rosca martelo (acessório)", s:2, r:"10-12", t:"iso", mg:{biceps:1}, cue:"Punho neutro. O <em>braquial empurra o bíceps pra cima</em>."},
-    {id:"c_8", n:"Cardio Z2 na bike", s:1, r:"25 min", t:"cardio", mg:{cardio:1}, cue:"Maior cardio da semana — <em>pernas chegam frescas</em> no dia de superior."},
+  C:{name:"Posterior + glúteo", focus:"Treino 3 · quinta · RDL pesado", type:"push", ex:[
+    {id:"b_1", n:"Levantamento terra romeno (RDL) com barra", s:4, r:"6-10", t:"comp", mg:{posterior:1, gluteo:0.5}, cue:"Principal do dia: <em>carga alta e progressão toda semana</em>. Quadril pra trás, coluna neutra, barra perto das pernas."},
+    {id:"b_3", n:"Cadeira flexora (sentada)", s:4, r:"10-12", t:"iso", mg:{posterior:1}, cue:"<em>Descida lenta</em>, de 2 a 3 segundos."},
+    {id:"c3_coi", n:"Coice de glúteo na máquina (apoiada)", s:3, r:"12-15 por perna", t:"iso", mg:{gluteo:1}, cue:"<em>Sem arquear a lombar.</em> Empurra com o calcanhar."},
+    {id:"c3_hip", n:"Hiperextensão no banco 45°", s:3, r:"12-15", t:"iso", mg:{gluteo:1, posterior:0.5}, cue:"Foco no glúteo, <em>segura 1 segundo no topo</em>."},
+    {id:"c_2", n:"Cadeira abdutora", s:3, r:"15-20", t:"iso", mg:{gluteo_med:1}, cue:"<em>Tronco levemente à frente.</em> Progride a carga, não só as repetições."},
+    {id:"b_10", n:"Cardio Z2 na bike", s:1, r:"20 min", t:"cardio", mg:{cardio:1}, cue:"Ritmo moderado. <em>Sempre depois dos pesos.</em>"},
   ]},
-  D:{name:"Inferior 3", focus:"Glúteo/Posterior + Cardio", type:"push", ex:[
-    {id:"d_1s", n:"Agachamento no Smith (pés à frente, foco glúteo)", s:4, r:"10-15", t:"comp", mg:{gluteo:1, quadriceps:0.5}, cue:"<em>Pés à FRENTE do corpo</em>: joelho dobra menos, glúteo puxa mais."},
-    {id:"d_2", n:"Stiff / RDL com barra ou halteres", s:3, r:"10-12", t:"comp", mg:{posterior:1, gluteo:0.5}, cue:"<em>Quadril pra trás, não agacha.</em> Desce só até o posterior alongar."},
-    {id:"d_5s", n:"Cadeira flexora (sentada)", s:3, r:"12-15", t:"iso", mg:{posterior:1}, cue:"Sentada = <em>posterior alongado</em> (Maeo 2021). Controla a volta."},
-    {id:"c_3", n:"Agachamento búlgaro (apoio atrás)", s:3, r:"10-12 por perna", t:"comp", mg:{quadriceps:1, gluteo:0.5}, cue:"<em>Tronco à frente</em> pega mais glúteo. Descansa o quanto precisar."},
-    {id:"d_abd", n:"Cadeira abdutora", s:3, r:"12-16", t:"iso", mg:{gluteo_med:1}, cue:"<em>Zero joelho</em> — o movimento é só de quadril. Tronco à frente."},
-    {id:"d_8", n:"Abdominal declinado ou infra", s:3, r:"12-15", t:"core", mg:{core:1}, cue:"<em>Retroversão de pelve antes de começar</em>: lombar colada, sem arco."},
-    {id:"d_9", n:"Panturrilha em pé", s:3, r:"12-16", t:"iso", mg:{panturrilha:1}, cue:"<em>Joelho esticado = gastrocnêmio.</em> Estica embaixo, sobe no talo."},
-    {id:"d_10", n:"Cardio Z2 na bike", s:1, r:"15 min", t:"cardio", mg:{cardio:1}, cue:"<em>Sempre depois dos pesos.</em> Z2 = dá pra conversar puxado."},
+  D:{name:"Glúteo volume", focus:"Treino 4 · sexta · RDL leve", type:"push", ex:[
+    {id:"d4_lp", n:"Leg press pés altos e afastados", s:3, r:"10-12", t:"comp", mg:{gluteo:1, quadriceps:0.5}, cue:"<em>Amplitude confortável pros joelhos.</em> Pé alto puxa mais glúteo."},
+    {id:"d4_sum", n:"Agachamento sumô com halter", s:3, r:"10-12", t:"comp", mg:{gluteo:1, quadriceps:0.5}, cue:"<em>Carga um pouco menor</em> que no treino 1."},
+    {id:"d_2", n:"RDL leve com halteres", s:3, r:"10-12", t:"comp", mg:{posterior:1, gluteo:0.5}, cue:"Mesma técnica do treino 3, <em>com menos carga</em>."},
+    {id:"d_5s", n:"Cadeira flexora (sentada)", s:2, r:"12-15", t:"iso", mg:{posterior:1}, cue:"Controla a volta."},
+    {id:"d_abd", n:"Cadeira abdutora", s:3, r:"15-20", t:"iso", mg:{gluteo_med:1}, cue:"Na última série, <em>mais 10 repetições com carga menor</em>, sem descanso (use a série extra)."},
+    {id:"d4_abd", n:"Abdominal na polia ou máquina", s:3, r:"12-15", t:"core", mg:{core:1}, cue:"<em>Sem puxar com os braços.</em>"},
+    {id:"d_10", n:"Cardio Z2 na bike", s:1, r:"20 min", t:"cardio", mg:{cardio:1}, cue:"Ritmo moderado. <em>Sempre depois dos pesos.</em>"},
   ]},
 };
 
@@ -2073,7 +2090,9 @@ const WK_CASA = {
 };
 
 
-const REST = {comp:150, iso:90, core:75};
+/* Descanso do plano dela (09/11/2026): 90-120 s nos compostos, 45-60 s nos isoladores. O
+   core segue o isolador. Antes eram os do app dele (150/90/75). */
+const REST = {comp:105, iso:55, core:55};
 
 const MG_LABELS = {
   gluteo:"Glúteo", gluteo_med:"Glúteo médio",
@@ -2525,7 +2544,7 @@ function renderFocoEditor(){
   const rot={f:'FOCO', a:'apoio', manut:'manutenção', fora:'—'};
   return `<div class="focoed">
     <div class="fe-h">Toque num grupo pra girar entre <b>foco</b> → apoio → manutenção → nada.
-      Foco e apoio ganham série a mais na semana de acúmulo e são os últimos a sair quando o tempo aperta.</div>
+      Foco e apoio são os últimos a sair quando o tempo aperta (45 min, Essencial e dia de mais cardio).</div>
     <div class="fe-grid">
       ${MG_ORDER.filter(mg=>MG_LABELS[mg] && mg!=='cardio').map(mg=>{
         const k=camada(mg);
@@ -2547,7 +2566,8 @@ function recalcPrioridades(){
 
 /* ============ MESOCICLO: rampa de volume + deload que corta sozinho ============
    Portado do MeuTreino. As séries eram fixas: progressão de CARGA existia, de VOLUME não.
-   Ciclo de 4 semanas: 1-2 base, 3 acúmulo (+1 nos músculos prioritários), 4 deload (metade).
+   Ciclo de 4 semanas (desde 09/11/2026, pelo plano dela): 1-3 progressão com as mesmas séries,
+   4 semana leve com 1 série a menos em cada exercício. Antes: 1-2 base, 3 acúmulo, 4 metade.
    Vale mais aqui do que lá: em déficit calórico a recuperação é pior, então uma semana leve
    programada a cada 4 evita que a fadiga se acumule até virar estagnação.
    Ressalva honesta: sobrecarga progressiva é consenso; que a RAMPA seja superior a volume
@@ -2555,6 +2575,57 @@ function recalcPrioridades(){
    Os BLOCOS DE ÊNFASE do app dele não vieram — o conteúdo deles é decisão de programa
    (lá é "peito/braços ↔ perna"; aqui o objetivo principal é perda de gordura). */
 function mesoDesde(){ return (ST.meta && ST.meta.mesoDesde) || null; }
+/* ============ PLANO NOVO "RECOMPOSIÇÃO E GLÚTEO" (09/11/2026) ============
+   O programa editável (ST.prog) congela o dia inteiro no primeiro toque — sem esta migração, o
+   WK_GYM novo NÃO chegaria nos dias que ela já tinha editado. Uma vez por aparelho:
+   - o ST.prog da academia, a ordem/troca "sempre" da academia e os swaps dos ids reaproveitados
+     vão pro arquivo (ST.meta.progArquivo) — nada é apagado, dá pra consultar e voltar;
+   - o mesociclo recomeça na semana 1, junto com o plano;
+   - progDesde marca a virada: o paceFactor só calibra com sessões do programa novo (uma
+     sessão do treino A antigo não diz nada sobre quanto dura o treino 1 novo).
+   O programa de CASA não é tocado. Logs não são tocados: ids reaproveitados continuam com o
+   histórico de carga, os que saíram do programa ficam no histórico como estavam.
+   ST.prog nunca fica vazio: a sincronização trata prog vazio como "puxa o do outro aparelho",
+   e puxaria de volta o programa antigo. O marcador é um objeto vazio, não uma string — o
+   dayOfExId itera ST.prog[modo][dia] e uma string viraria letras. */
+const PROG_VER='2026-11-09';
+function migrarPlanoRecomposicao(){
+  if(!ST.meta || typeof ST.meta!=='object') ST.meta={};
+  if(ST.meta.progVer===PROG_VER) return false;
+  // aparelho novo (sem programa editado, sem log, sem sessão): não há o que arquivar
+  const temDados=(ST.prog && typeof ST.prog==='object' && Object.keys(ST.prog).length)
+    || Object.keys(ST.logs||{}).length || ((ST.session && ST.session.history)||[]).length;
+  if(!temDados){ ST.meta.progVer=PROG_VER; saveK('meta'); return false; }
+  const plan=planRoot();
+  const arq={em:today(), mesoDesde:ST.meta.mesoDesde||null,
+    prog:(ST.prog && ST.prog.academia) || null,
+    ord:(plan.ord && plan.ord.academia) || null,
+    tr:(plan.tr && plan.tr.academia) || null, swaps:{}};
+  if(!ST.prog || typeof ST.prog!=='object' || Array.isArray(ST.prog)) ST.prog={};
+  delete ST.prog.academia;
+  ST.prog['_plano'+PROG_VER.replace(/-/g,'')]={};
+  if(plan.ord) delete plan.ord.academia;
+  if(plan.tr) delete plan.tr.academia;
+  delete plan.hoje;
+  ST.exmeta=ST.exmeta||{};
+  for(const d of Object.keys(WK_GYM)) for(const e of WK_GYM[d].ex){
+    const o=ST.exmeta[e.id];
+    if(o && o.swap){ arq.swaps[e.id]=o.swap; delete o.swap; }
+  }
+  ST.meta.progArquivo=ST.meta.progArquivo||{};
+  ST.meta.progArquivo[PROG_VER]=arq;
+  ST.meta.progVer=PROG_VER;
+  ST.meta.progDesde=today();
+  ST.meta.mesoDesde=today();
+  /* o programa novo precisa vencer o snapshot antigo do outro aparelho na sincronização, mas
+     com um carimbo IGUAL nos dois aparelhos que migrarem — Date.now() daria um carimbo
+     diferente em cada um e eles trocariam o mesmo programa entre si (o teste de repouso pegou).
+     +1 sobre o carimbo que os dois já compartilham resolve as duas coisas; qualquer edição
+     depois carimba com a hora atual, que é muito maior. */
+  ST.meta.progM=(+ST.meta.progM||0)+1;
+  saveK('prog'); saveK('exmeta'); saveK('meta');
+  return true;
+}
 function mesoSemana(){
   const d=mesoDesde(); if(!d) return 1;
   return ((Math.floor(daysBetween(d, today())/7)) % 4) + 1;   // 1..4
@@ -2611,7 +2682,7 @@ function cardPausaMeso(){
   if(daysBetween(r.em, today())>14) return '';
   return `<div class="pausa-card">
     <div class="pc-t">${r.dias} dias sem treinar — contei como a sua semana leve</div>
-    <div class="pc-f">O mesociclo recomeçou na <b>semana 1</b> (volume de base) em vez de te jogar numa semana de acúmulo ou numa semana leve logo depois da parada. A carga não mudou: até duas semanas parado a força se mantém.</div>
+    <div class="pc-f">O mesociclo recomeçou na <b>semana 1</b> (volume de base) em vez de te jogar numa semana leve logo depois da parada. A carga não mudou: até duas semanas parado a força se mantém.</div>
     <button class="pc-b" onclick="desfazerReancoraMeso()">Desfazer</button>
   </div>`;
 }
@@ -2621,10 +2692,8 @@ function emDeload(){
   return mesoSemana()===4;
 }
 function faseMeso(){
-  if(emDeload()) return {k:'deload', nome:'Semana leve', nota:'Séries cortadas pela metade. A carga fica igual — só não vá perto da falha.'};
-  return mesoSemana()<=2
-    ? {k:'base', nome:'Base', nota:'Volume de base. É daqui que a rampa sobe.'}
-    : {k:'acumulo', nome:'Acúmulo', nota:'Semana mais pesada: uma série a mais em glúteo e glúteo médio.'};
+  if(emDeload()) return {k:'deload', nome:'Semana leve', nota:'Uma série a menos em cada exercício. A carga fica igual: a semana é pra recuperar.'};
+  return {k:'base', nome:'Progressão', nota:'Suba a carga ou as repetições. Quando fizer o topo da faixa em todas as séries, com 1 a 3 sobrando, aumenta a carga.'};
 }
 // Séries planejadas do exercício AGORA (fase do mesociclo aplicada ao que está no programa)
 /* ============ RECUPERAÇÃO SUBJETIVA (autorregulação de volume) ============
@@ -2687,15 +2756,14 @@ function exSets(e){
   if(!e) return 3;
   const base=parseInt(e.s)||3;
   if(e.t==='cardio') return base;                             // cardio é tempo, não série
-  if(emDeload()) return Math.max(1, Math.round(base*0.5));
-  if(mesoSemana()===3 && !recuperacaoRuim()){   // o freio da recuperação segura o +1
-    const foco=Object.entries(e.mg||{}).some(([mg,w])=>w>=1 && MG_PRIORITY[mg]);
-    return foco ? base+1 : base;
-  }
+  /* Plano dela (09/11/2026): semanas 1 a 3 progridem carga ou repetições com as MESMAS
+     séries; na semana 4 sai 1 série de cada exercício e a carga fica. Não existe mais a
+     semana de acúmulo (+1 série) nem o corte pela metade. */
+  if(emDeload()) return Math.max(1, base-1);
   return base;
 }
 function anteciparDeload(){
-  if(!confirm('Fazer a semana leve agora?\n\nAs séries caem pela metade por 7 dias. Serve pra descarregar fadiga — a carga continua a mesma, só não vá perto da falha.')) return;
+  if(!confirm('Fazer a semana leve agora?\n\nSai uma série de cada exercício por 7 dias. Serve pra descarregar fadiga — a carga continua a mesma.')) return;
   if(!ST.meta || typeof ST.meta!=='object') ST.meta={};
   ST.meta.deloadAte = dateAdd(today(), 6);
   saveK('meta'); registrarDeloadEmCurso(); render(); showToast('Semana leve começou', 'ok', 2400);
@@ -2788,6 +2856,15 @@ const PHOTO_LOCAL = {
   "Ponte com marcha":"ela-ponte.jpg",
   "Panturrilha sentada (halter no joelho)":"ela-panturrilha-halter.jpg",
   "Abdominal infra / prancha lateral":"ela-ab-declinado.webp",
+  // plano "Recomposição e glúteo" (09/11/2026): mesmos movimentos, nomes do documento dela
+  "Puxada frontal na polia":"ela-puxada.jpg",
+  "Supino com halteres":"ela-supino.jpg",
+  "Remada baixa":"ela-remada.jpg",
+  "Desenvolvimento com halteres":"ela-desenvolvimento.jpg",
+  "Leg press pés altos e afastados":"ela-legpress.jpg",
+  "RDL leve com halteres":"ela-stiff.jpg",
+  "Barra assistida no graviton":"ela-graviton.jpg",
+  "Afundo reverso":"ela-afundo.jpg",
 };
 const PHOTO_ID = {}; // esvaziado: sem fotos masculinas; sem foto feminina -> fallback rosa
 const PHOTO_BASE = "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/";
@@ -3593,6 +3670,10 @@ const EX_BANK = {
     {n:"Agachamento no Smith (pés à frente)", s:4, r:"10-15", t:"comp", mg:{gluteo:1, quadriceps:0.5}, cue:"Pés à frente = joelho dobra menos, glúteo puxa mais. Barra guiada = segurança."},
     {n:"Coice na polia (extensão de quadril)", s:3, r:"12-15 por perna", t:"comp", mg:{gluteo:1}, cue:"Glúteo puro com joelho quase reto. 3 sets = 1 por perna."},
     {n:"Agachamento búlgaro", s:3, r:"10-12 por perna", t:"comp", mg:{gluteo:1, quadriceps:0.5}, cue:"Pé de trás no banco, tronco à frente. Amplitude sem dor."},
+    {n:"Coice de glúteo na máquina (apoiada)", s:3, r:"12-15 por perna", t:"iso", mg:{gluteo:1}, cue:"Sem arquear a lombar. Empurra com o calcanhar."},
+    {n:"Hiperextensão no banco 45°", s:3, r:"12-15", t:"iso", mg:{gluteo:1, posterior:0.5}, cue:"Foco no glúteo, segura 1 segundo no topo."},
+    {n:"Leg press pés altos e afastados", s:3, r:"10-12", t:"comp", mg:{gluteo:1, quadriceps:0.5}, cue:"Amplitude confortável pros joelhos."},
+    {n:"Afundo reverso", s:3, r:"10-12 por perna", t:"comp", mg:{quadriceps:1, gluteo:0.5}, cue:"Passo pra TRÁS: o joelho da frente sofre menos que no afundo normal. Troca do búlgaro se o joelho doer."},
   ],
   "Glúteo médio (abdutor)": [
     {n:"Cadeira abdutora", s:4, r:"12-16", t:"iso", mg:{gluteo_med:1}, cue:"Progride a carga. Rotação interna do pé em parte das séries."},
@@ -3638,6 +3719,10 @@ const EX_BANK = {
     {n:"Elevação lateral na máquina", s:3, r:"12-16", t:"iso", mg:{ombro_lat:1}, cue:"Carga constante do começo ao fim."},
     {n:"Remada curvada com halteres", s:3, r:"10-12", t:"comp", mg:{costas:1, biceps:0.5}, cue:"Tronco firme, cotovelo rente ao corpo."},
     {n:"Rosca scott ou concentrada", s:3, r:"10-12", t:"iso", mg:{biceps:1}, cue:"Braço apoiado, sem embalo."},
+    // opções do plano de 09/11/2026 (graviton) e o tríceps que entrou no treino 2
+    {n:"Barra assistida no graviton", s:3, r:"6-10", t:"comp", mg:{costas:1, biceps:0.5}, cue:"Assistência que permita pelo menos 6 repetições. Quanto menos assistência, mais difícil."},
+    {n:"Paralelas assistidas no graviton", s:3, r:"8-12", t:"comp", mg:{peito_med:1, triceps:1}, cue:"Tronco levemente à frente, desce até o ombro ficar na linha do cotovelo."},
+    {n:"Tríceps na corda", s:2, r:"12-15", t:"iso", mg:{triceps:1}, cue:"Cotovelo parado ao lado do corpo; abre a corda embaixo."},
   ],
   "Cardio": [
     {n:"Cardio Z2 na bike", s:1, r:"25-35 min", t:"cardio", mg:{cardio:1}, cue:"Zona 2 (consegue conversar). Sem corrida — protege o joelho."},
@@ -4386,7 +4471,7 @@ function progressState(id, e){
   if(travadas>=3 && rirMed!=null && rirMed<=1)
     return {k:'fadiga', sug, acao:'deload',
       msg:`${nSess()} sem subir, todas perto da falha (RIR ${fmtStep(rirMed)}). Isso é fadiga acumulada, não falta de esforço.`,
-      nota:'Faça uma semana leve: metade das séries, ou 20% menos carga. Depois volta.'};
+      nota:'Faça uma semana leve: uma série a menos em cada exercício, mesma carga. Depois volta.'};
 
   // Carga parada COM peso corporal caindo não é fracasso: é massa magra preservada em déficit
   // (Helms, Aragon & Fitschen 2014). O app chamava isso de plateau e mandava agir.
@@ -4430,7 +4515,8 @@ const EXERCISE_ALTERNATIVES = {
   "Cadeira flexora (sentada)": ["Mesa flexora deitada (mais alongada)", "Flexora unilateral", "Nórdico assistido"],
   "Coice na polia (extensão de quadril)": ["Coice na máquina (glute kickback)", "Extensão de quadril no banco 45°", "Elevação pélvica unilateral"],
   "Agachamento no Smith (pés à frente, foco glúteo)": ["Agachamento búlgaro no Smith", "Leg press pés altos", "Elevação pélvica com barra"],
-  "Agachamento búlgaro (apoio atrás)": ["Afundo estático no Smith", "Passada no lugar com halteres", "Elevação pélvica unilateral"],
+  // o plano dela manda trocar o búlgaro por afundo reverso ou step-up se o joelho doer
+  "Agachamento búlgaro (apoio atrás)": ["Afundo reverso", "Step-up no banco", "Afundo estático no Smith"],
   "Supino máquina ou halter (acessório superior)": ["Supino inclinado com halteres", "Peck deck", "Flexão de braço com apoio elevado"],
   "Desenvolvimento de ombro (acessório superior)": ["Desenvolvimento na máquina", "Desenvolvimento com halteres sentada", "Arnold press leve"],
   "Remada na polia/máquina (acessório costas)": ["Remada curvada com halteres", "Puxada na polia pegada neutra", "Remada unilateral com halter"],
@@ -4439,6 +4525,18 @@ const EXERCISE_ALTERNATIVES = {
   "Elevação lateral com halteres": ["Elevação lateral na polia", "Elevação lateral sentada", "Elevação lateral com elástico"],
   "Rosca martelo (acessório)": ["Rosca inclinada com halteres (mais alongada)", "Rosca direta na polia", "Rosca concentrada"],
   "Cardio Z2 na bike": ["Elíptico em Z2", "Esteira em inclinação, caminhando", "Bike horizontal"],
+  // plano "Recomposição e glúteo" (09/11/2026) — as opções com graviton são as do próprio plano
+  "Puxada frontal na polia": ["Barra assistida no graviton", "Graviton pegada neutra", "Puxada na polia pegada neutra"],
+  "Supino com halteres": ["Paralelas assistidas no graviton", "Supino máquina", "Flexão de braço com apoio elevado"],
+  "Remada baixa": ["Remada na máquina", "Remada unilateral com halter", "Remada curvada com halteres"],
+  "Desenvolvimento com halteres": ["Desenvolvimento na máquina", "Arnold press leve", "Desenvolvimento com halteres em pé"],
+  "Tríceps na corda": ["Paralelas assistidas no graviton", "Tríceps na polia com barra", "Tríceps francês com halter"],
+  "Rosca direta": ["Rosca com halteres", "Rosca martelo", "Rosca na polia"],
+  "Prancha": ["Prancha lateral", "Dead bug", "Abdominal na polia ou máquina"],
+  "Coice de glúteo na máquina (apoiada)": ["Coice na polia (extensão de quadril)", "Elevação pélvica unilateral", "Hiperextensão no banco 45°"],
+  "Hiperextensão no banco 45°": ["Elevação pélvica com barra", "Ponte com halter", "Coice na polia (extensão de quadril)"],
+  "Leg press pés altos e afastados": ["Agachamento no Smith (pés à frente)", "Leg press horizontal (sentada)", "Agachamento sumô no Smith"],
+  "RDL leve com halteres": ["Stiff com barra", "RDL unilateral com halter", "Hiperextensão no banco 45°"],
 };;
 
 /* ============ TREINOS EM CASA (sessões livres, sem equipamento) ============
@@ -4742,7 +4840,8 @@ function autoDetectDeload(){
    histórico). Sem histórico suficiente, fica 1 (modelo puro). Limitado pra um outlier não
    distorcer tudo. Portado do app dele em 29/09: sem isto a estimativa daqui nunca aprendia. */
 function paceFactor(d){
-  const h=sessionsForDay(d).filter(r=>r && r.activeMs>0);
+  const desde=ST.meta && ST.meta.progDesde;   // só sessões do programa atual (ver migrarPlanoRecomposicao)
+  const h=sessionsForDay(d).filter(r=>r && r.activeMs>0 && (!desde || String(r.date||'')>=desde));
   if(h.length<2) return 1;
   const mins=h.slice(0,6).map(r=>r.activeMs/60000).sort((a,b)=>a-b);
   const real=mins[Math.floor(mins.length/2)];
@@ -4786,13 +4885,104 @@ function toggleCardioDay(d){
   ST.meta.cardioDays=ST.meta.cardioDays||{};
   const t=today();
   if(ST.meta.cardioDays[t]===d) delete ST.meta.cardioDays[t];
-  else ST.meta.cardioDays[t]=d;
+  else { ST.meta.cardioDays[t]=d; if(ST.meta.shortDays) delete ST.meta.shortDays[t]; }   // um modo por dia
   // guarda só os últimos 30 dias, senão isso cresce pra sempre
   for(const k of Object.keys(ST.meta.cardioDays)){
     if(daysBetween(k, t)>30 || daysBetween(k, t)<-1) delete ST.meta.cardioDays[k];
   }
   saveK('meta');
   render();
+}
+/* ============ TEMPO DO TREINO: Normal · 45 min · Essencial (09/11/2026) ============
+   Portado do app dele (shortPlan) e adaptado ao que só existe aqui: a BIKE. Ordem do corte:
+   1. a bike encolhe primeiro, até 10 min. Em recomposição, a musculação é o que segura a massa
+      magra em déficit; o gasto que a bike tira volta nos passos do dia (meta de 8.000 do plano);
+   2. depois saem exercícios, protegendo o PRIMEIRO do dia (é o principal — Simão 2012), um de
+      cada músculo em foco (glúteo/glúteo médio, pelo ST.meta.foco) e um piso de 3 exercícios
+      de força: abaixo disso é passagem pela academia, não treino.
+   Essencial num dia que tem lista própria no programa (o "com pouco tempo" do plano, no
+   treino 2) usa a lista do plano em vez do algoritmo.
+   Rótulos honestos: o piso de 3 exercícios impede que "Essencial" caiba sempre em 25 min, e
+   a tela diz o número real em vez de prometer o alvo. Um modo por dia: escolher um tempo
+   desliga o "mais cardio", e vice-versa. */
+const TEMPO_ALVO={45:45, 25:25};
+const CARDIO_PISO=10;
+function exValorHoje(e, vol){
+  let s=0;
+  for(const [mg,w] of Object.entries(e.mg||{})){
+    if(mg==='cardio') continue;
+    const meta=MG_TARGETS[mg]||0;
+    const feito=vol[mg]||0;
+    const falta=meta>0 ? Math.max(0, Math.min(1,(meta-feito)/meta)) : 0.5;
+    s += w * (falta*2 + (MG_PRIORITY[mg] ? 1.5 : 0));
+  }
+  if(e.t==='comp') s+=1;
+  if(e.t==='core') s-=0.3;
+  return s;
+}
+function shortDayMin(d){
+  const m=(ST.meta && ST.meta.shortDays) || {};
+  const r=m[today()];
+  return (r && r.d===d && TEMPO_ALVO[r.min]) ? r.min : 0;
+}
+function setShortDay(d, min){
+  if(!ST.meta || typeof ST.meta!=='object') ST.meta={};
+  ST.meta.shortDays=ST.meta.shortDays||{};
+  const t=today();
+  if(!min) delete ST.meta.shortDays[t];
+  else {
+    ST.meta.shortDays[t]={d, min};
+    if(ST.meta.cardioDays && ST.meta.cardioDays[t]===d) delete ST.meta.cardioDays[t];   // um modo por dia
+  }
+  for(const k of Object.keys(ST.meta.shortDays)){
+    if(daysBetween(k,t)>30 || daysBetween(k,t)<-1) delete ST.meta.shortDays[k];
+  }
+  saveK('meta'); render();
+}
+function shortPlan(d, alvoMin){
+  const ex=dayEx(d).map(exEff);
+  const f=paceFactor(d);
+  const min=ex.map(e=>exMinutes(e)*f);
+  const iCardio=ex.findIndex(e=>e.t==='cardio');
+  const cardioBase=iCardio>=0 ? cardioMinutes(ex[iCardio]) : 0;
+  const forca=ex.map((e,i)=>i).filter(i=>ex[i].t!=='cardio');
+  const pesoTotal=forca.reduce((a,i)=>a+min[i],0);
+  const total=pesoTotal+cardioBase;
+  const fora=new Set();
+  const res=(cardioMin, atual, lista)=>({fora, cardioMin, cardioBase, estMin:Math.round(atual), total:Math.round(total), coube:atual<=alvoMin+0.5, lista:!!lista});
+  if(!(alvoMin>0) || total<=alvoMin) return res(cardioBase, total);
+
+  // 1. bike encolhe primeiro, até o piso
+  let cardioMin=cardioBase;
+  if(cardioBase>CARDIO_PISO) cardioMin=Math.max(CARDIO_PISO, Math.round(cardioBase-(total-alvoMin)));
+  let atual=pesoTotal+cardioMin;
+  if(atual<=alvoMin) return res(cardioMin, atual);
+
+  // 2a. Essencial com lista do próprio plano (só no programa de academia sem edição no dia)
+  const w=_progBase()[d];
+  if(alvoMin===25 && w && Array.isArray(w.essencial) && _progMode()==='academia'){
+    const lista=new Set(w.essencial);
+    const presentes=forca.filter(i=>lista.has(ex[i].id));
+    if(presentes.length>=Math.min(3, lista.size)){
+      for(const i of forca) if(!lista.has(ex[i].id)){ fora.add(i); atual-=min[i]; }
+      return res(cardioMin, atual, true);
+    }
+  }
+  // 2b. algoritmo: guarda o 1º de força e um por músculo em foco; piso de 3
+  const vol=weeklyVolume();
+  const guard=new Set(forca.length?[forca[0]]:[]);
+  for(const mg of Object.keys(MG_PRIORITY)){
+    let melhor=-1, best=-Infinity;
+    for(const i of forca){ if(((ex[i].mg||{})[mg]||0)>=1){ const v=exValorHoje(ex[i],vol); if(v>best){best=v; melhor=i;} } }
+    if(melhor>=0) guard.add(melhor);
+  }
+  const cand=forca.filter(i=>!guard.has(i)).sort((a,b)=> exValorHoje(ex[a],vol)-exValorHoje(ex[b],vol) || b-a);
+  const maxFora=Math.max(0, forca.length-3);
+  for(const i of cand){
+    if(atual<=alvoMin || fora.size>=maxFora) break;
+    fora.add(i); atual-=min[i];
+  }
+  return res(cardioMin, atual);
 }
 function cardioPlan(d){
   const ex=dayEx(d).map(exEff);
@@ -5104,6 +5294,38 @@ function renderDay(d){
   // Dia de mais cardio: toggle + plano do que vale manter
   const cdOn = cardioDayOn(d);
   const cdPlan = cdOn ? cardioPlan(d) : null;
+  // Tempo do treino (Normal · 45 min · Essencial). Um modo por dia: com o "mais cardio" ligado,
+  // o tempo volta pro Normal e o cartão só mostra a duração.
+  const tcMin = cdOn ? 0 : shortDayMin(d);
+  const tcPlan = shortPlan(d, tcMin);
+  {
+    const opcoes=[[0,'Normal'],[45,'45 min'],[25,'Essencial']].map(([mm,rot])=>
+      `<button class="tc-opt ${mm===tcMin&&!cdOn?'on':''}" onclick="setShortDay('${d}',${mm})">${rot}</button>`).join('');
+    const nFora=tcPlan.fora.size;
+    const bikeTxt = tcPlan.cardioBase && tcPlan.cardioMin<tcPlan.cardioBase ? `bike de ${tcPlan.cardioBase} pra ${tcPlan.cardioMin} min` : '';
+    let nota='';
+    if(tcMin){
+      const partes=[];
+      if(bikeTxt) partes.push(bikeTxt);
+      if(nFora) partes.push(`${nFora} exercício${nFora>1?'s':''} pra pular`);
+      nota = !partes.length ? 'Já cabe no tempo, não precisei cortar nada.'
+        : (()=>{ const t=partes.join(' e '); return t.charAt(0).toUpperCase()+t.slice(1); })()
+          + `${tcPlan.lista?', seguindo o "com pouco tempo" do seu plano':' — ficaram o principal do dia e o que mais falta pro glúteo na semana'}. O que sair continua registrável se sobrar tempo.`
+          + (!tcPlan.coube ? (tcPlan.lista ? ` Com essa lista, o treino fica em ~${tcPlan.estMin} min.` : ` Abaixo disso o treino perderia o essencial, então fica em ~${tcPlan.estMin} min.`) : '');
+    } else if(cdOn){
+      nota='Hoje é dia de mais cardio — escolher um tempo desliga o modo de cardio.';
+    }
+    h+=`<div class="timecap">
+      <div class="tc-hd">
+        <span class="tc-l">Tempo hoje</span>
+        <span class="tc-v">~${tcMin?tcPlan.estMin:Math.round(dayMinutes(d))} min${tcMin?` <small>de ${tcPlan.total}</small>`:''}</span>
+      </div>
+      <div class="tc-opts">${opcoes}</div>
+      ${nota?`<div class="tc-note">${nota}</div>`:''}
+    </div>`;
+  }
+  // o que a tela apaga hoje: o plano do modo ativo (mais cardio OU tempo curto)
+  const corte = cdPlan || (tcMin ? tcPlan : null);
   {
     const c0=dayEx(d).map(exEff).find(x=>x.t==='cardio');
     if(c0){
@@ -5126,7 +5348,7 @@ function renderDay(d){
     const id=exId(d,i);
     const last=lastSession(id);
     const tod=todaySession(id);
-    const cdSkip = !!(cdPlan && cdPlan.fora.has(i));
+    const cdSkip = !!(corte && corte.fora.has(i));
     const pillT = e.t==="comp"?"composto":(e.t==="core"?"core":(e.t==="cardio"?"cardio":"isolador"));
     const pillC = e.t==="comp"?"comp":(e.t==="core"?"core":(e.t==="cardio"?"cardio":"iso"));
     const planned=exSets(e);
@@ -5250,13 +5472,13 @@ function renderDay(d){
          </div>`;
 
     h+=`<div class="ex${cdSkip?' cd-off':''}">
-      ${cdSkip?`<div class="cd-tag">pode pular hoje · abre ${Math.round(exMinutes(e))} min de bike</div>`:''}
+      ${cdSkip?`<div class="cd-tag">${cdPlan?`pode pular hoje · abre ${Math.round(exMinutes(e))} min de bike`:'pode pular hoje · falta de tempo'}</div>`:''}
 
       ${photoBlock}
       <div class="body">
         ${planTag(d,i)}
         <div class="target">${e.t==='cardio'
-          ? `<span class="met"><b>${cdPlan && cdPlan.cardioMin ? cdPlan.cardioMin+' min' : e.r}</b></span><span class="dot"></span><span class="met">bike · Zona 2</span>${cdPlan?`<span class="dot"></span><span class="met cd-up">${cdPlan.dobrou?'dobrado hoje':'+'+(cdPlan.cardioMin-cdPlan.baseMin)+' min hoje'}</span>`:''}`
+          ? `<span class="met"><b>${corte && corte.cardioMin ? corte.cardioMin+' min' : e.r}</b></span><span class="dot"></span><span class="met">bike · moderado</span>${cdPlan?`<span class="dot"></span><span class="met cd-up">${cdPlan.dobrou?'dobrado hoje':'+'+(cdPlan.cardioMin-cdPlan.baseMin)+' min hoje'}</span>`:(corte && corte.cardioMin<corte.cardioBase?`<span class="dot"></span><span class="met cd-down">era ${corte.cardioBase} min</span>`:'')}`
           : `<span class="met"><b>${planned}</b> ${planned===1?'série':'séries'}${nset>planned?` <span class="xtra">+${nset-planned} extra</span>`:''}</span>
           <span class="dot"></span>
           <span class="met"><b>${e.r}</b> reps</span>
@@ -6105,8 +6327,11 @@ function renderCorpo(){
   // VOLUME SEMANAL POR GRUPO
   h+=`<h2 class="sec">Volume semanal por grupo</h2>
   <div class="volcard">`;
+  // grupo que o programa não treina (panturrilha saiu no plano de 09/11/2026) não vira barra vermelha eterna
+  const noPrograma=new Set(); for(const dd of diasProg()) for(const x of (dayEx(dd)||[])) for(const k of Object.keys((x&&x.mg)||{})) noPrograma.add(k);
   for(const mg of MG_ORDER){
     const v = wkVol[mg]||0;
+    if(!noPrograma.has(mg) && !(v>0)) continue;
     const tgt = MG_TARGETS[mg];
     const pct = Math.min(100, (v/tgt)*100);
     const c = MG_COLOR[mg];
@@ -8090,8 +8315,9 @@ async function boot(){
   // 6. Migração de fotos legadas (localStorage) pro IndexedDB — não-destrutiva, idempotente
   migrateLegacyPhotos();
 }
-setTimer(90);
+setTimer(105);
 migrateLogsStableId();
+try{ migrarPlanoRecomposicao(); }catch(e){ console.error('migração do plano', e); }
 /* Primeiro boot com mesociclo: ancora hoje, pra ela começar na semana 1 (base) em vez de
    cair no meio de um ciclo calculado de trás pra frente. */
 if(!(ST.meta && ST.meta.mesoDesde)){ ST.meta=ST.meta||{}; ST.meta.mesoDesde=today(); saveK('meta'); }
