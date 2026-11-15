@@ -2,7 +2,9 @@
 
 PWA single-file de treino pra ela. **iPhone (desde 19/09/2026) — e o Android antigo enquanto durar; os dois sincronizam pelo mesmo Worker.** Fork do MeuTreino (do Lucas) que **já divergiu bastante** — não assuma que o que vale lá vale aqui.
 
-**Última atualização:** 2026-11-09.01 (**Plano "Recomposição e glúteo"** — programa novo do documento dela, semana leve com 1 série a menos, descanso 105/55 s, e tempo do treino Normal · 45 min · Essencial. SHELL v81)
+**Última atualização:** 2026-11-15.01 (**Ajustes dela + auditoria** — treino 2 enxuto com graviton e bike 35, búlgaro e abdominal no 3, dia 5 só bike; sessão esquecida, semana leve como referência, atualização do PWA e mais 8 achados corrigidos. SHELL v82)
+
+**Antes: 2026-11-09.01 (**Plano "Recomposição e glúteo"** — programa novo do documento dela, semana leve com 1 série a menos, descanso 105/55 s, e tempo do treino Normal · 45 min · Essencial. SHELL v81)
 
 **Antes: 2026-09-29.01 (**Auditoria geral** — 5 achados corrigidos, incluindo um de tela branca; modelo de duração unificado. SHELL v80)
 
@@ -41,6 +43,38 @@ PWA single-file de treino pra ela. **iPhone (desde 19/09/2026) — e o Android a
 **Antes: 2026-08-19.03 (**Estado `carga-alta`** — o app nunca mandava BAIXAR carga; portado do MeuTreino. SHELL v48)
 
 **Antes: 2026-08-15.04 (dia de mais cardio; camada de inteligência reescrita; auditoria de 8 bugs. SHELL v45)
+
+## Ajustes dela + auditoria (2026-11-15.01)
+
+### Programa (pedido dela)
+- **Treino 2 · Superior + cardio**: barra assistida no graviton (no lugar da puxada), supino com halteres, remada baixa, desenvolvimento — 3×cada — e **bike 35 min**. Saíram tríceps, rosca, abdominal e prancha (core já está nos treinos 1, 3 e 4). Essencial = graviton + remada + desenvolvimento.
+- **Treino 3**: **búlgaro 3×10-12/perna no lugar do coice** (`c3_bul`, histórico próprio, carga menor que no treino 1) e **abdominal na polia antes da bike** (`c3_abd`). Atenção: búlgaro voltou a ser 2×/semana (joelho — ver revisão de 21/07).
+- **Dia 5 · só bike** (`E`, 40 min; em casa `e_1c`, caminhada se não tiver bike). Entra na rotação depois do treino 4. Sem seletor de tempo nem "mais cardio" (não há força pra cortar). `suggestedNextDay`, cards da home e PRs agora usam `diasProg()`.
+- **Migração degrau 2** (`PROG_VER='2026-11-15'`, `migrarPlano1115`): arquiva só B, C e E do `ST.prog.academia`, a ordem desses dias e as trocas "sempre" de exercício que saiu; `progDesdeDia` por dia pro `paceFactor`; mesociclo NÃO recomeça. Aparelho que nunca migrou passa pelos dois degraus. `faixaDesde` + `sessoesDaFaixa`: ids cuja faixa de reps mudou em 09/11 recomeçam os contadores de travado/carga-alta (a carga de referência continua).
+
+### Duração (modelo, sem histórico)
+| | 1/A | 2/B | 3/C | 4/D | 5 |
+|---|---|---|---|---|---|
+| dela, semanas 1-3 | 67 | 74 | 69 | 62 | 40 |
+| dele, semanas 1-2 | 68 | 73 | 68 | 75 | — |
+| dele, semana 3 (acúmulo) | 80 | 75 | 77 | 80 | — |
+| dele, semana 4 (metade) | 38 | 45 | 40 | 45 | — |
+| dela, semana 4 (-1 série) | 55 | 64 | 56 | 50 | 40 |
+
+O desencontro de 14/11 (treino D): ela muito provavelmente ainda estava na versão antiga (D antigo ≈ 89 min) e ele numa semana de ciclo diferente (a semana 4 dele corta pela metade). **Pendente:** igualar regra e calendário do ciclo nos dois apps (decisão do Lucas); bike 30 no treino 4 dela (decisão dela).
+
+### Auditoria de 15/11/2026 (3 auditores em paralelo: sessão, progressão, camadas) — os DOIS apps
+Testes: `tools/tests/t_correcoes.js` (34 checagens, uma por achado confirmado).
+- **Sessão esquecida cronometrava por dias.** Nada encerrava `ST.session.active`. Agora `encerrarSessaoVelha()` (boot, volta pro app, antes do auto-start) fecha sessão de outro dia ou com 90 min sem set, com fim no `lastSetAt` (carimbado a cada set). Sem set: descarta. `endSession` não grava registro de 0 sets (bloqueava o dia), data pelo `startAt`, sets dos dias que a sessão cobriu (meia-noite). Marcar set de OUTRO treino fecha a sessão anterior.
+- **`paceFactor`**: só sessões de 10 min a 3 h com sets, mediana de verdade, 3 no mínimo. No app dela desconta a bike do tempo real (o modelo só conta peso — sem isso o fator saía ~1,4).
+- **Sessão leve virava referência** (cortes 3→2, 5→3, -1 série): `upsertToday` carimba `plan` (séries planejadas) e `fase:'deload'`; `sessaoLeve(s,h,id)` usa o carimbo e, sem carimbo, as séries que o programa/bloco pede hoje (o MÁXIMO histórico fazia uma sessão com extras calar o "travado" pra sempre, e a troca de bloco 4→2 também).
+- **Semana leve mandava "sobe carga"**: `suggestNext` repete carga e reps da referência na semana leve.
+- **Antecipar a semana leve** re-ancora o ciclo (`mesoDesde = hoje-21`): depois dos 7 dias vem a semana 1, não outra semana leve.
+- **Card mostra o motivo das séries**: `motivoSeries()` → "3 séries (semana leve · normal 5)", "(bloco perna · normal 4)", "(+1 da semana de acúmulo …)".
+- **Fadiga**: `fadigaHoje` (previsão pra meta) ignora o que o modo curto cortou; `fadigaFeita` (carimbo) conta o que já tem série marcada e só carimba na 1ª marcação do dia.
+- **Modo curto**: protege o 1º do PROGRAMA pelo id (não o adiantado); `foraHoje()` tira os cortados de `isWorkoutComplete`/`isLastPlannedPosition` (o treino não fechava). "Fazer agora · sempre" vai pro índice 0.
+- **Atualização**: `sw.js` busca a PÁGINA na rede primeiro (4 s, depois cópia), e `checarVersaoNova()` mostra um aviso "Versão nova · Atualizar" ao abrir/voltar (a cada 20 min no máx.). Antes era cache-first e o PWA no iPhone ficava dias na versão velha.
+- **Não corrigido (registrado):** treino que atravessa a meia-noite com troca "só hoje" no app dela (`toggleDone` por índice) — raro; sessões antigas sem carimbo `plan` em semana leve de -1 série continuam indistinguíveis de sessão normal.
 
 ## Plano "Recomposição e glúteo" (2026-11-09.01)
 

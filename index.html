@@ -1965,7 +1965,7 @@
 
 <script>
 /* ============ VERSÃO (visível na aba Mais pra confirmar deploy) ============ */
-const APP_VERSION = '2026-11-09.01';
+const APP_VERSION = '2026-11-15.01';
 
 /* ============ ÍCONES (Lucide, inline) ============ */
 const I = {
@@ -2018,25 +2018,25 @@ let WK = {
     {id:"b_8", n:"Abdominal na polia ou máquina", s:3, r:"12-15", t:"core", mg:{core:1}, cue:"<em>Sem puxar com os braços:</em> enrola o tronco e expira apertando."},
     {id:"a_7", n:"Cardio Z2 na bike", s:1, r:"20 min", t:"cardio", mg:{cardio:1}, cue:"Ritmo moderado: <em>esforço 5-6 de 10</em>, dá pra falar frases curtas. 70-90 rpm, resistência moderada. Sempre depois dos pesos."},
   ]},
-  B:{name:"Superior + core", focus:"Treino 2 · terça", type:"push",
-    // "Com pouco tempo" do próprio plano: graviton (ou puxada) + remada baixa + desenvolvimento
-    essencial:["b2_pux","d_6","c_5"], ex:[
-    {id:"b2_pux", n:"Puxada frontal na polia", s:3, r:"8-12", t:"comp", mg:{costas:1, biceps:0.5}, cue:"<em>Puxe com as costas</em>, ombros longe das orelhas. Academia cheia: barra assistida no graviton, 3×6-10."},
+  /* 15/11/2026 (pedido dela): graviton no lugar da puxada e superior enxuto — 4 compostos, sem
+     isolador nem core (o core já vem nos treinos 1, 3 e 4), pra sobrar 35 min de bike. */
+  B:{name:"Superior + cardio", focus:"Treino 2 · terça", type:"push",
+    // "Com pouco tempo" do plano: graviton + remada baixa + desenvolvimento
+    essencial:["b2_grv","d_6","c_5"], ex:[
+    {id:"b2_grv", n:"Barra assistida no graviton", s:3, r:"6-10", t:"comp", mg:{costas:1, biceps:0.5}, cue:"Assistência que permita <em>pelo menos 6 repetições</em>. Quanto menos assistência, mais difícil — é assim que progride."},
     {id:"a_6", n:"Supino com halteres", s:3, r:"8-12", t:"comp", mg:{peito_med:1, triceps:0.5}, cue:"<em>Controle a descida.</em> Alternativa: paralelas assistidas no graviton."},
     {id:"d_6", n:"Remada baixa", s:3, r:"10-12", t:"comp", mg:{costas:1, biceps:0.5}, cue:"<em>Segure 1 segundo</em> com as escápulas juntas."},
     {id:"c_5", n:"Desenvolvimento com halteres", s:3, r:"10-12", t:"comp", mg:{ombro_ant:1, ombro_lat:0.5, triceps:0.5}, cue:"Sentada, <em>com apoio nas costas</em>."},
-    {id:"b2_tri", n:"Tríceps na corda", s:2, r:"12-15", t:"iso", mg:{triceps:1}, cue:"<em>Cotovelo parado</em> ao lado do corpo; abre a corda embaixo."},
-    {id:"b2_ros", n:"Rosca direta", s:2, r:"12-15", t:"iso", mg:{biceps:1}, cue:"<em>Sem embalo</em>, cotovelo colado no corpo."},
-    {id:"b2_abd", n:"Abdominal na polia ou máquina", s:3, r:"12-15", t:"core", mg:{core:1}, cue:"<em>Sem puxar com os braços.</em>"},
-    {id:"b2_pra", n:"Prancha", s:3, r:"30-45 s", t:"core", mg:{core:1}, cue:"Corpo reto, glúteo e abdômen firmes. <em>Anote os segundos</em> no campo de repetições."},
-    {id:"c_8", n:"Cardio Z2 na bike", s:1, r:"20 min", t:"cardio", mg:{cardio:1}, cue:"Moderado, <em>ou a variação</em>: 6 a 7 rodadas de 1 min forte e 2 min leve."},
+    {id:"c_8", n:"Cardio Z2 na bike", s:1, r:"35 min", t:"cardio", mg:{cardio:1}, cue:"O maior cardio dos dias de treino: pernas descansadas. Moderado, <em>ou a variação</em>: 6 a 7 rodadas de 1 min forte e 2 min leve."},
   ]},
   C:{name:"Posterior + glúteo", focus:"Treino 3 · quinta · RDL pesado", type:"push", ex:[
     {id:"b_1", n:"Levantamento terra romeno (RDL) com barra", s:4, r:"6-10", t:"comp", mg:{posterior:1, gluteo:0.5}, cue:"Principal do dia: <em>carga alta e progressão toda semana</em>. Quadril pra trás, coluna neutra, barra perto das pernas."},
     {id:"b_3", n:"Cadeira flexora (sentada)", s:4, r:"10-12", t:"iso", mg:{posterior:1}, cue:"<em>Descida lenta</em>, de 2 a 3 segundos."},
-    {id:"c3_coi", n:"Coice de glúteo na máquina (apoiada)", s:3, r:"12-15 por perna", t:"iso", mg:{gluteo:1}, cue:"<em>Sem arquear a lombar.</em> Empurra com o calcanhar."},
+    // 15/11/2026 (pedido dela): búlgaro no lugar do coice. Volume menor que no treino 1 (é o 2º da semana)
+    {id:"c3_bul", n:"Agachamento búlgaro (apoio atrás)", s:3, r:"10-12 por perna", t:"comp", mg:{quadriceps:1, gluteo:0.5}, cue:"<em>Tronco à frente</em> pega mais glúteo. Carga um pouco menor que no treino 1; se o joelho doer acima de 3 em 10, desce menos ou troca por afundo reverso."},
     {id:"c3_hip", n:"Hiperextensão no banco 45°", s:3, r:"12-15", t:"iso", mg:{gluteo:1, posterior:0.5}, cue:"Foco no glúteo, <em>segura 1 segundo no topo</em>."},
     {id:"c_2", n:"Cadeira abdutora", s:3, r:"15-20", t:"iso", mg:{gluteo_med:1}, cue:"<em>Tronco levemente à frente.</em> Progride a carga, não só as repetições."},
+    {id:"c3_abd", n:"Abdominal na polia ou máquina", s:3, r:"12-15", t:"core", mg:{core:1}, cue:"<em>Sem puxar com os braços.</em>"},
     {id:"b_10", n:"Cardio Z2 na bike", s:1, r:"20 min", t:"cardio", mg:{cardio:1}, cue:"Ritmo moderado. <em>Sempre depois dos pesos.</em>"},
   ]},
   D:{name:"Glúteo volume", focus:"Treino 4 · sexta · RDL leve", type:"push", ex:[
@@ -2047,6 +2047,10 @@ let WK = {
     {id:"d_abd", n:"Cadeira abdutora", s:3, r:"15-20", t:"iso", mg:{gluteo_med:1}, cue:"Na última série, <em>mais 10 repetições com carga menor</em>, sem descanso (use a série extra)."},
     {id:"d4_abd", n:"Abdominal na polia ou máquina", s:3, r:"12-15", t:"core", mg:{core:1}, cue:"<em>Sem puxar com os braços.</em>"},
     {id:"d_10", n:"Cardio Z2 na bike", s:1, r:"20 min", t:"cardio", mg:{cardio:1}, cue:"Ritmo moderado. <em>Sempre depois dos pesos.</em>"},
+  ]},
+  // 15/11/2026 (pedido dela): quinto dia, só bike. Entra na rotação depois do treino 4.
+  E:{name:"Cardio na bike", focus:"Dia 5 · só bike", type:"pull", ex:[
+    {id:"e_1", n:"Cardio Z2 na bike", s:1, r:"40 min", t:"cardio", mg:{cardio:1}, cue:"Ritmo moderado e constante: <em>esforço 5-6 de 10</em>, dá pra falar frases curtas. 70-90 rpm, resistência moderada pros joelhos."},
   ]},
 };
 
@@ -2086,6 +2090,9 @@ const WK_CASA = {
     {id:"d_9c", n:"Panturrilha em pé (halter, degrau)", s:3, r:"15-20", t:"iso", mg:{panturrilha:1}, cue:"Amplitude total."},
     {id:"d_8c", n:"Abdominal infra / prancha lateral", s:3, r:"12-15", t:"core", mg:{core:1}, cue:"Controla."},
     {id:"d_10c", n:"Cardio Z2 na bike", s:1, r:"15 min", t:"cardio", mg:{cardio:1}, cue:"Sempre depois dos pesos. 15 min de bike Z2 (dá pra conversar) — sem bike, caminhada rápida ou step baixo servem igual. Quem emagrece é o déficit na dieta, não o cardio (Thorogood 2011): 15 min é a dose que cabe todo dia sem drenar energia do treino."},
+  ]},
+  E:{name:"Cardio (casa)", focus:"Dia 5 · só cardio", type:"pull", ex:[
+    {id:"e_1c", n:"Cardio Z2 na bike", s:1, r:"40 min", t:"cardio", mg:{cardio:1}, cue:"Sem bike: <em>caminhada rápida</em> no mesmo tempo, em ritmo que dá pra falar frases curtas."},
   ]},
 };
 
@@ -2201,7 +2208,34 @@ function fadigaAte(lista, i){
   for(let j=0;j<i;j++){ const x=lista[j]; if(!x) continue; f += (setsBase(x)||0) * (mgSobrepoe(x,e)+FAD_SIST); }
   return Math.round(f*100)/100;
 }
-function fadigaHoje(logid){ const p=posOfExId(logid); if(!p) return null; return fadigaAte(dayEx(p.day), p.i); }
+/* Duas perguntas diferentes (15/11/2026):
+   - fadigaHoje = PREVISÃO pra meta: quanto ela vai chegar cansada nesse exercício seguindo a
+     ordem de hoje, sem contar o que o modo curto cortou (a não ser que tenha sido feito);
+   - fadigaFeita = CARIMBO da sessão: o que já tem série marcada hoje. Fazer o 4º primeiro sem
+     reordenar, ou pular exercícios, carimbava "na posição de costume" e inflava a meta seguinte. */
+function fadigaHoje(logid){
+  const p=posOfExId(logid); if(!p) return null;
+  const lista=dayEx(p.day), e=lista[p.i]; if(!e) return null;
+  const fora=foraHoje(p.day);
+  let f=0;
+  for(let j=0;j<p.i;j++){
+    const x=lista[j]; if(!x) continue;
+    if(fora.has(j)){ const s=todaySession(exLogId(x)); if(!(s && (s.sets||[]).some(y=>y&&y.done))) continue; }
+    f += (setsBase(x)||0) * (mgSobrepoe(x,e)+FAD_SIST);
+  }
+  return Math.round(f*100)/100;
+}
+function fadigaFeita(logid){
+  const p=posOfExId(logid); if(!p) return null;
+  const lista=dayEx(p.day), e=lista[p.i]; if(!e) return null;
+  let f=0;
+  lista.forEach((x,j)=>{
+    if(j===p.i || !x) return;
+    const s=todaySession(exLogId(x));
+    if(s && (s.sets||[]).some(y=>y&&y.done)) f += (setsBase(x)||0) * (mgSobrepoe(x,e)+FAD_SIST);
+  });
+  return Math.round(f*100)/100;
+}
 /* Ordem PADRÃO do programa: é onde TODA sessão anterior a esta feature foi feita, porque
    antes não havia como reordenar. Por isso serve de palpite honesto pro histórico sem carimbo. */
 function fadigaPadrao(logid){
@@ -2327,7 +2361,8 @@ function planMover(delta){
 function planFazerAgora(){
   if(planDia==null || planIdx==null) return;
   const ids=dayEx(planDia).map(e=>e.id);
-  let alvo=planProximaPos(planDia);
+  // "sempre" é ordem permanente: vai pro começo (as séries marcadas hoje não dizem nada sobre os próximos treinos)
+  let alvo=planEsc==='sempre' ? 0 : planProximaPos(planDia);
   if(alvo>planIdx) alvo--;                       // tirar o item antes desloca o alvo
   if(alvo===planIdx){ planFechar(); return; }
   const [x]=ids.splice(planIdx,1); ids.splice(alvo,0,x);
@@ -2588,14 +2623,21 @@ function mesoDesde(){ return (ST.meta && ST.meta.mesoDesde) || null; }
    ST.prog nunca fica vazio: a sincronização trata prog vazio como "puxa o do outro aparelho",
    e puxaria de volta o programa antigo. O marcador é um objeto vazio, não uma string — o
    dayOfExId itera ST.prog[modo][dia] e uma string viraria letras. */
-const PROG_VER='2026-11-09';
+/* Versões do programa, em ordem. Cada degrau roda uma vez por aparelho:
+   2026-11-09 · plano novo inteiro (arquiva tudo da academia, recomeça o mesociclo)
+   2026-11-15 · ajustes dela: treino 2 enxuto com graviton, búlgaro no lugar do coice e
+                abdominal no treino 3, dia 5 só de bike. Arquiva só os dias 2 e 3 (B, C);
+                o mesociclo segue onde está. */
+const PROG_VER='2026-11-15';
 function migrarPlanoRecomposicao(){
   if(!ST.meta || typeof ST.meta!=='object') ST.meta={};
   if(ST.meta.progVer===PROG_VER) return false;
+  if(ST.meta.progVer==='2026-11-09') return migrarPlano1115();
   // aparelho novo (sem programa editado, sem log, sem sessão): não há o que arquivar
   const temDados=(ST.prog && typeof ST.prog==='object' && Object.keys(ST.prog).length)
     || Object.keys(ST.logs||{}).length || ((ST.session && ST.session.history)||[]).length;
   if(!temDados){ ST.meta.progVer=PROG_VER; saveK('meta'); return false; }
+  // degrau 2026-11-09
   const plan=planRoot();
   const arq={em:today(), mesoDesde:ST.meta.mesoDesde||null,
     prog:(ST.prog && ST.prog.academia) || null,
@@ -2603,7 +2645,7 @@ function migrarPlanoRecomposicao(){
     tr:(plan.tr && plan.tr.academia) || null, swaps:{}};
   if(!ST.prog || typeof ST.prog!=='object' || Array.isArray(ST.prog)) ST.prog={};
   delete ST.prog.academia;
-  ST.prog['_plano'+PROG_VER.replace(/-/g,'')]={};
+  ST.prog._plano20261109={};
   if(plan.ord) delete plan.ord.academia;
   if(plan.tr) delete plan.tr.academia;
   delete plan.hoje;
@@ -2613,10 +2655,11 @@ function migrarPlanoRecomposicao(){
     if(o && o.swap){ arq.swaps[e.id]=o.swap; delete o.swap; }
   }
   ST.meta.progArquivo=ST.meta.progArquivo||{};
-  ST.meta.progArquivo[PROG_VER]=arq;
-  ST.meta.progVer=PROG_VER;
+  ST.meta.progArquivo['2026-11-09']=arq;
+  ST.meta.progVer='2026-11-09';
   ST.meta.progDesde=today();
   ST.meta.mesoDesde=today();
+  faixasMudaram(today());
   /* o programa novo precisa vencer o snapshot antigo do outro aparelho na sincronização, mas
      com um carimbo IGUAL nos dois aparelhos que migrarem — Date.now() daria um carimbo
      diferente em cada um e eles trocariam o mesmo programa entre si (o teste de repouso pegou).
@@ -2624,6 +2667,42 @@ function migrarPlanoRecomposicao(){
      depois carimba com a hora atual, que é muito maior. */
   ST.meta.progM=(+ST.meta.progM||0)+1;
   saveK('prog'); saveK('exmeta'); saveK('meta');
+  migrarPlano1115();
+  return true;
+}
+/* Ids reaproveitados no plano de 09/11 cuja FAIXA de reps mudou (ex.: abdutora 12-16 → 15-20).
+   As sessões de antes foram feitas mirando a faixa antiga: contadas como "abaixo do piso",
+   mandavam descer a carga no primeiro treino. A carga de referência continua valendo; só os
+   contadores de travado/carga-alta/plateau recomeçam. */
+const FAIXA_MUDOU_1109=['a_2','a_3','a_4','c_2','d_abd','c_3','b_1','b_3','a_6','d_6'];
+function faixasMudaram(desde){
+  ST.meta.faixaDesde=ST.meta.faixaDesde||{};
+  for(const id of FAIXA_MUDOU_1109) if(!ST.meta.faixaDesde[id]) ST.meta.faixaDesde[id]=desde;
+}
+function sessoesDaFaixa(id, h){ const d=ST.meta && ST.meta.faixaDesde && ST.meta.faixaDesde[idBase(id)]; return d ? h.filter(s=>s && s.date>=d) : h; }
+// degrau 2026-11-15: só os dias que mudaram (2 e 3) e o dia novo (5)
+function migrarPlano1115(){
+  if(!ST.meta.faixaDesde) faixasMudaram(ST.meta.progDesde || today());   // aparelho que migrou 09/11 antes desta correção
+  const DIAS=['B','C','E'];
+  const plan=planRoot();
+  const pa=(ST.prog && ST.prog.academia) || {};
+  const arq={em:today(), prog:{}, ord:{}, tr:{}, swaps:{}};
+  for(const d of DIAS){
+    if(pa[d]){ arq.prog[d]=pa[d]; delete pa[d]; }
+    if(plan.ord && plan.ord.academia && plan.ord.academia[d]){ arq.ord[d]=plan.ord.academia[d]; delete plan.ord.academia[d]; }
+  }
+  // troca "sempre" de exercício que saiu do programa: não tem mais onde aparecer
+  const vivos=new Set(); for(const d of Object.keys(WK_GYM)) for(const e of WK_GYM[d].ex) vivos.add(e.id);
+  if(plan.tr && plan.tr.academia){ for(const id of Object.keys(plan.tr.academia)) if(!vivos.has(id)){ arq.tr[id]=plan.tr.academia[id]; delete plan.tr.academia[id]; } }
+  if(plan.hoje) delete plan.hoje;
+  ST.meta.progArquivo=ST.meta.progArquivo||{};
+  ST.meta.progArquivo['2026-11-15']=arq;
+  // duração: sessões dos dias 2 e 3 de antes não dizem nada sobre os treinos novos
+  ST.meta.progDesdeDia={...(ST.meta.progDesdeDia||{}), B:today(), C:today(), E:today()};
+  ST.meta.progVer=PROG_VER;
+  ST.meta.progM=(+ST.meta.progM||0)+1;
+  if(ST.prog && typeof ST.prog==='object') saveK('prog');
+  saveK('meta');
   return true;
 }
 function mesoSemana(){
@@ -2762,10 +2841,21 @@ function exSets(e){
   if(emDeload()) return Math.max(1, base-1);
   return base;
 }
+/* POR QUE este número de séries (15/11/2026). O card mostrava o número do PROGRAMA (e.s)
+   enquanto as linhas seguiam exSets() — semana leve, bloco, acúmulo — sem dizer nada. */
+function motivoSeries(e, planned){
+  const prog=parseInt(e && e.s)||3;
+  if(planned===prog) return '';
+  return (emDeload() ? 'semana leve' : 'ajuste')+' · normal '+prog;
+}
 function anteciparDeload(){
   if(!confirm('Fazer a semana leve agora?\n\nSai uma série de cada exercício por 7 dias. Serve pra descarregar fadiga — a carga continua a mesma.')) return;
   if(!ST.meta || typeof ST.meta!=='object') ST.meta={};
   ST.meta.deloadAte = dateAdd(today(), 6);
+  /* o ciclo passa a estar na semana 4 a partir de hoje: depois dos 7 dias vem a semana 1.
+     Antes, antecipar na semana 3 emendava DUAS semanas leves (a antecipada e a do calendário). */
+  ST.meta.mesoAntesDoDeload = ST.meta.mesoDesde || null;
+  ST.meta.mesoDesde = dateAdd(today(), -21);
   saveK('meta'); registrarDeloadEmCurso(); render(); showToast('Semana leve começou', 'ok', 2400);
 }
 
@@ -3289,21 +3379,42 @@ function resumeSession(){
   updateFabMenu();
   showToast(`Treino retomado`, 'ok', 1500);
 }
-function endSession(silent=false){
+/* ============ SESSÃO ABANDONADA (15/11/2026) ============
+   Nada encerrava uma sessão esquecida: o app voltava dias depois "cronometrando 72 h", o
+   treino seguinte entrava no registro da sessão velha e um registro de 72 h envenenava a
+   estimativa de duração. Regra: sessão de OUTRO dia, ou 90 min sem marcar set, encerra
+   sozinha — com o fim no ÚLTIMO set marcado (não agora). Sem nenhum set, é descartada. */
+const SESSAO_OCIOSA_MS=90*60000;
+function sessaoVencida(){
+  const s=ST.session && ST.session.active;
+  if(!s || !s.startAt) return false;
+  const ref=s.lastSetAt||s.startAt;
+  if(localISO(new Date(s.startAt))!==today() && Date.now()-ref>20*60000) return true;   // virou o dia (com folga pra treino na meia-noite)
+  return Date.now()-ref > SESSAO_OCIOSA_MS;
+}
+function encerrarSessaoVelha(){
+  if(!sessaoVencida()) return false;
+  const s=ST.session.active;
+  endSession(true, s.lastSetAt||s.startAt);
+  return true;
+}
+function endSession(silent=false, fimEm){
   const s=ST.session.active;
   if(!s) return null;
-  const endAt=Date.now();
+  const endAt=Math.max(s.startAt, fimEm||Date.now());
   const totalMs=endAt-s.startAt;
   const pausedMs=(s.pausedTotal||0)+(s.pausedAt?endAt-s.pausedAt:0);
   const activeMs=Math.max(0, totalMs-pausedMs);
-  // Conta sets válidos do treino hoje
-  const t=todayISO();
+  // Conta sets válidos do treino nos dias que a sessão cobriu (treino que passa da meia-noite)
+  const t=localISO(new Date(s.startAt));
+  const diasSess=[t, localISO(new Date(endAt))];
+  const logDoDia=(id)=>{ const h=ST.logs[id]||[]; const sets=[]; for(const x of h) if(x && diasSess.includes(x.date)) sets.push(...(x.sets||[])); return sets.length?{sets}:null; };
   let setsN=0, volume=0;
   const W=WK[s.workoutId];
   if(W){
     dayEx(s.workoutId).forEach((e,i)=>{
       const id=exId(s.workoutId,i);
-      const tod=todaySession(id);
+      const tod=logDoDia(id);
       if(tod){
         tod.sets.forEach(set=>{
           if(isValidDone(set)){
@@ -3315,7 +3426,8 @@ function endSession(silent=false){
     });
   }
   const record={date:t, workoutId:s.workoutId, startAt:s.startAt, endAt, durationMs:totalMs, activeMs, sets:setsN, volume:Math.round(volume)};
-  ST.session.history.push(record);
+  // "Iniciar" e "Parar" sem nenhum set não é treino: não grava (antes bloqueava o dia inteiro)
+  if(setsN>0) ST.session.history.push(record);
   ST.session.active=null;
   saveK('session');
   try{ publishTreinoStatus(); }catch(_){}
@@ -3419,12 +3531,22 @@ function onFabStartClick(){
 }
 
 /* ============ CELEBRATION (item 10) ============ */
+/* No modo curto (e no "mais cardio" dela) os exercícios cortados não contam: sem isso o treino
+   nunca fechava sozinho e o descanso abria depois da última série de verdade (15/11/2026). */
+function foraHoje(day){
+  try{
+    if(typeof cardioDayOn==='function' && cardioDayOn(day)) return cardioPlan(day).fora;
+    const m=shortDayMin(day); return m ? shortPlan(day, m).fora : new Set();
+  }catch(e){ return new Set(); }
+}
 function isWorkoutComplete(day){
   // Auto-trigger só em 100% dos sets planejados feitos (evita false positive)
   // Pra encerrar com volume parcial, usar FAB → Parar treino
   const W=WK[day]; if(!W) return false;
   let plannedTotal=0, doneTotal=0;
+  const _fora=foraHoje(day);
   dayEx(day).forEach((e,i)=>{
+    if(_fora.has(i)) return;
     plannedTotal += exSets(e);
     const tod=todaySession(exId(day,i));
     if(tod) doneTotal += tod.sets.filter(isValidDone).length;
@@ -3433,7 +3555,8 @@ function isWorkoutComplete(day){
 }
 function alreadyCelebratedToday(day){
   const t=todayISO();
-  return ST.session.history.some(h=>h.date===t && h.workoutId===day);
+  // registro de 0 sets (de antes da correção de 15/11) não conta como treino feito
+  return ST.session.history.some(h=>h && h.date===t && h.workoutId===day && !(h.sets===0));
 }
 function gatherWorkoutSummary(day){
   const t=todayISO();
@@ -3764,7 +3887,10 @@ function pickBank(role, ix){
   }
   if(exEditDay==null || exEditIdx==null) return;
   const arr = ensureProgDay(exEditDay);
-  arr[exEditIdx] = {...it, id:uid()};
+  /* pelo id: exEditIdx é o índice do card na ordem de HOJE, e o programa está na ordem base —
+     depois de "Fazer agora" o editor trocava o exercício errado (15/11/2026) */
+  const _k = arr.findIndex(x=>x && x.id===idBase(exEditId));
+  arr[_k>=0 ? _k : exEditIdx] = {...it, id:uid()};
   /* O substituto entra com id NOVO, então a progressão já começa do zero por construção —
      não é preciso apagar nada. Antes havia um delete ST.logs[old.id] aqui: apagava para
      sempre todo o histórico do exercício antigo (e o backup seguinte levava o buraco junto).
@@ -3776,7 +3902,8 @@ function removeCurrentEx(){
   if(exEditDay==null || exEditIdx==null) return;
   if(!confirm('Remover este exercício do treino? (o histórico dele fica guardado)')) return;
   const arr = ensureProgDay(exEditDay);
-  arr.splice(exEditIdx, 1);
+  const _k = arr.findIndex(x=>x && x.id===idBase(exEditId));   // pelo id (ver pickBank)
+  arr.splice(_k>=0 ? _k : exEditIdx, 1);
   saveK('prog'); closeExEdit(); render();
   showToast('Exercício removido', 'ok');
 }
@@ -3876,11 +4003,16 @@ function upsertToday(id, sets){
   /* Carimba a POSIÇÃO e a fadiga acumulada em que a sessão foi feita. É o que permite, mais
      tarde, saber que 8 reps em 5º lugar não é pior que 9 reps em 1º. Sessão antiga sem
      carimbo cai no palpite da ordem padrão (fadigaPadrao), que é onde ela foi feita mesmo. */
-  let f=null, pos=null;
-  try{ f=fadigaHoje(id); pos=posOfExId(id); }catch(e){}
+  let f=null, pos=null, plan=null;
+  try{ f=fadigaFeita(id); pos=posOfExId(id); const ee=pos && dayEx(pos.day)[pos.i]; if(ee) plan=exSets(ee); }catch(e){}
   const ex=ST.logs[id].find(s=>s.date===t);
-  if(ex){ ex.sets=sets; if(f!=null){ ex.f=f; ex.fv=2; if(pos) ex.p=pos.i; } }
-  else { const novo={date:t, sets}; if(f!=null){ novo.f=f; novo.fv=2; if(pos) novo.p=pos.i; } ST.logs[id].push(novo); }
+  /* Carimbos de 15/11/2026: `plan` = séries planejadas HOJE e `fase:'deload'` na semana leve.
+     Sem isso, sessão leve só era reconhecida se tivesse menos de 60% do MÁXIMO histórico —
+     escapavam os cortes de 3→2, 5→3 e o -1 série do plano dela, e a sessão leve virava
+     referência (o app mandava subir carga cedo). E o fadiga/posição só é carimbado na
+     PRIMEIRA marcação do dia: marcar de novo depois de fazer outros exercícios inflava. */
+  if(ex){ ex.sets=sets; if(f!=null && ex.f==null){ ex.f=f; ex.fv=2; if(pos) ex.p=pos.i; } if(plan && ex.plan==null) ex.plan=plan; if(emDeload()) ex.fase='deload'; }
+  else { const novo={date:t, sets}; if(f!=null){ novo.f=f; novo.fv=2; if(pos) novo.p=pos.i; } if(plan) novo.plan=plan; if(emDeload()) novo.fase='deload'; ST.logs[id].push(novo); }
   saveK('logs');
 }
 
@@ -4167,13 +4299,30 @@ function suggestFrom(sets, e, id){
    dia ruim, treino cortado): ancorar ali faz o app prescrever a carga do deload na volta,
    justamente quando ela deveria retomar de onde parou. Detecta pelo número de séries feitas,
    comparado com o habitual desse exercício. Não depende do deload estar marcado. */
+/* Sessão LEVE (semana leve, dia cortado): não serve de referência nem conta como travada.
+   1º pelo carimbo (fase/plan, desde 15/11/2026); sessão antiga sem carimbo cai na MEDIANA das
+   últimas sessões — o máximo histórico fazia UMA sessão com séries extras transformar todas as
+   normais em "leves" pra sempre, e a troca de bloco (4→2 séries) calava o aviso de travado. */
+function nSetsFeitos(s){ return ((s&&s.sets)||[]).filter(x=>x&&x.done&&num(x.reps)>0).length; }
+function sessaoLeve(s, h, id){
+  if(!s) return false;
+  if(s.fase==='deload') return true;
+  const n=nSetsFeitos(s);
+  if(s.plan>0) return n < s.plan*0.6;
+  // sem carimbo: compara com as séries que o programa (e o bloco atual) pede hoje fora da semana leve
+  const e=id ? exDoLog(id) : null;
+  const base=e ? setsBase(e) : 0;
+  if(base>0) return n < base*0.6;
+  const ult=(h||[]).slice(-6).filter(x=>!(x&&x.fase==='deload')).map(nSetsFeitos).sort((a,b)=>a-b);
+  if(!ult.length) return false;
+  const med=ult[Math.floor(ult.length/2)];
+  return med>0 && n < med*0.6;
+}
 function refSession(id){
   const h=(progressSessions(id)||[]).filter(s=>sessionTop(s.sets) && s.date!==today());
   if(!h.length) return null;
   const ult=h.slice(-4);
-  const cont=ult.map(s=>(s.sets||[]).filter(x=>x&&x.done&&num(x.reps)>0).length);
-  const tipico=Math.max(...cont);
-  if(ult.length>1 && cont[cont.length-1] < tipico*0.6) return ult[ult.length-2];
+  for(let i=ult.length-1;i>=0;i--) if(!sessaoLeve(ult[i], h, id)) return ult[i];
   return ult[ult.length-1];
 }
 /* ============ VOLTA DE PAUSA ============
@@ -4217,6 +4366,12 @@ function suggestNext(id, e){
   const v=fatorVolta(id);
   /* Volta de pausa manda mais que posição: comparar com uma sessão de meses atrás é problema
      maior que ter adiantado o exercício. Fora isso, a posição de hoje recalcula a meta. */
+  /* Semana leve: a Meta mandava "bateu o topo · sobe carga" enquanto a fase dizia "carga
+     igual". Na semana leve repete a carga e as reps da referência (15/11/2026). */
+  if(!v && emDeload()){
+    const top=sessionTop(ref.sets);
+    if(top) return {kg:num(top.kg), reps:num(top.reps), why:'semana leve · mesma carga, longe da falha', de:base.de, inc:base.inc};
+  }
   if(!v) return travaDuplaProgressao(ajustePosicao(base, e, id, ref) || base, e);
   // reentrada: nunca sobe. Corta a carga e volta pro piso da faixa.
   const rng=parseRange(e.r);
@@ -4286,7 +4441,7 @@ function recomecarProgressao(id){
   showToast('Progressão recomeçada a partir de hoje','ok',2800);
 }
 function detectPlateau(id){
-  const todas=progressSessions(id).filter(s=>sessionTop(s.sets));
+  const todas=sessoesDaFaixa(id, progressSessions(id).filter(s=>sessionTop(s.sets)));
   /* Sessão feita fora da posição habitual não é comparável — e plateau é o gatilho da
      sugestão de TROCAR de exercício. Sem isto, adiantar/atrasar duas vezes fazia o app
      mandar trocar um exercício em que a pessoa está progredindo. */
@@ -4377,7 +4532,7 @@ function fmtStep(v){ return (Math.round(v*10)/10).toString().replace('.',','); }
 function progressState(id, e){
   if(!e || e.t==='cardio') return null;
   const sug=suggestNext(id, e);
-  const h=progressSessions(id).filter(s=>sessionTop(s.sets));
+  const h=sessoesDaFaixa(id, progressSessions(id).filter(s=>sessionTop(s.sets)));
   if(h.length<2) return {k:'inicio', sug, msg:'', nota:'Duas sessões registradas e eu já começo a sugerir carga.'};
   /* Volta de pausa vem antes de tudo: comparar com uma sessão de meses atrás produziria
      "progredindo" e mandaria subir carga que já não existe. */
@@ -4434,9 +4589,7 @@ function progressState(id, e){
   /* Sessão leve (semana de deload, dia cortado) NÃO conta como travada. refSession já
      ignorava sessão leve pela mesma razão; o contador aqui não ignorava, então o deload que
      o próprio app prescreve virava acusação de "travado" na semana seguinte. */
-  const nSets = h.map(x=>(x.sets||[]).filter(y=>y&&y.done&&num(y.reps)>0).length);
-  const tipico = nSets.length ? Math.max(...nSets) : 0;
-  const leve = i => tipico>0 && nSets[i] < tipico*0.6;
+  const leve = i => sessaoLeve(h[i], h, id);
   let travadas=0;
   for(let i=tops.length-1;i>0;i--){
     if(leve(h.length-tops.length+i)) continue;              // pula a sessão leve, não quebra a série
@@ -4840,11 +4993,18 @@ function autoDetectDeload(){
    histórico). Sem histórico suficiente, fica 1 (modelo puro). Limitado pra um outlier não
    distorcer tudo. Portado do app dele em 29/09: sem isto a estimativa daqui nunca aprendia. */
 function paceFactor(d){
-  const desde=ST.meta && ST.meta.progDesde;   // só sessões do programa atual (ver migrarPlanoRecomposicao)
-  const h=sessionsForDay(d).filter(r=>r && r.activeMs>0 && (!desde || String(r.date||'')>=desde));
-  if(h.length<2) return 1;
-  const mins=h.slice(0,6).map(r=>r.activeMs/60000).sort((a,b)=>a-b);
-  const real=mins[Math.floor(mins.length/2)];
+  // só sessões do programa atual (ver migrarPlanoRecomposicao): a virada geral e a do próprio dia
+  const desde=[ST.meta && ST.meta.progDesde, ST.meta && ST.meta.progDesdeDia && ST.meta.progDesdeDia[d]].filter(Boolean).sort().pop();
+  /* Só sessões plausíveis (10 min a 3 h, com sets), mediana verdadeira e 3 no mínimo — um
+     registro de 72 h de sessão esquecida levava o fator ao teto (15/11/2026). E o tempo REAL
+     inclui a bike, que o modelo não conta: sem descontar, o fator dela saía ~1,4 em vez de ~1 e
+     a duração e os cortes de 45 min/Essencial ficavam errados. */
+  const h=sessionsForDay(d).filter(r=>r && r.activeMs>=10*60000 && r.activeMs<=3*3600000 && r.sets!==0 && (!desde || String(r.date||'')>=desde));
+  if(h.length<3) return 1;
+  const bike=dayEx(d).reduce((a,e)=>a+cardioMinutes(e),0);
+  const mins=h.slice(0,6).map(r=>Math.max(1, r.activeMs/60000-bike)).sort((a,b)=>a-b);
+  const meio=mins.length/2;
+  const real=mins.length%2 ? mins[Math.floor(meio)] : (mins[meio-1]+mins[meio])/2;
   const modelo=dayEx(d).reduce((a,e)=>a+exMinutes(e),0);
   if(!(modelo>0) || !(real>0)) return 1;
   return Math.min(1.8, Math.max(0.6, real/modelo));
@@ -4940,7 +5100,7 @@ function setShortDay(d, min){
   saveK('meta'); render();
 }
 function shortPlan(d, alvoMin){
-  const ex=dayEx(d).map(exEff);
+  const ex=dayEx(d);   // já efetivo (exEff + troca); aplicar exEff de novo sobrescrevia a troca nova
   const f=paceFactor(d);
   const min=ex.map(e=>exMinutes(e)*f);
   const iCardio=ex.findIndex(e=>e.t==='cardio');
@@ -4970,7 +5130,9 @@ function shortPlan(d, alvoMin){
   }
   // 2b. algoritmo: guarda o 1º de força e um por músculo em foco; piso de 3
   const vol=weeklyVolume();
-  const guard=new Set(forca.length?[forca[0]]:[]);
+  // protege o 1º de força do PROGRAMA (pelo id), não o 1º da ordem de hoje
+  const _id0=((dayExBase(d)||[]).find(x=>x && x.t!=='cardio')||{}).id; const _i0=ex.findIndex(x=>x && x.id===_id0);
+  const guard=new Set(_i0>=0 ? [_i0] : (forca.length?[forca[0]]:[]));
   for(const mg of Object.keys(MG_PRIORITY)){
     let melhor=-1, best=-Infinity;
     for(const i of forca){ if(((ex[i].mg||{})[mg]||0)>=1){ const v=exValorHoje(ex[i],vol); if(v>best){best=v; melhor=i;} } }
@@ -4985,7 +5147,7 @@ function shortPlan(d, alvoMin){
   return res(cardioMin, atual);
 }
 function cardioPlan(d){
-  const ex=dayEx(d).map(exEff);
+  const ex=dayEx(d);   // já efetivo (exEff + troca)
   const idx=ex.map((e,i)=>i);
   const cardio=ex.find(e=>e.t==='cardio');
   const baseMin=cardio ? (parseInt(cardio.r)||0) : 0;
@@ -5112,7 +5274,7 @@ function dayOfExId(id){
   return null;
 }
 function suggestedNextDay(){
-  const seq=["A","B","C","D"];
+  const seq=diasProg();   // A-D + E (dia só de bike, 15/11/2026)
   let lastDay=null, lastDate="0000-00-00";
   for(const id of Object.keys(ST.logs)){
     const day=dayOfExId(id);
@@ -5126,7 +5288,7 @@ function suggestedNextDay(){
   if(!lastDay) return "A";
   const idx=seq.indexOf(lastDay);
   if(idx<0) return "A";
-  return seq[(idx+1)%4];
+  return seq[(idx+1)%seq.length];
 }
 
 /* ============ HISTÓRICO DE SESSÕES (ST.session.history — ABCD, com duração) ============ */
@@ -5234,7 +5396,7 @@ function renderDays(){
   const todayRec = todaySessionRecord();
   // Cabeçalho: se já treinou hoje, celebra o feito e aponta o próximo como próximo (não "hoje").
   h+=`<h2 class="sec">${doneToday ? `Treinou hoje · próximo ${WK[sug].name}` : `Hoje · ${WK[sug].name}`}</h2>`;
-  for(const d of ["A","B","C","D"]){
+  for(const d of diasProg()){
     const w=WK[d];
     const isDoneToday = trained.has(d);
     const isNext = d===sug;
@@ -5298,7 +5460,9 @@ function renderDay(d){
   // o tempo volta pro Normal e o cartão só mostra a duração.
   const tcMin = cdOn ? 0 : shortDayMin(d);
   const tcPlan = shortPlan(d, tcMin);
-  {
+  // dia só de bike (dia 5): sem exercício de força, não há o que cortar nem trocar por cardio
+  const soCardio = !dayEx(d).some(x=>x && x.t!=='cardio');
+  if(!soCardio){
     const opcoes=[[0,'Normal'],[45,'45 min'],[25,'Essencial']].map(([mm,rot])=>
       `<button class="tc-opt ${mm===tcMin&&!cdOn?'on':''}" onclick="setShortDay('${d}',${mm})">${rot}</button>`).join('');
     const nFora=tcPlan.fora.size;
@@ -5327,8 +5491,8 @@ function renderDay(d){
   // o que a tela apaga hoje: o plano do modo ativo (mais cardio OU tempo curto)
   const corte = cdPlan || (tcMin ? tcPlan : null);
   {
-    const c0=dayEx(d).map(exEff).find(x=>x.t==='cardio');
-    if(c0){
+    const c0=dayEx(d).find(x=>x.t==='cardio');
+    if(c0 && !soCardio){
       h+=`<button class="cardioday ${cdOn?'on':''}" onclick="toggleCardioDay('${d}')">
         <span class="cd-ic">${I.hourglass}</span>
         <span class="cd-body">
@@ -5479,7 +5643,7 @@ function renderDay(d){
         ${planTag(d,i)}
         <div class="target">${e.t==='cardio'
           ? `<span class="met"><b>${corte && corte.cardioMin ? corte.cardioMin+' min' : e.r}</b></span><span class="dot"></span><span class="met">bike · moderado</span>${cdPlan?`<span class="dot"></span><span class="met cd-up">${cdPlan.dobrou?'dobrado hoje':'+'+(cdPlan.cardioMin-cdPlan.baseMin)+' min hoje'}</span>`:(corte && corte.cardioMin<corte.cardioBase?`<span class="dot"></span><span class="met cd-down">era ${corte.cardioBase} min</span>`:'')}`
-          : `<span class="met"><b>${planned}</b> ${planned===1?'série':'séries'}${nset>planned?` <span class="xtra">+${nset-planned} extra</span>`:''}</span>
+          : `<span class="met"><b>${planned}</b> ${planned===1?'série':'séries'}${nset>planned?` <span class="xtra">+${nset-planned} extra</span>`:''}${(()=>{ const m=motivoSeries(e, planned); return m?` <small style="opacity:.75">(${m})</small>`:''; })()}</span>
           <span class="dot"></span>
           <span class="met"><b>${e.r}</b> reps</span>
           <span class="dot"></span>
@@ -5644,8 +5808,14 @@ function onLog(inp){ const id=inp.dataset.id; upsertToday(id, collect(id)); flas
 /* ============ Helper: última posição planejada do treino ============ */
 function isLastPlannedPosition(day, exIdx, setIdx){
   const W = WK[day]; if(!W) return false;
-  if(exIdx !== dayEx(day).length - 1) return false;
-  const nset = parseInt(dayEx(day)[exIdx].s) || 3;
+  const lista = dayEx(day);
+  const _fora = foraHoje(day);
+  let ultimo = lista.length - 1; while(ultimo>0 && _fora.has(ultimo)) ultimo--;
+  if(exIdx !== ultimo) return false;
+  // exSets (semana leve corta séries) e séries extras: o descanso só some na ÚLTIMA linha real
+  const planned = exSets(lista[exIdx]);
+  const tod = todaySession(exId(day, exIdx));
+  const nset = Math.max(planned, (tod && tod.sets && tod.sets.length) || 0);
   return setIdx === nset - 1;
 }
 function isLastHomePosition(templateId, exIdx, setIdx){
@@ -5671,12 +5841,16 @@ function toggleDone(day,exIdx,setIdx,el){
   {
     const i=exIdx;
     // Auto-start session na primeira marcação válida do dia (não pergunta, é o caminho natural)
+    // sessão esquecida (outro dia / 90 min parada) fecha antes; sessão de OUTRO treino também
+    encerrarSessaoVelha();
+    if(isSessionActive() && ST.session.active.workoutId!==day && isValidDone(sets[k])) endSession(true, ST.session.active.lastSetAt||Date.now());
     if(!isSessionActive() && !alreadyCelebratedToday(day) && isValidDone(sets[k])){
       ST.session.active={workoutId:day, startAt:Date.now(), pausedAt:null, pausedTotal:0};
       saveK('session');
       updateSessionDisplays();
       updateFabMenu();
     }
+    if(isSessionActive() && isValidDone(sets[k])){ ST.session.active.lastSetAt=Date.now(); saveK('session'); }
     // Se sessão estava pausada, retoma sozinho ao checar set
     if(isSessionPaused()){ resumeSession(); }
     const isLast = isLastPlannedPosition(day, i, k);
@@ -6347,7 +6521,7 @@ function renderCorpo(){
 
   // PRs por exercício
   const allPRs = [];
-  for(const d of ["A","B","C","D"]){
+  for(const d of diasProg()){
     dayEx(d).forEach((e,i)=>{
       const id=exId(d,i);
       const best=historicalBestE1RM(id, false);
@@ -7413,6 +7587,29 @@ async function sincronizarNuvem(motivo){
 }
 try{
   document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') sincronizarNuvem('volta'); });
+  /* VERSÃO NOVA (15/11/2026) · ao abrir e ao voltar pro app, no máximo a cada 20 min, confere
+     se o servidor tem outra APP_VERSION. Se tiver, mostra um aviso com botão — o PWA no iPhone
+     pode passar dias "voltando da memória" sem recarregar, e ninguém percebia. */
+  let _verChecada=0;
+  async function checarVersaoNova(){
+    if(Date.now()-_verChecada < 20*60000) return;
+    _verChecada=Date.now();
+    try{
+      const r=await fetch('index.html?ping='+Date.now(), {cache:'no-store'});
+      if(!r.ok) return;
+      const m=(await r.text()).match(/const APP_VERSION = '([^']+)'/);
+      if(!m || m[1]===APP_VERSION || m[1]<APP_VERSION) return;
+      if(document.getElementById('versaoNova')) return;
+      const b=document.createElement('div');
+      b.id='versaoNova';
+      b.setAttribute('style','position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 10px);z-index:9999;display:flex;align-items:center;gap:10px;padding:11px 12px 11px 14px;border-radius:14px;background:#1c1518;color:#fff;font:600 13px/1.35 -apple-system,system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.25)');
+      b.innerHTML='<span style="flex:1">Versão nova do app ('+m[1]+')</span><button style="border:0;border-radius:10px;padding:8px 12px;font:700 13px -apple-system,system-ui,sans-serif;background:#fff;color:#1c1518" onclick="atualizarAgora()">Atualizar</button><button aria-label="Fechar" style="border:0;background:transparent;color:#fff;font-size:18px;padding:0 4px" onclick="this.parentNode.remove()">×</button>';
+      document.body.appendChild(b);
+    }catch(e){}
+  }
+  document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') checarVersaoNova(); });
+  document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible'){ try{ if(encerrarSessaoVelha()){ render(); showToast('Treino anterior encerrado no último set marcado', 'info', 2600); } }catch(e){} } });
+  setTimeout(checarVersaoNova, 6000);
 }catch(e){}
 async function listarNuvem(){
   const r=await fetch(nuvemUrl(), {headers:nuvemHeaders(), cache:'no-store'});
@@ -8303,6 +8500,7 @@ if('serviceWorker' in navigator && (location.protocol==='https:' || location.hos
 async function boot(){
   // 1. Cleanup defensivo (phantom sessions de dias passados sem ✓)
   cleanupPhantomSessions();
+  try{ encerrarSessaoVelha(); }catch(e){}   // sessão esquecida de outro dia/90 min parada
   // 2. Storage seguro (resistente a ITP)
   await requestPersistentStorage();
   // 3. Aviso de quota se >80%
