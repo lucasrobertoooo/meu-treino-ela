@@ -1965,7 +1965,7 @@
 
 <script>
 /* ============ VERSÃO (visível na aba Mais pra confirmar deploy) ============ */
-const APP_VERSION = '2026-11-15.01';
+const APP_VERSION = '2026-11-15.02';
 
 /* ============ ÍCONES (Lucide, inline) ============ */
 const I = {
@@ -2609,6 +2609,22 @@ function recalcPrioridades(){
    fixo tem base mais prática (modelo MEV/MAV/MRV) que de ensaio controlado.
    Os BLOCOS DE ÊNFASE do app dele não vieram — o conteúdo deles é decisão de programa
    (lá é "peito/braços ↔ perna"; aqui o objetivo principal é perda de gordura). */
+/* ============ CICLO COMUM AOS DOIS APPS (15/11/2026, decisão do Lucas) ============
+   Os dois treinam juntos e os ciclos estavam desencontrados: regras diferentes (no dele +1 série
+   na semana 3 e metade na 4; no dela, -1 série na 4) e âncoras diferentes. Agora os dois usam a
+   regra do plano dela e começam a semana 1 na MESMA segunda. Uma vez por aparelho; a âncora
+   anterior fica guardada. Pausa de 7+ dias ou semana leve antecipada ainda re-ancoram cada app
+   por conta própria — o que é o certo pra quem parou, mas desencontra os dois de novo. */
+const CICLO_COMUM='2026-11-16';
+function ancorarCicloComum(){
+  if(!ST.meta || typeof ST.meta!=='object') ST.meta={};
+  if(ST.meta.cicloComum===CICLO_COMUM) return false;
+  ST.meta.mesoAntesComum=ST.meta.mesoDesde||null;
+  ST.meta.mesoDesde=CICLO_COMUM;
+  ST.meta.cicloComum=CICLO_COMUM;
+  saveK('meta');
+  return true;
+}
 function mesoDesde(){ return (ST.meta && ST.meta.mesoDesde) || null; }
 /* ============ PLANO NOVO "RECOMPOSIÇÃO E GLÚTEO" (09/11/2026) ============
    O programa editável (ST.prog) congela o dia inteiro no primeiro toque — sem esta migração, o
@@ -2707,7 +2723,9 @@ function migrarPlano1115(){
 }
 function mesoSemana(){
   const d=mesoDesde(); if(!d) return 1;
-  return ((Math.floor(daysBetween(d, today())/7)) % 4) + 1;   // 1..4
+  const k=daysBetween(d, today());
+  if(k<0) return 1;                                          // âncora no futuro (ciclo comum começa numa segunda): ainda é semana 1
+  return (Math.floor(k/7) % 4) + 1;   // 1..4
 }
 /* ============ PAUSA LONGA RECOMEÇA O MESOCICLO (2026-09-26) ============
    O relógio do mesociclo era calendário puro: uma semana de viagem avançava a fase sem
@@ -8516,6 +8534,7 @@ async function boot(){
 setTimer(105);
 migrateLogsStableId();
 try{ migrarPlanoRecomposicao(); }catch(e){ console.error('migração do plano', e); }
+try{ ancorarCicloComum(); }catch(e){}   // ciclo igual ao dele (15/11/2026), depois da migração (que recomeça o ciclo)
 /* Primeiro boot com mesociclo: ancora hoje, pra ela começar na semana 1 (base) em vez de
    cair no meio de um ciclo calculado de trás pra frente. */
 if(!(ST.meta && ST.meta.mesoDesde)){ ST.meta=ST.meta||{}; ST.meta.mesoDesde=today(); saveK('meta'); }

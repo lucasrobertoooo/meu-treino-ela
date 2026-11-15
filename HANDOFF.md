@@ -63,6 +63,11 @@ PWA single-file de treino pra ela. **iPhone (desde 19/09/2026) — e o Android a
 
 O desencontro de 14/11 (treino D): ela muito provavelmente ainda estava na versão antiga (D antigo ≈ 89 min) e ele numa semana de ciclo diferente (a semana 4 dele corta pela metade). **Pendente:** igualar regra e calendário do ciclo nos dois apps (decisão do Lucas); bike 30 no treino 4 dela (decisão dela).
 
+### Ciclo comum aos dois apps (2026-11-15.02, decisão do Lucas)
+Os dois apps usam a mesma regra (a do plano dela): semanas 1-3 com as mesmas séries, semana 4 com 1 série a menos em cada exercício. Saíram, no app dele, o +1 da semana 3 e a metade da semana 4. `ancorarCicloComum()` põe `mesoDesde='2026-11-16'` (segunda) uma vez por aparelho e guarda a anterior em `mesoAntesComum`; âncora no futuro conta como semana 1. Pausa de 7+ dias e semana leve antecipada ainda re-ancoram cada app sozinho (desencontra os dois de novo — avisar se acontecer).
+
+Duração (modelo): semanas 1-3 dele 68/73/68/75, dela 67/74/69/62 (+ dia 5: 40); semana 4 dele 51/52/51/54, dela 55/64/56/50.
+
 ### Auditoria de 15/11/2026 (3 auditores em paralelo: sessão, progressão, camadas) — os DOIS apps
 Testes: `tools/tests/t_correcoes.js` (34 checagens, uma por achado confirmado).
 - **Sessão esquecida cronometrava por dias.** Nada encerrava `ST.session.active`. Agora `encerrarSessaoVelha()` (boot, volta pro app, antes do auto-start) fecha sessão de outro dia ou com 90 min sem set, com fim no `lastSetAt` (carimbado a cada set). Sem set: descarta. `endSession` não grava registro de 0 sets (bloqueava o dia), data pelo `startAt`, sets dos dias que a sessão cobriu (meia-noite). Marcar set de OUTRO treino fecha a sessão anterior.
