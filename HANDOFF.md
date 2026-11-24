@@ -2,7 +2,15 @@
 
 PWA single-file de treino pra ela. **iPhone (desde 19/09/2026) — e o Android antigo enquanto durar; os dois sincronizam pelo mesmo Worker.** Fork do MeuTreino (do Lucas) que **já divergiu bastante** — não assuma que o que vale lá vale aqui.
 
-**Última atualização:** 2026-11-15.01 (**Ajustes dela + auditoria** — treino 2 enxuto com graviton e bike 35, búlgaro e abdominal no 3, dia 5 só bike; sessão esquecida, semana leve como referência, atualização do PWA e mais 8 achados corrigidos. SHELL v82)
+**Última atualização:** 2026-11-24.02 (Meta por série e graviton ao contrário. SHELL v85)
+
+### Meta por série (2026-11-24.02) — os dois apps, parâmetros diferentes
+A Meta era um número único tirado da pior série, e a carga só subia com todas no topo. Agora cada série parte do que ela fez (`alvosPorSerie`), a carga sobe por `topoAtingido`, e o card mostra o esforço (`metaTxt`/`esforcoTxt`).
+- **Aqui (recomposição e glúteo, déficit, joelho):** composto mira RIR 2 (1 a 3 sobrando, para se doer ou a técnica falhar) e só sobe com a pior série a 1 rep do topo; isolador 0 a 2; exercício com "leve" no nome, semana leve e volta de pausa não cobram esforço. No app do Lucas: composto RIR 1, folga 2.
+- **Graviton:** o kg é AJUDA. A regra somava peso (30 → 32,5 = mais fácil) e lia tirar ajuda como queda. `ehAssistida`/`suggestAssistida`: bate o topo, tira um degrau; recorde, curva, travado, fadiga global e aquecimento ignoram. Presume que ela anota a assistência.
+- As folgas são regra prática, não número de estudo. Testes: `MeuTreino/tools/tests/t_esforco_ela.js` (21).
+
+**Antes:** 2026-11-15.01 (**Ajustes dela + auditoria** — treino 2 enxuto com graviton e bike 35, búlgaro e abdominal no 3, dia 5 só bike; sessão esquecida, semana leve como referência, atualização do PWA e mais 8 achados corrigidos. SHELL v82)
 
 **Antes: 2026-11-09.01 (**Plano "Recomposição e glúteo"** — programa novo do documento dela, semana leve com 1 série a menos, descanso 105/55 s, e tempo do treino Normal · 45 min · Essencial. SHELL v81)
 
