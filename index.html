@@ -1966,7 +1966,7 @@
 
 <script>
 /* ============ VERSÃO (visível na aba Mais pra confirmar deploy) ============ */
-const APP_VERSION = '2026-11-24.02';
+const APP_VERSION = '2026-11-24.03';
 
 /* ============ ÍCONES (Lucide, inline) ============ */
 const I = {
@@ -2991,7 +2991,7 @@ const PRINC = [
   ["red","trend","4. Abdutora 2×/semana, com carga","O glúteo médio (o formato lateral) só cresce com <b>abdução dedicada</b> — mas 2-3 dias com carga progressiva, <b>não todo dia</b> (abdução em excesso irrita o trato iliotibial e o joelho)."],
   ["blue","brain","5. Joelho: fortalece, não poupa","Fortalecer <b>quadríceps + abdutor de quadril</b> é tratamento de 1ª linha pra dor no joelho (JOSPT 2019). Trabalhe na amplitude <b>sem dor</b>; na extensora, não trave no final. Dor até ~5/10 que passa no dia seguinte é ok. <em>Se piorar, procura a fisio.</em>"],
   ["gold","trend","6. Volume é o motor","~12-20 séries duras de glúteo por semana é a faixa que cresce. Treinar mais dias só <b>distribui</b> esse volume, não soma mágica. Aba <b>Corpo → Volume</b> mostra quanto você fez de cada grupo."],
-  ["red","flame","7. Perto da falha, sem moer","Deixe <b>0-3 reps na reserva</b> (RIR). Não precisa falhar toda série — a vantagem é mínima e desgasta as articulações. Registre o RIR pra calibrar."],
+  ["red","flame","7. Perto da falha, sem moer","Deixe <b>1-3 reps na reserva</b> (RIR), como pede o seu plano. Não precisa falhar toda série — a vantagem é mínima e desgasta as articulações. Registre o RIR pra calibrar."],
   ["green","trend","8. Amplitude completa; posterior alongado","Amplitude total cresce mais. Posterior de coxa: prefira a <b>mesa flexora sentada</b> (quadril dobrado = músculo alongado = +14% vs deitada — Maeo 2021)."],
   ["gold","flame","9. Gordura = déficit lento + proteína","Emagrecer é <b>déficit na dieta</b> (~0,5-0,7%/semana) com <b>proteína ~2g/kg</b> pra preservar o glúteo. Devagar mantém o músculo e o resultado. O treino protege o músculo — não queima gordura sozinho."],
   ["blue","hourglass","10. Bike Z2: amiga do joelho","Bike (sem corrida) poupa o joelho <b>e</b> é o cardio que menos atrapalha o glúteo (Wilson 2012). 15 min todo dia de treino é a dose que cabe na rotina — quem emagrece é o déficit da dieta, o cardio é bônus de saúde (Thorogood 2011). Selim alto, resistência menor, cadência maior."],
@@ -4370,43 +4370,39 @@ function suggestFrom(sets, e, id){
   const baseInc = e.t==='comp' ? (maxKg>=40?5:2.5) : (maxKg>=20?2.5:1);
   const step = loadStepFor(id, e);
   const inc = step ? Math.max(step, Math.round(baseInc/step)*step) : baseInc;
-  if(topoAtingido(repsTop, rng, e)){
+  if(topoAtingido(repsTop, rng)){
     return {kg:maxKg+inc, reps:rng.min, why:"bateu o topo · sobe carga", de:maxKg, inc};
   }
-  const alvos=alvosPorSerie(done, rng, e);
+  const alvos=alvosPorSerie(done, rng);
   const reps=alvos[done.indexOf(topSets[0])].reps;
   return {kg:maxKg, reps, alvos, why: minRepsTop>=rng.min ? "mesma carga · supere a última" : "mesma carga · feche a faixa", de:maxKg, inc};
 }
 /* ============ META POR SÉRIE (2026-11-24.02) ============
-   Mesma ideia do app do Lucas, com os parâmetros DESTE plano (recomposição e glúteo, déficit
-   leve, joelho sensível): composto mira 2 reps sobrando (1 a 3) e só sobe a carga com a pior
-   série a 1 rep do topo; exercício "leve" do plano não cobra esforço.
-   Antes a Meta era um número só, tirado da PIOR série: quem seguia parava as primeiras com
-   reps sobrando, e a carga só subia com TODAS no topo. */
-function topoAtingido(reps, rng, e){
-  if(!reps.length) return false;
-  const teto = e && e.t==='comp' ? 1 : 2;
-  const folga=Math.min(teto, Math.floor((rng.max-rng.min)/2));
-  const media=reps.reduce((a,b)=>a+b,0)/reps.length;
-  return Math.max(...reps)>=rng.max && Math.min(...reps)>=rng.max-folga && media>=rng.max-1;
+   As regras são as do PLANO dela (documento de 09/11/2026), não as do app do Lucas:
+   "Termine cada série com 1 a 3 repetições sobrando, sem chegar à falha total" e "Aumente a
+   carga assim que fizer o topo das repetições em TODAS as séries". Não afrouxar isto.
+   O que muda é só o alvo por série: antes era um número só, tirado da PIOR, e quem seguia
+   parava as primeiras com mais reps sobrando do que o plano pede. */
+function topoAtingido(reps, rng){
+  return reps.length>0 && Math.min(...reps)>=rng.max;
 }
-/* Cada série parte do que ELA fez. Sobrou mais que o alvo de RIR: soma a diferença (até +2).
-   No alvo ou abaixo: repete, e só a 1ª série abaixo do topo ganha +1. Sem RIR anotado: +1. */
-function alvosPorSerie(done, rng, e){
-  const alvoRir = e && e.t==='comp' ? 2 : 1;
+/* Cada série parte do que ELA fez. Sobrou mais que 3 (fora do plano): soma a diferença até 2,
+   no máximo +2. Entre 1 e 3: está no plano, repete, e só a 1ª série abaixo do topo ganha +1.
+   RIR 0 (falha): repete, sem pedir mais. Sem RIR anotado: +1. */
+function alvosPorSerie(done, rng){
   let deuUm=false;
   return done.map(x=>{
     const r=num(x.reps), kg=num(x.kg);
     if(r>=rng.max) return {kg, reps:rng.max, mais:true};
     const temRir=String(x.rir==null?'':x.rir).trim()!=='';
     const rir=temRir ? num(x.rir) : null;
-    let soma = rir==null ? 1 : (rir>alvoRir ? Math.min(2, rir-alvoRir) : 0);
-    if(soma===0 && !deuUm) soma=1;
+    let soma = rir==null ? 1 : (rir>3 ? Math.min(2, rir-2) : 0);
+    if(soma===0 && rir>=1 && !deuUm) soma=1;
     if(soma>0) deuUm=true;
     return {kg, reps:Math.min(rng.max, Math.max(rng.min, r+soma))};
   });
 }
-function semEsforco(sug, e){ return /semana leve/.test(sug.why||'') || !!sug.volta || /\bleve\b/i.test(e.n||''); }
+function semEsforco(sug){ return /semana leve/.test(sug.why||'') || !!sug.volta; }
 function metaTxt(sug, e, nsets){
   const un = ehAssistida(e) ? 'kg de ajuda' : 'kg';
   if(sug.alvos && sug.alvos.length){
@@ -4415,14 +4411,12 @@ function metaTxt(sug, e, nsets){
     const f=x=>(um?'':fmtKg(x.kg)+'×')+x.reps+(x.mais?'+':'');
     return (um?fmtKg(a[0].kg)+un+' · ':'')+a.map(f).join(' / ')+(um||un==='kg'?'':' (ajuda)');
   }
-  return fmtKg(sug.kg)+un+' × '+sug.reps+(semEsforco(sug,e)?'':'+');
+  return fmtKg(sug.kg)+un+' × '+sug.reps+(semEsforco(sug)?'':'+');
 }
 function esforcoTxt(sug, e){
-  if(semEsforco(sug,e)) return '';
+  if(semEsforco(sug)) return '';
   const rng=parseRange(e.r); if(rng.tempo||rng.livre) return '';
-  if(e.t!=='comp') return 'A Meta é o mínimo: pare com 0 a 2 reps sobrando.';
-  const inferior=Object.keys(e.mg||{}).some(m=>/^(quadriceps|gluteo|posterior)/.test(m));
-  return 'A Meta é o mínimo: pare com 1 a 3 reps sobrando'+(inferior?', ou antes se a técnica falhar ou doer.':'.');
+  return 'Termine cada série com 1 a 3 reps sobrando, sem falhar.';
 }
 /* ============ GRAVITON: O PESO É AJUDA (2026-11-24.02) ============
    No graviton o kg anotado é assistência: MENOS kg = mais difícil. A regra comum somava peso
@@ -4441,9 +4435,9 @@ function suggestAssistida(sets, e, id, v){
   if(v) return {...base, reps:rng.min, why:'volta de pausa · mesma ajuda ou um pouco mais', volta:v};
   if(emDeload()) return {...base, reps:Math.max(...top.map(s=>num(s.reps))), why:'semana leve · mesma ajuda, longe da falha'};
   const passo=inferLoadStep(id)||5;
-  if(top.length*2>=done.length && topoAtingido(top.map(s=>num(s.reps)), rng, e) && minKg-passo>0)
+  if(top.length===done.length && topoAtingido(top.map(s=>num(s.reps)), rng) && minKg-passo>0)
     return {kg:minKg-passo, reps:rng.min, why:'bateu o topo · tira um degrau de ajuda', de:minKg, inc:-passo};
-  const alvos=alvosPorSerie(done, rng, e);
+  const alvos=alvosPorSerie(done, rng);
   return {...base, reps:alvos[done.indexOf(top[0])].reps, alvos, why:'mesma ajuda · supere a última'};
 }
 /* Sessão que serve de ÂNCORA pra próxima meta.
@@ -5830,7 +5824,7 @@ function renderDay(d){
         ${e.t==='cardio' ? '<div class="colhead r-cardio"><span></span><span>min</span><span></span></div>' : '<div class="colhead r4"><span></span><span>kg</span><span>reps</span><span>RIR</span><span></span></div>'}
         ${rows}
         ${e.t==='cardio' ? '' : `<button class="addset" onclick="addSet('${id}')">${I.plus}<span>Série extra${nset>planned?` · ${nset-planned} a mais`:''}</span></button>`}
-        <div class="loghint"><span>RIR = reps em reserva (0-2 = ideal)</span><span class="saved" id="sv_${id}">${I.check2} salvo</span></div>
+        <div class="loghint"><span>RIR = reps em reserva (1-3 no seu plano)</span><span class="saved" id="sv_${id}">${I.check2} salvo</span></div>
         ${dayCommentBlock('logs', id)}
       </div>
       ${e.t==='cardio' ? '' : `<button class="restbig" onclick="openTimer(${restS})">${I.timer}<span>Descanso ${Math.floor(restS/60)}:${String(restS%60).padStart(2,'0')}</span></button>`}
